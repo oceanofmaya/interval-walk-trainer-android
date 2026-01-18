@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.0-beta.5 - 2026-01-18
+
+#### Bug Fixes
+
+- Fixed vibration not triggering on workout completion
+- Improved vibration reliability across all phase transitions
+
 ### 1.0.0-beta.4 - 2026-01-18
 
 #### UI/UX Improvements
