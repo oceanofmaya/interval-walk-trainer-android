@@ -61,19 +61,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if version files changed
-        id: check_changes
-        run: |
-          if git diff --name-only HEAD~1 HEAD | grep -E "(app/build.gradle.kts|CHANGELOG.md)" > /dev/null; then
-            echo "CHANGED=true" >> $GITHUB_OUTPUT
-            echo "Version files changed, will check for tag creation"
-          else
-            echo "CHANGED=false" >> $GITHUB_OUTPUT
-            echo "Version files not changed, skipping tag creation"
-          fi
-
       - name: Extract version from build.gradle.kts
-        if: steps.check_changes.outputs.CHANGED == 'true'
         id: version
         run: |
           VERSION=$(grep 'versionName = ' app/build.gradle.kts | sed 's/.*versionName = "\([^"]*\)".*/\1/')
@@ -81,7 +69,6 @@ jobs:
           echo "Detected version: $VERSION"
 
       - name: Check if tag already exists
-        if: steps.check_changes.outputs.CHANGED == 'true'
         id: check_tag
         run: |
           TAG_NAME="v${{ steps.version.outputs.VERSION }}"
@@ -95,7 +82,7 @@ jobs:
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
 
       - name: Create and push tag
-        if: steps.check_changes.outputs.CHANGED == 'true' && steps.check_tag.outputs.EXISTS == 'false'
+        if: steps.check_tag.outputs.EXISTS == 'false'
         id: create_tag
         run: |
           TAG_NAME="${{ steps.check_tag.outputs.TAG_NAME }}"
