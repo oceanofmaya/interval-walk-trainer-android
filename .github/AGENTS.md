@@ -12,7 +12,7 @@ When working on this repository, please adhere to the following coding standards
 - **Kotlin**: 2.0.21
 - **compileSdk**: 34
 - **minSdk**: 24 (Android 7.0)
-- **targetSdk**: 34
+- **targetSdk**: 35
 
 When making code suggestions:
 

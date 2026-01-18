@@ -3,6 +3,7 @@ package com.oceanofmaya.intervalwalktrainer
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
@@ -21,6 +22,9 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updatePadding
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -55,6 +59,8 @@ open class MainActivity : AppCompatActivity() {
     private var isRestoringTimerState = false
     private lateinit var workoutRepository: WorkoutRepository
     private var lastDisplayedTime = -1
+    private var lastDisplayedPhase: IntervalPhase? = null
+    private var hasShownCompletionConfetti = false
 
     companion object {
         // SharedPreferences keys
@@ -93,8 +99,8 @@ open class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        // Apply safe area padding for edge-to-edge screens
-        setupWindowInsets()
+        // Configure edge-to-edge and apply safe area insets
+        setupEdgeToEdge()
 
         // Allow dependency injection for testing, otherwise create default instance
         if (notificationHelper == null) {
@@ -124,27 +130,26 @@ open class MainActivity : AppCompatActivity() {
      * Sets up window insets to handle safe areas for edge-to-edge screens.
      * Applies top padding to account for status bar overlap.
      */
-    private fun setupWindowInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
+    private fun setupEdgeToEdge() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+
+        val isDarkTheme = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+        WindowInsetsControllerCompat(window, binding.root).apply {
+            isAppearanceLightStatusBars = !isDarkTheme
+            isAppearanceLightNavigationBars = !isDarkTheme
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.mainScrollView) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            // Get the ConstraintLayout inside the NestedScrollView
-            val contentLayout = (view as? androidx.core.widget.NestedScrollView)?.getChildAt(0)
-            contentLayout?.let {
-                // Preserve existing padding and add system bar insets
-                // Note: Convert dp to pixels correctly by multiplying before converting to int
-                val density = resources.displayMetrics.density
-                val originalPaddingStart = (24 * density).toInt()
-                val originalPaddingEnd = (24 * density).toInt()
-                val originalPaddingTop = (32 * density).toInt()
-                val originalPaddingBottom = (32 * density).toInt()
-                it.setPadding(
-                    originalPaddingStart,
-                    originalPaddingTop + insets.top,
-                    originalPaddingEnd,
-                    originalPaddingBottom + insets.bottom
-                )
-            }
-            // Return the insets to allow propagation to child views
+            view.updatePadding(
+                left = insets.left,
+                top = insets.top,
+                right = insets.right,
+                bottom = insets.bottom
+            )
             windowInsets
         }
     }
@@ -153,8 +158,16 @@ open class MainActivity : AppCompatActivity() {
      * Performs haptic feedback for button taps.
      * Uses KEYBOARD_TAP for a subtle, consistent tap feedback.
      */
-    private fun performHapticFeedback(view: View) {
-        view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+    private fun performHapticFeedback(view: View, feedbackType: Int = HapticFeedbackConstants.KEYBOARD_TAP) {
+        view.performHapticFeedback(feedbackType)
+    }
+
+    private fun hapticSelection(view: View) {
+        performHapticFeedback(view, HapticFeedbackConstants.VIRTUAL_KEY)
+    }
+
+    private fun hapticSuccess(view: View) {
+        performHapticFeedback(view, HapticFeedbackConstants.CONFIRM)
     }
     
     override fun onSaveInstanceState(outState: Bundle) {
@@ -356,7 +369,7 @@ open class MainActivity : AppCompatActivity() {
 
     private fun setupStatsButton() {
         binding.statsButton.setOnClickListener { view ->
-            performHapticFeedback(view)
+            hapticSelection(view)
             val intent = android.content.Intent(this, StatsActivity::class.java)
             startActivity(intent)
         }
@@ -367,7 +380,7 @@ open class MainActivity : AppCompatActivity() {
         updateFormulaDetails()
         
         binding.formulaButton.setOnClickListener { view ->
-            performHapticFeedback(view)
+            hapticSelection(view)
             showFormulaSelectorDialog()
         }
         
@@ -652,7 +665,7 @@ open class MainActivity : AppCompatActivity() {
         }
         
         createButton.setOnClickListener { btn ->
-            performHapticFeedback(btn)
+            hapticSuccess(btn)
             // Create custom formula
             val customFormula = if (isCircuitMode) {
                 // Circuit: pattern repeats, totalIntervals = rounds * 2 (each circuit = 2 intervals)
@@ -707,7 +720,8 @@ open class MainActivity : AppCompatActivity() {
 
     private fun setupControls() {
         binding.startPauseButton.setOnClickListener { view ->
-            performHapticFeedback(view)
+            hapticSuccess(view)
+            animateControlPress(binding.startPauseButton)
             if (intervalTimer?.state?.value?.isRunning == true) {
                 pauseTimer()
             } else {
@@ -717,11 +731,12 @@ open class MainActivity : AppCompatActivity() {
 
         binding.resetButton.setOnClickListener { view ->
             performHapticFeedback(view)
+            animateControlPress(binding.resetButton)
             resetTimer()
         }
 
         binding.vibrationButton.setOnClickListener { view ->
-            performHapticFeedback(view)
+            hapticSelection(view)
             val currentEnabled = sharedPreferences.getBoolean(KEY_VIBRATION_ENABLED, true)
             val newEnabled = !currentEnabled
             sharedPreferences.edit { putBoolean(KEY_VIBRATION_ENABLED, newEnabled) }
@@ -732,7 +747,7 @@ open class MainActivity : AppCompatActivity() {
         setupVoiceButtonListener()
         
         binding.themeButton.setOnClickListener { view ->
-            performHapticFeedback(view)
+            hapticSelection(view)
             val currentNightMode = AppCompatDelegate.getDefaultNightMode()
             val isDarkMode = currentNightMode == AppCompatDelegate.MODE_NIGHT_YES
             val newNightMode = if (isDarkMode) {
@@ -797,7 +812,7 @@ open class MainActivity : AppCompatActivity() {
      */
     private fun setupVoiceButtonListener() {
         binding.voiceButton.setOnClickListener { view ->
-            performHapticFeedback(view)
+            hapticSelection(view)
             val currentEnabled = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, false)
             val newEnabled = !currentEnabled
             
@@ -826,6 +841,7 @@ open class MainActivity : AppCompatActivity() {
 
         // Acquire wake lock to keep device awake during timer
         acquireWakeLock()
+        hasShownCompletionConfetti = false
         intervalTimer?.start()
         
         updateButtonStates()
@@ -843,6 +859,7 @@ open class MainActivity : AppCompatActivity() {
         intervalTimer = null
         // Release wake lock when reset
         releaseWakeLock()
+        hasShownCompletionConfetti = false
 
         intervalTimer = createIntervalTimer()
         observeTimerState()
@@ -858,6 +875,12 @@ open class MainActivity : AppCompatActivity() {
         if (timeChanged && state.isRunning) {
             // Add subtle pulse animation when time changes during active workout
             animateCountdownUpdate()
+        }
+
+        if (state.currentPhase is IntervalPhase.Completed && !hasShownCompletionConfetti) {
+            hasShownCompletionConfetti = true
+            hapticSuccess(binding.root)
+            binding.confettiView.launch()
         }
         
         binding.timeDisplay.text = formatTime(newTime)
@@ -880,6 +903,11 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun updatePhaseDisplay(phase: IntervalPhase) {
+        if (phase != lastDisplayedPhase) {
+            animatePhaseTransition()
+            lastDisplayedPhase = phase
+        }
+
         when (phase) {
             is IntervalPhase.Slow -> {
                 binding.phaseLabel.text = getString(R.string.slow_phase)
@@ -893,6 +921,25 @@ open class MainActivity : AppCompatActivity() {
                 binding.phaseLabel.text = getString(R.string.completed)
                 binding.phaseLabel.setTextColor(getColor(R.color.text_secondary))
             }
+        }
+    }
+
+    private fun animatePhaseTransition() {
+        val phaseScaleX = PropertyValuesHolder.ofFloat("scaleX", 0.96f, 1.0f)
+        val phaseScaleY = PropertyValuesHolder.ofFloat("scaleY", 0.96f, 1.0f)
+        val phaseAlpha = PropertyValuesHolder.ofFloat("alpha", 0.7f, 1.0f)
+        ObjectAnimator.ofPropertyValuesHolder(binding.phaseLabel, phaseScaleX, phaseScaleY, phaseAlpha).apply {
+            duration = 180
+            interpolator = DecelerateInterpolator()
+            start()
+        }
+
+        val timeScaleX = PropertyValuesHolder.ofFloat("scaleX", 0.98f, 1.0f)
+        val timeScaleY = PropertyValuesHolder.ofFloat("scaleY", 0.98f, 1.0f)
+        ObjectAnimator.ofPropertyValuesHolder(binding.timeDisplay, timeScaleX, timeScaleY).apply {
+            duration = 180
+            interpolator = DecelerateInterpolator()
+            start()
         }
     }
 
@@ -1027,6 +1074,16 @@ open class MainActivity : AppCompatActivity() {
             getString(R.string.pause)
         } else {
             getString(R.string.start)
+        }
+    }
+
+    private fun animateControlPress(target: View) {
+        val scaleX = PropertyValuesHolder.ofFloat("scaleX", 0.97f, 1.0f)
+        val scaleY = PropertyValuesHolder.ofFloat("scaleY", 0.97f, 1.0f)
+        ObjectAnimator.ofPropertyValuesHolder(target, scaleX, scaleY).apply {
+            duration = 140
+            interpolator = DecelerateInterpolator()
+            start()
         }
     }
     
