@@ -12,11 +12,15 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
+import android.view.View
 import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -88,6 +92,9 @@ open class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        // Apply safe area padding for edge-to-edge screens
+        setupWindowInsets()
 
         // Allow dependency injection for testing, otherwise create default instance
         if (notificationHelper == null) {
@@ -111,6 +118,43 @@ open class MainActivity : AppCompatActivity() {
         } else {
             updateUI()
         }
+    }
+    
+    /**
+     * Sets up window insets to handle safe areas for edge-to-edge screens.
+     * Applies top padding to account for status bar overlap.
+     */
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Get the ConstraintLayout inside the NestedScrollView
+            val contentLayout = (view as? androidx.core.widget.NestedScrollView)?.getChildAt(0)
+            contentLayout?.let {
+                // Preserve existing padding and add system bar insets
+                // Note: Convert dp to pixels correctly by multiplying before converting to int
+                val density = resources.displayMetrics.density
+                val originalPaddingStart = (24 * density).toInt()
+                val originalPaddingEnd = (24 * density).toInt()
+                val originalPaddingTop = (32 * density).toInt()
+                val originalPaddingBottom = (32 * density).toInt()
+                it.setPadding(
+                    originalPaddingStart,
+                    originalPaddingTop + insets.top,
+                    originalPaddingEnd,
+                    originalPaddingBottom + insets.bottom
+                )
+            }
+            // Return the insets to allow propagation to child views
+            windowInsets
+        }
+    }
+    
+    /**
+     * Performs haptic feedback for button taps.
+     * Uses KEYBOARD_TAP for a subtle, consistent tap feedback.
+     */
+    private fun performHapticFeedback(view: View) {
+        view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
     }
     
     override fun onSaveInstanceState(outState: Bundle) {
@@ -311,7 +355,8 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun setupStatsButton() {
-        binding.statsButton.setOnClickListener {
+        binding.statsButton.setOnClickListener { view ->
+            performHapticFeedback(view)
             val intent = android.content.Intent(this, StatsActivity::class.java)
             startActivity(intent)
         }
@@ -321,7 +366,8 @@ open class MainActivity : AppCompatActivity() {
         binding.formulaButton.text = currentFormula.name
         updateFormulaDetails()
         
-        binding.formulaButton.setOnClickListener {
+        binding.formulaButton.setOnClickListener { view ->
+            performHapticFeedback(view)
             showFormulaSelectorDialog()
         }
         
@@ -551,54 +597,62 @@ open class MainActivity : AppCompatActivity() {
         
         updateDisplay()
         
-        // Set up increment/decrement buttons
-        slowDecrementButton.setOnClickListener {
+        // Set up increment/decrement buttons with haptic feedback
+        slowDecrementButton.setOnClickListener { btn ->
+            performHapticFeedback(btn)
             if (slowMinutes > 1) {
                 slowMinutes--
                 updateDisplay()
             }
         }
         
-        slowIncrementButton.setOnClickListener {
+        slowIncrementButton.setOnClickListener { btn ->
+            performHapticFeedback(btn)
             if (slowMinutes < 60) {
                 slowMinutes++
                 updateDisplay()
             }
         }
         
-        fastDecrementButton.setOnClickListener {
+        fastDecrementButton.setOnClickListener { btn ->
+            performHapticFeedback(btn)
             if (fastMinutes > 1) {
                 fastMinutes--
                 updateDisplay()
             }
         }
         
-        fastIncrementButton.setOnClickListener {
+        fastIncrementButton.setOnClickListener { btn ->
+            performHapticFeedback(btn)
             if (fastMinutes < 60) {
                 fastMinutes++
                 updateDisplay()
             }
         }
         
-        roundsDecrementButton.setOnClickListener {
+        roundsDecrementButton.setOnClickListener { btn ->
+            performHapticFeedback(btn)
             if (rounds > 1) {
                 rounds--
                 updateDisplay()
             }
         }
         
-        roundsIncrementButton.setOnClickListener {
+        roundsIncrementButton.setOnClickListener { btn ->
+            performHapticFeedback(btn)
             if (rounds < 100) {
                 rounds++
                 updateDisplay()
             }
         }
         
-        resetDefaultsButton.setOnClickListener {
+        resetDefaultsButton.setOnClickListener { btn ->
+            performHapticFeedback(btn)
             resetToDefaults()
         }
         
-        createButton.setOnClickListener {
+        createButton.setOnClickListener { btn ->
+            performHapticFeedback(btn)
             // Create custom formula
             val customFormula = if (isCircuitMode) {
                 // Circuit: pattern repeats, totalIntervals = rounds * 2 (each circuit = 2 intervals)
@@ -652,7 +706,8 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun setupControls() {
-        binding.startPauseButton.setOnClickListener {
+        binding.startPauseButton.setOnClickListener { view ->
+            performHapticFeedback(view)
             if (intervalTimer?.state?.value?.isRunning == true) {
                 pauseTimer()
             } else {
@@ -660,11 +715,13 @@ open class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.resetButton.setOnClickListener {
+        binding.resetButton.setOnClickListener { view ->
+            performHapticFeedback(view)
             resetTimer()
         }
 
-        binding.vibrationButton.setOnClickListener {
+        binding.vibrationButton.setOnClickListener { view ->
+            performHapticFeedback(view)
             val currentEnabled = sharedPreferences.getBoolean(KEY_VIBRATION_ENABLED, true)
             val newEnabled = !currentEnabled
             sharedPreferences.edit { putBoolean(KEY_VIBRATION_ENABLED, newEnabled) }
@@ -674,7 +731,8 @@ open class MainActivity : AppCompatActivity() {
         // Set up voice button listener
         setupVoiceButtonListener()
         
-        binding.themeButton.setOnClickListener {
+        binding.themeButton.setOnClickListener { view ->
+            performHapticFeedback(view)
             val currentNightMode = AppCompatDelegate.getDefaultNightMode()
             val isDarkMode = currentNightMode == AppCompatDelegate.MODE_NIGHT_YES
             val newNightMode = if (isDarkMode) {
@@ -738,7 +796,8 @@ open class MainActivity : AppCompatActivity() {
      * Sets up the voice button listener. Called during initial setup and after preference restoration.
      */
     private fun setupVoiceButtonListener() {
-        binding.voiceButton.setOnClickListener {
+        binding.voiceButton.setOnClickListener { view ->
+            performHapticFeedback(view)
             val currentEnabled = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, false)
             val newEnabled = !currentEnabled
             

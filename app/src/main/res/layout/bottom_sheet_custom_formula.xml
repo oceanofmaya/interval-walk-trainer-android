@@ -361,7 +361,10 @@
                 android:text="@string/fast_slow_fast"
                 android:checked="true"
                 android:textColor="@color/text_primary"
-                android:buttonTint="@color/primary" />
+                android:buttonTint="@color/primary"
+                android:textSize="12sp"
+                android:singleLine="true"
+                android:ellipsize="end" />
 
             <android.widget.RadioButton
                 android:id="@+id/slowFastSlowRadio"
@@ -370,7 +373,10 @@
                 android:layout_weight="1"
                 android:text="@string/slow_fast_slow"
                 android:textColor="@color/text_primary"
-                android:buttonTint="@color/primary" />
+                android:buttonTint="@color/primary"
+                android:textSize="12sp"
+                android:singleLine="true"
+                android:ellipsize="end" />
         </android.widget.RadioGroup>
     </LinearLayout>
 
