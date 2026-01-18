@@ -54,3 +54,5 @@ All changes merged into this repository must include:
    - List items under each category describing the changes
 
 2. **Version Update**: Update the version in all locations to match the version in `CHANGELOG.md` following [semantic versioning](https://semver.org/):
+   - Update `versionName` in `app/build.gradle.kts` to match the semantic version (e.g., `1.0.0`, `1.1.0`, `2.0.0`)
+   - **Increment `versionCode`** in `app/build.gradle.kts` - this integer must be incremented for each release, regardless of the semantic version change. The `versionCode` is used by the Google Play Store to determine which version is newer and must always increase with each release.
