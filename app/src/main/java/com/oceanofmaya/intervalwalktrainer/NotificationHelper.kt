@@ -2,6 +2,8 @@ package com.oceanofmaya.intervalwalktrainer
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -163,56 +165,71 @@ open class NotificationHelper(private val context: Context) {
             speak(message)
         }
         
-        // 2. Handle vibration completely independently
+        // 2. Handle vibration
+        // For Completed phase: execute immediately since wake lock will be released right after
+        // For other phases: delay slightly to avoid interfering with TTS audio focus acquisition
         if (useVibration) {
-            // Execute vibration on a background thread to avoid ANY UI/Main thread blocking
-            // that could interfere with TTS processing which often needs main thread Looper.
-            // Also using a longer delay (500ms) to ensure TTS has acquired focus and started.
-            Thread {
+            val vibrationRunnable = Runnable {
+                Log.d(TAG, "Executing vibration for phase: $phase")
                 try {
-                    Thread.sleep(500) 
-                    when (phase) {
-                        is IntervalPhase.Slow -> {
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                val amplitude = (VibrationEffect.DEFAULT_AMPLITUDE * 0.3).toInt().coerceAtLeast(1)
-                                vibrate(150, amplitude)
-                            } else {
-                                @Suppress("DEPRECATION")
-                                vibrate(150)
-                            }
-                        }
-                        is IntervalPhase.Fast -> {
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                val pattern = longArrayOf(0, 200, 100, 200)
-                                // Create amplitudes array using default value where appropriate
-                                val defaultAmp = VibrationEffect.DEFAULT_AMPLITUDE
-                                val amplitudes = intArrayOf(0, defaultAmp, 0, defaultAmp)
-                                vibrator?.vibrate(VibrationEffect.createWaveform(pattern, amplitudes, -1))
-                            } else {
-                                @Suppress("DEPRECATION")
-                                vibrate(400)
-                            }
-                        }
-                        is IntervalPhase.Completed -> {
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                                val pattern = longArrayOf(0, 200, 150, 200, 150, 200)
-                                val defaultAmp = VibrationEffect.DEFAULT_AMPLITUDE
-                                val amplitudes = intArrayOf(0, defaultAmp, 0, defaultAmp, 0, defaultAmp)
-                                vibrator?.vibrate(VibrationEffect.createWaveform(pattern, amplitudes, -1))
-                            } else {
-                                @Suppress("DEPRECATION")
-                                vibrate(200)
-                                Thread.sleep(300)
-                                vibrate(200)
-                                Thread.sleep(300)
-                                vibrate(200)
-                            }
-                        }
-                    }
+                    executeVibration(phase)
                 } catch (e: Exception) {
-                    Log.e(TAG, "Error during background vibration", e)
+                    Log.e(TAG, "Error during vibration", e)
                 }
-            }.start()
+            }
+            
+            if (phase is IntervalPhase.Completed) {
+                // Execute immediately for completion - wake lock releases right after
+                vibrationRunnable.run()
+            } else {
+                // Delay for other phases to let TTS acquire audio focus first
+                Handler(Looper.getMainLooper()).postDelayed(vibrationRunnable, 300)
+            }
+        }
+    }
+    
+    /**
+     * Executes the appropriate vibration pattern for the given phase.
+     */
+    private fun executeVibration(phase: IntervalPhase) {
+        when (phase) {
+            is IntervalPhase.Slow -> {
+                // Gentle single vibration for slow phase
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    // Use moderate amplitude (about 30% of max 255)
+                    vibrate(150, 75)
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrate(150)
+                }
+            }
+            is IntervalPhase.Fast -> {
+                // Strong double-pulse vibration for fast phase
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    val pattern = longArrayOf(0, 200, 100, 200)
+                    // Use strong amplitude (about 80% of max 255)
+                    val strongAmp = 200
+                    val amplitudes = intArrayOf(0, strongAmp, 0, strongAmp)
+                    vibrator?.vibrate(VibrationEffect.createWaveform(pattern, amplitudes, -1))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrate(400)
+                }
+            }
+            is IntervalPhase.Completed -> {
+                // Celebration pattern with three pulses for completion
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    val pattern = longArrayOf(0, 200, 150, 200, 150, 200)
+                    // Use full amplitude for celebration
+                    val fullAmp = 255
+                    val amplitudes = intArrayOf(0, fullAmp, 0, fullAmp, 0, fullAmp)
+                    vibrator?.vibrate(VibrationEffect.createWaveform(pattern, amplitudes, -1))
+                } else {
+                    // For older APIs, use a longer single vibration
+                    @Suppress("DEPRECATION")
+                    vibrate(600)
+                }
+            }
         }
     }
 
