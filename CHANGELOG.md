@@ -2,6 +2,14 @@
 
 ## Version 1
 
+### 1.0.0-beta.4 - 2026-01-18
+
+#### UI/UX Improvements
+
+- Added haptic feedback to all button taps across the app for tactile response
+- Added safe area padding above top navigation bar to prevent content overlap with status bar on edge-to-edge screens
+- Fixed circuit pattern radio button text overflow on smaller screens
+
 ### 1.0.0-beta.3 - 2026-01-17
 
 #### UI/UX Improvements

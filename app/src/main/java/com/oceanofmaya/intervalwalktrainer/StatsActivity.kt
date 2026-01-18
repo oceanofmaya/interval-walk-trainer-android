@@ -2,7 +2,9 @@ package com.oceanofmaya.intervalwalktrainer
 
 import android.graphics.Color
 import android.os.Bundle
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -55,8 +57,16 @@ class StatsActivity : AppCompatActivity() {
         loadWorkoutTypeDistribution()
     }
     
+    /**
+     * Performs haptic feedback for button taps.
+     */
+    private fun performHapticFeedback(view: View) {
+        view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+    }
+    
     private fun setupMonthNavigation() {
-        binding.prevMonthButton.setOnClickListener {
+        binding.prevMonthButton.setOnClickListener { view ->
+            performHapticFeedback(view)
             displayedMonth--
             if (displayedMonth < 0) {
                 displayedMonth = 11
@@ -69,7 +79,8 @@ class StatsActivity : AppCompatActivity() {
             updateTodayButtonVisibility()
         }
         
-        binding.nextMonthButton.setOnClickListener {
+        binding.nextMonthButton.setOnClickListener { view ->
+            performHapticFeedback(view)
             displayedMonth++
             if (displayedMonth > 11) {
                 displayedMonth = 0
@@ -84,7 +95,8 @@ class StatsActivity : AppCompatActivity() {
     }
     
     private fun setupTodayButton() {
-        binding.todayButton.setOnClickListener {
+        binding.todayButton.setOnClickListener { view ->
+            performHapticFeedback(view)
             val calendar = Calendar.getInstance()
             displayedYear = calendar.get(Calendar.YEAR)
             displayedMonth = calendar.get(Calendar.MONTH)
@@ -124,7 +136,8 @@ class StatsActivity : AppCompatActivity() {
     }
     
     private fun setupClearButton() {
-        binding.clearStatsButton.setOnClickListener {
+        binding.clearStatsButton.setOnClickListener { view ->
+            performHapticFeedback(view)
             showClearConfirmationDialog()
         }
     }
@@ -163,7 +176,8 @@ class StatsActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        binding.toolbar.setNavigationOnClickListener {
+        binding.toolbar.setNavigationOnClickListener { view ->
+            performHapticFeedback(view)
             finish()
         }
     }
@@ -653,7 +667,8 @@ class StatsActivity : AppCompatActivity() {
             
             // Make clickable if it has a workout
             if (hasWorkout) {
-                textView.setOnClickListener {
+                textView.setOnClickListener { view ->
+                    performHapticFeedback(view)
                     showWorkoutDetail(dateString)
                 }
                 textView.isClickable = true
