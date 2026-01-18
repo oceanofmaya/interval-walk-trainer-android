@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="MainActivityTest (No Coverage)" type="JUnit" factoryName="JUnit">
+    <module name="interval-walk-trainer.app.test" />
+    <option name="PACKAGE_NAME" value="com.oceanofmaya.intervalwalktrainer" />
+    <option name="MAIN_CLASS_NAME" value="com.oceanofmaya.intervalwalktrainer.MainActivityTest" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
+

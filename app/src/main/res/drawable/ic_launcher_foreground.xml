@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Background circle for better visibility -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,54 m-48,0 a48,48 0 1,1 96,0 a48,48 0 1,1 -96,0"/>
+    
+    <!-- Minimalist walking figure - larger and more prominent -->
+    <!-- Head (larger for better visibility) -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M54,18 a8.5,8.5 0 1,1 0,17 a8.5,8.5 0 1,1 0,-17"/>
+    
+    <!-- Body (connected to head) -->
+    <path
+        android:strokeColor="#2196F3"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M54,26.5 L54,60"/>
+    
+    <!-- Left arm (swinging back - natural walking motion) -->
+    <path
+        android:strokeColor="#2196F3"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M54,42 L40,64"/>
+    
+    <!-- Right arm (swinging forward - natural walking motion) -->
+    <path
+        android:strokeColor="#2196F3"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M54,42 L70,32"/>
+    
+    <!-- Left leg (back) -->
+    <path
+        android:strokeColor="#2196F3"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M54,60 L44,80"/>
+    
+    <!-- Right leg (forward) -->
+    <path
+        android:strokeColor="#2196F3"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M54,60 L64,76"/>
+    
+    <!-- Interval indicators - alternating dots representing fast/slow intervals -->
+    <!-- Bottom row only (cleaner design) -->
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M30,82 a3.5,3.5 0 1,1 0,7 a3.5,3.5 0 1,1 0,-7"/>
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M42,82 a3.5,3.5 0 1,1 0,7 a3.5,3.5 0 1,1 0,-7"/>
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M54,82 a3.5,3.5 0 1,1 0,7 a3.5,3.5 0 1,1 0,-7"/>
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M66,82 a3.5,3.5 0 1,1 0,7 a3.5,3.5 0 1,1 0,-7"/>
+    <path
+        android:fillColor="#E53935"
+        android:pathData="M78,82 a3.5,3.5 0 1,1 0,7 a3.5,3.5 0 1,1 0,-7"/>
+</vector>

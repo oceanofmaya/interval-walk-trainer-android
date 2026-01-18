@@ -1,0 +1,151 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+      - 'v*.*.*-*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'gradle'
+        
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+      
+    - name: Extract version from tag
+      id: tag_info
+      run: |
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        # Match vX.Y.Z or vX.Y.Z-suffix (e.g., v1.0.0-beta.1, v1.0.0-rc.2)
+        if [[ "$TAG_NAME" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)(-.*)?$ ]]; then
+          VERSION="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+          BASE_VERSION="${BASH_REMATCH[1]}"
+          SUFFIX="${BASH_REMATCH[2]}"
+          
+          # Determine if this is a beta/alpha/rc release
+          if [[ "$SUFFIX" =~ -(beta|alpha|rc) ]]; then
+            IS_PRERELEASE="true"
+            IS_DRAFT="true"
+          else
+            IS_PRERELEASE="false"
+            IS_DRAFT="false"
+          fi
+        else
+          echo "Error: Tag format must be vX.Y.Z or vX.Y.Z-suffix (e.g., v1.0.0, v1.0.0-beta.1)"
+          exit 1
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "BASE_VERSION=$BASE_VERSION" >> $GITHUB_OUTPUT
+        echo "IS_PRERELEASE=$IS_PRERELEASE" >> $GITHUB_OUTPUT
+        echo "IS_DRAFT=$IS_DRAFT" >> $GITHUB_OUTPUT
+        echo "Tag: $TAG_NAME, Version: $VERSION, Prerelease: $IS_PRERELEASE, Draft: $IS_DRAFT"
+      
+    - name: Verify version matches build.gradle.kts
+      run: |
+        BUILD_VERSION=$(grep 'versionName = ' app/build.gradle.kts | sed 's/.*versionName = "\([^"]*\)".*/\1/')
+        TAG_VERSION="${{ steps.tag_info.outputs.VERSION }}"
+        if [ "$BUILD_VERSION" != "$TAG_VERSION" ]; then
+          echo "Error: Version mismatch!"
+          echo "Tag version: $TAG_VERSION"
+          echo "Build.gradle.kts version: $BUILD_VERSION"
+          echo "Please update app/build.gradle.kts to match the tag version."
+          exit 1
+        fi
+        echo "Version verification passed: $BUILD_VERSION"
+        if [ "${{ steps.tag_info.outputs.IS_PRERELEASE }}" = "true" ]; then
+          echo "This is a prerelease version for testing"
+        fi
+      
+    - name: Run tests
+      run: ./gradlew testDebugUnitTest
+      
+    - name: Run lint checks
+      run: ./gradlew lint
+      
+    - name: Setup signing
+      env:
+        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      run: |
+        if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ] && [ -n "$KEY_PASSWORD" ]; then
+          echo "Setting up signing configuration..."
+          echo "$KEYSTORE_BASE64" | base64 -d > app/keystore.jks
+          cat > app/keystore.properties << EOF
+        storePassword=$KEYSTORE_PASSWORD
+        keyPassword=$KEY_PASSWORD
+        keyAlias=interval-walk-trainer
+        storeFile=keystore.jks
+        EOF
+          echo "Signing configuration created"
+        else
+          echo "Warning: Signing secrets not configured. Release build may fail without signing."
+          echo "To enable signing, set GitHub secrets: KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_PASSWORD"
+        fi
+      
+    - name: Build Release APK
+      run: ./gradlew assembleRelease
+      
+    - name: Build Release AAB
+      run: ./gradlew bundleRelease
+      
+    - name: Verify artifacts exist
+      run: |
+        if [ ! -f "app/build/outputs/apk/release/app-release.apk" ]; then
+          echo "Error: Release APK not found"
+          exit 1
+        fi
+        if [ ! -f "app/build/outputs/bundle/release/app-release.aab" ]; then
+          echo "Error: Release AAB not found"
+          exit 1
+        fi
+        echo "Artifacts verified successfully"
+      
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          app/build/outputs/apk/release/app-release.apk
+          app/build/outputs/bundle/release/app-release.aab
+        name: Release ${{ steps.tag_info.outputs.VERSION }}
+        body: |
+          ## Version ${{ steps.tag_info.outputs.VERSION }}
+          
+          ${{ steps.tag_info.outputs.IS_PRERELEASE == 'true' && '⚠️ **This is a beta/prerelease version for testing**' || '' }}
+          
+          See [CHANGELOG.md](CHANGELOG.md) for details.
+          
+          ### Downloads
+          - **APK**: For direct installation
+          - **AAB**: For Google Play Store upload
+        draft: ${{ steps.tag_info.outputs.IS_DRAFT == 'true' }}
+        prerelease: ${{ steps.tag_info.outputs.IS_PRERELEASE == 'true' }}
