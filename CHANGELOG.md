@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.0-beta.3 - 2026-01-17
+
+#### UI/UX Improvements
+
+- Fixed adaptive icon padding to prevent edge cutoff on Android launchers
+- Improved icon visibility across different device mask shapes
+
 ### 1.0.0-beta.2 - 2026-01-17
 
 #### Changes
