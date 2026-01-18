@@ -10,6 +10,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -34,6 +38,8 @@ class StatsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityStatsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setupEdgeToEdge()
         
         // Initialize workout repository
         val database = AppDatabase.getDatabase(this)
@@ -62,6 +68,38 @@ class StatsActivity : AppCompatActivity() {
      */
     private fun performHapticFeedback(view: View) {
         view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+    }
+
+    private fun hapticSelection(view: View) {
+        view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+    }
+
+    private fun hapticSuccess(view: View) {
+        view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+    }
+
+    private fun setupEdgeToEdge() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+
+        val isDarkTheme = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+        WindowInsetsControllerCompat(window, binding.root).apply {
+            isAppearanceLightStatusBars = !isDarkTheme
+            isAppearanceLightNavigationBars = !isDarkTheme
+        }
+
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(binding.statsRoot) { _, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            binding.statsAppBar.updatePadding(top = insets.top)
+            binding.swipeRefreshLayout.updatePadding(
+                left = insets.left,
+                right = insets.right,
+                bottom = insets.bottom
+            )
+            windowInsets
+        }
     }
     
     private fun setupMonthNavigation() {
@@ -96,7 +134,7 @@ class StatsActivity : AppCompatActivity() {
     
     private fun setupTodayButton() {
         binding.todayButton.setOnClickListener { view ->
-            performHapticFeedback(view)
+            hapticSelection(view)
             val calendar = Calendar.getInstance()
             displayedYear = calendar.get(Calendar.YEAR)
             displayedMonth = calendar.get(Calendar.MONTH)
@@ -137,7 +175,7 @@ class StatsActivity : AppCompatActivity() {
     
     private fun setupClearButton() {
         binding.clearStatsButton.setOnClickListener { view ->
-            performHapticFeedback(view)
+            hapticSuccess(view)
             showClearConfirmationDialog()
         }
     }
@@ -177,7 +215,7 @@ class StatsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         binding.toolbar.setNavigationOnClickListener { view ->
-            performHapticFeedback(view)
+            hapticSelection(view)
             finish()
         }
     }

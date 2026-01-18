@@ -2,6 +2,16 @@
 
 ## Version 1
 
+### 1.0.0-beta.6 - 2026-01-18
+
+#### UI/UX Improvements
+
+- Added subtle phase transition animations for a more polished feel
+- Added a lightweight confetti overlay on workout completion
+- Enabled edge-to-edge layouts with dynamic insets across screens
+- Tuned haptics by action type for more consistent feedback
+- Enabled dynamic color (Material You) with contrast enforcement
+
 ### 1.0.0-beta.5 - 2026-01-18
 
 #### Bug Fixes

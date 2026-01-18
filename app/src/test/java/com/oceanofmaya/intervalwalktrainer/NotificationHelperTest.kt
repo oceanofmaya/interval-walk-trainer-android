@@ -78,6 +78,30 @@ class NotificationHelperTest {
     }
 
     @Test
+    fun `notifyPhaseChange supports vibration when enabled`() {
+        val context = mock(Context::class.java)
+        val helper = NotificationHelper(context)
+
+        // Should not throw when vibration is enabled
+        helper.notifyPhaseChange(IntervalPhase.Slow, useVoice = false, useVibration = true)
+        helper.notifyPhaseChange(IntervalPhase.Fast, useVoice = false, useVibration = true)
+        helper.notifyPhaseChange(IntervalPhase.Completed, useVoice = false, useVibration = true)
+
+        helper.release()
+    }
+
+    @Test
+    fun `notifyPhaseChange supports voice and vibration together`() {
+        val context = mock(Context::class.java)
+        val helper = NotificationHelper(context)
+
+        // Should not throw when both voice and vibration are enabled
+        helper.notifyPhaseChange(IntervalPhase.Completed, useVoice = true, useVibration = true)
+
+        helper.release()
+    }
+
+    @Test
     fun `testTts can be called without throwing`() {
         val context = mock(Context::class.java)
         val helper = NotificationHelper(context)
