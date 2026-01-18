@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.0.0-beta.2 - 2026-01-17
+
+#### Changes
+
+- Updated target SDK to API level 35 (Android 15) for Play Store compliance
+
 ### 1.0.0-beta.1 - 2025-01-17
 
 #### Beta Release

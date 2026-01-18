@@ -10,14 +10,14 @@ plugins {
 
 android {
     namespace = "com.oceanofmaya.intervalwalktrainer"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.oceanofmaya.intervalwalktrainer"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
-        versionName = "1.0.0-beta.1"
+        versionName = "1.0.0-beta.2"
     }
 
     signingConfigs {
