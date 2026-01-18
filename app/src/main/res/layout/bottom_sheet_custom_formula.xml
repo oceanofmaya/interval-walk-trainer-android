@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/background"
+    android:paddingTop="8dp"
+    android:paddingBottom="32dp"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/custom_formula"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:gravity="center"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp" />
+
+    <!-- Circuit Mode Toggle - Segmented Button Style -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/training_type"
+        android:textSize="14sp"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/modeToggleGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:singleSelection="true"
+        app:selectionRequired="true"
+        app:checkedButton="@+id/intervalModeButton">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/intervalModeButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="@string/interval_mode"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/stroke_light"
+            app:backgroundTint="@color/surface"
+            app:checkedIconTint="@color/white"
+            app:iconTint="@color/text_primary"
+            app:cornerRadius="12dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/circuitModeButton"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="@string/circuit_mode"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/stroke_light"
+            app:backgroundTint="@color/surface"
+            app:checkedIconTint="@color/white"
+            app:iconTint="@color/text_primary"
+            app:cornerRadius="12dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <!-- Slow Duration -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/slow_duration"
+        android:textSize="14sp"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="20dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/slowDecrementButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:text="−"
+            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            app:cornerRadius="12dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/stroke_light"
+            app:backgroundTint="@color/surface"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp" />
+
+        <TextView
+            android:id="@+id/slowDurationValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="3"
+            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:minHeight="56dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/slowIncrementButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:text="+"
+            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            app:cornerRadius="12dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/stroke_light"
+            app:backgroundTint="@color/surface"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp" />
+    </LinearLayout>
+
+    <!-- Fast Duration -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/fast_duration"
+        android:textSize="14sp"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="20dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/fastDecrementButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:text="−"
+            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            app:cornerRadius="12dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/stroke_light"
+            app:backgroundTint="@color/surface"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp" />
+
+        <TextView
+            android:id="@+id/fastDurationValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="3"
+            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:minHeight="56dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/fastIncrementButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:text="+"
+            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            app:cornerRadius="12dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/stroke_light"
+            app:backgroundTint="@color/surface"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp" />
+    </LinearLayout>
+
+    <!-- Rounds -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rounds"
+        android:textSize="14sp"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/roundsDecrementButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:text="−"
+            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            app:cornerRadius="12dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/stroke_light"
+            app:backgroundTint="@color/surface"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp" />
+
+        <TextView
+            android:id="@+id/roundsValue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="5"
+            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:minHeight="56dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/roundsIncrementButton"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:text="+"
+            android:textSize="24sp"
+            android:textColor="@color/text_primary"
+            app:cornerRadius="12dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/stroke_light"
+            app:backgroundTint="@color/surface"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp" />
+    </LinearLayout>
+
+    <!-- Start With / Circuit Pattern (same location, visibility toggled) -->
+    <LinearLayout
+        android:id="@+id/startWithContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:id="@+id/startWithLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/start_with"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <android.widget.RadioGroup
+            android:id="@+id/startWithGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <android.widget.RadioButton
+                android:id="@+id/slowFirstRadio"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/slow_first"
+                android:checked="true"
+                android:textColor="@color/text_primary"
+                android:buttonTint="@color/primary" />
+
+            <android.widget.RadioButton
+                android:id="@+id/fastFirstRadio"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/fast_first"
+                android:textColor="@color/text_primary"
+                android:buttonTint="@color/primary" />
+        </android.widget.RadioGroup>
+    </LinearLayout>
+
+    <!-- Circuit Pattern (same location as Start With, visibility toggled) -->
+    <LinearLayout
+        android:id="@+id/circuitPatternContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/circuit_pattern"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <android.widget.RadioGroup
+            android:id="@+id/circuitPatternGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <android.widget.RadioButton
+                android:id="@+id/fastSlowFastRadio"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/fast_slow_fast"
+                android:checked="true"
+                android:textColor="@color/text_primary"
+                android:buttonTint="@color/primary" />
+
+            <android.widget.RadioButton
+                android:id="@+id/slowFastSlowRadio"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/slow_fast_slow"
+                android:textColor="@color/text_primary"
+                android:buttonTint="@color/primary" />
+        </android.widget.RadioGroup>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="0dp"
+        android:gravity="center">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/resetDefaultsButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="@string/reset_to_defaults"
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_marginEnd="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/createButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="@string/create_and_start"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/button_primary"
+            app:cornerRadius="28dp"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+</LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
+

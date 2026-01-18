@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated:** November 2025
+**Last Updated:** December 2024
 
 ## Introduction
 
@@ -20,11 +20,27 @@ The app stores the following preferences locally on your device using Android's 
 - **Vibration Setting**: Whether vibration notifications are enabled
 - **Voice Setting**: Whether voice notifications are enabled
 
-This data is stored only on your device and is never transmitted or shared with us or any third parties.
+Additionally, the app stores workout history locally on your device using a local database:
+
+- **Workout History**: Dates on which you completed workouts, the number of workouts completed per day, and total minutes walked per day. This includes statistics such as workout streaks, total workouts, and total minutes walked.
+
+This data is stored only on your device and is never transmitted or shared with us or any third parties. All workout history data remains completely private and local to your device.
 
 ### Runtime Data
 
 During app usage, the app temporarily stores timer state (current interval, time remaining, phase) in memory. This data is not persisted and is cleared when you close the app or reset the timer.
+
+### Health and Fitness Data
+
+The app stores workout completion data locally on your device, including:
+
+- Dates when workouts were completed
+- Number of workouts completed per day
+- Total minutes walked per day
+
+This health and fitness data is stored locally using Android's Room database and is never transmitted, synced to the cloud, or shared with any third parties. You have full control over this data, and it can be completely removed by uninstalling the app.
+
+When you complete a workout, the app records the completion date, number of workouts for that day, and total minutes walked. This data is stored locally in a database on your device and is used only to display your workout history and statistics within the app.
 
 ## Permissions
 
@@ -59,7 +75,17 @@ Interval Walk Trainer does not knowingly collect any information from children. 
 
 ## Your Rights
 
-Since we do not collect personal data, there is no data to access, modify, or delete. All app preferences stored locally on your device can be cleared by uninstalling the app.
+Since we do not collect personal data, there is no data to access, modify, or delete from our servers. All app preferences and workout history stored locally on your device can be cleared by uninstalling the app. The app provides functionality to view your workout history and statistics, but this data never leaves your device.
+
+### Deleting Your Workout Data
+
+You can delete all your workout history and statistics at any time directly from within the app. The app includes a "Clear All" feature in the Stats screen that allows you to permanently delete all workout records, including:
+
+- All workout completion dates
+- All workout counts and minutes tracked
+- All statistics (streaks, totals, averages)
+
+This action is permanent and cannot be undone. After clearing your data, you can continue using the app and new workouts will be tracked from that point forward.
 
 ## Changes to This Privacy Policy
 

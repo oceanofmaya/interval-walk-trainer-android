@@ -1,0 +1,332 @@
+package com.oceanofmaya.intervalwalktrainer
+
+import android.content.Context
+import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import android.util.Log
+import java.util.Locale
+
+import android.media.AudioAttributes
+
+/**
+ * Handles notification mechanisms for phase changes: vibration patterns and text-to-speech.
+ * 
+ * Manages TTS lifecycle and provides distinct vibration patterns for different phases:
+ * - Slow phase: Gentle, low-intensity vibration
+ * - Fast phase: Strong double-pulse vibration pattern
+ * - Completed: Celebration pattern with three pulses
+ * 
+ * TTS initialization is asynchronous and includes robust error handling with language fallback.
+ * Messages are queued if TTS is not yet ready and will be spoken when initialization completes.
+ * 
+ * @param context Android context for accessing system services
+ */
+open class NotificationHelper(private val context: Context) {
+    private val vibrator: Vibrator? by lazy {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibratorManager.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        }
+    }
+
+    private var textToSpeech: TextToSpeech? = null
+    private var isTtsReady = false
+    private val pendingSpeech = mutableListOf<String>()
+    
+    companion object {
+        private const val TAG = "NotificationHelper"
+    }
+
+    init {
+        // Initialize TTS early to avoid lag on first use
+        initializeTts()
+    }
+
+    private fun initializeTts() {
+        Log.d(TAG, "Initializing TTS")
+        textToSpeech = TextToSpeech(context.applicationContext) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech?.let { tts ->
+                    try {
+                        // Try to set language to device default
+                        var langResult = tts.setLanguage(Locale.getDefault())
+                        
+                        if (langResult == TextToSpeech.LANG_MISSING_DATA || 
+                            langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                            // Fallback to US English
+                            Log.d(TAG, "Default language not supported, using English")
+                            langResult = tts.setLanguage(Locale.US)
+                        }
+                        
+                        if (langResult == TextToSpeech.LANG_MISSING_DATA || 
+                            langResult == TextToSpeech.LANG_NOT_SUPPORTED) {
+                            // Fallback to any English variant
+                            Log.d(TAG, "US English not supported, trying generic English")
+                            langResult = tts.setLanguage(Locale.ENGLISH)
+                        }
+                        
+                        if (langResult != TextToSpeech.LANG_MISSING_DATA && 
+                            langResult != TextToSpeech.LANG_NOT_SUPPORTED) {
+                            // Configure TTS for optimal performance
+                            tts.setSpeechRate(1.0f) // Normal speed
+                            tts.setPitch(1.0f) // Normal pitch
+                            
+                            // Set AudioAttributes for better prioritization
+                            val attributes = AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                                .build()
+                            tts.setAudioAttributes(attributes)
+                            
+                            // Set up listener for debugging
+                            tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                                override fun onStart(utteranceId: String?) {
+                                    Log.d(TAG, "TTS started: $utteranceId")
+                                }
+                                
+                                override fun onDone(utteranceId: String?) {
+                                    Log.d(TAG, "TTS completed: $utteranceId")
+                                }
+                                
+                                // Required by base class - delegates to new API
+                                @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+                                override fun onError(utteranceId: String?) {
+                                    // Delegate to the new non-deprecated method with generic error code
+                                    onError(utteranceId, -1)
+                                }
+                                
+                                override fun onError(utteranceId: String?, errorCode: Int) {
+                                    Log.e(TAG, "TTS error: $utteranceId, errorCode: $errorCode")
+                                }
+                            })
+                            
+                            isTtsReady = true
+                            Log.d(TAG, "TTS initialized successfully")
+                            
+                            // Speak any pending messages
+                            if (pendingSpeech.isNotEmpty()) {
+                                Log.d(TAG, "Speaking ${pendingSpeech.size} pending messages")
+                                pendingSpeech.forEach { text ->
+                                    speakNow(text)
+                                }
+                                pendingSpeech.clear()
+                            }
+                        } else {
+                            Log.e(TAG, "No supported language found for TTS")
+                            isTtsReady = false
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error configuring TTS", e)
+                        isTtsReady = false
+                    }
+                }
+            } else {
+                Log.e(TAG, "TTS initialization failed with status: $status")
+                isTtsReady = false
+                // Reset textToSpeech to null so we can try again later
+                textToSpeech = null
+            }
+        }
+    }
+
+    open fun vibrate(durationMillis: Long = 200, amplitude: Int = -1) {
+        vibrator?.let { v ->
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                val effectAmplitude = if (amplitude == -1) VibrationEffect.DEFAULT_AMPLITUDE else amplitude
+                v.vibrate(VibrationEffect.createOneShot(durationMillis, effectAmplitude))
+            } else {
+                @Suppress("DEPRECATION")
+                v.vibrate(durationMillis)
+            }
+        }
+    }
+
+
+    open fun notifyPhaseChange(phase: IntervalPhase, useVoice: Boolean, useVibration: Boolean) {
+        Log.d(TAG, "notifyPhaseChange: $phase, voice: $useVoice, vibe: $useVibration")
+        
+        // 1. Queue voice message IMMEDIATELY
+        if (useVoice) {
+            val message = when (phase) {
+                is IntervalPhase.Slow -> "Slow walk"
+                is IntervalPhase.Fast -> "Fast walk"
+                is IntervalPhase.Completed -> "Workout complete"
+            }
+            Log.d(TAG, "Speaking message: $message")
+            speak(message)
+        }
+        
+        // 2. Handle vibration completely independently
+        if (useVibration) {
+            // Execute vibration on a background thread to avoid ANY UI/Main thread blocking
+            // that could interfere with TTS processing which often needs main thread Looper.
+            // Also using a longer delay (500ms) to ensure TTS has acquired focus and started.
+            Thread {
+                try {
+                    Thread.sleep(500) 
+                    when (phase) {
+                        is IntervalPhase.Slow -> {
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                val amplitude = (VibrationEffect.DEFAULT_AMPLITUDE * 0.3).toInt().coerceAtLeast(1)
+                                vibrate(150, amplitude)
+                            } else {
+                                @Suppress("DEPRECATION")
+                                vibrate(150)
+                            }
+                        }
+                        is IntervalPhase.Fast -> {
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                val pattern = longArrayOf(0, 200, 100, 200)
+                                // Create amplitudes array using default value where appropriate
+                                val defaultAmp = VibrationEffect.DEFAULT_AMPLITUDE
+                                val amplitudes = intArrayOf(0, defaultAmp, 0, defaultAmp)
+                                vibrator?.vibrate(VibrationEffect.createWaveform(pattern, amplitudes, -1))
+                            } else {
+                                @Suppress("DEPRECATION")
+                                vibrate(400)
+                            }
+                        }
+                        is IntervalPhase.Completed -> {
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                val pattern = longArrayOf(0, 200, 150, 200, 150, 200)
+                                val defaultAmp = VibrationEffect.DEFAULT_AMPLITUDE
+                                val amplitudes = intArrayOf(0, defaultAmp, 0, defaultAmp, 0, defaultAmp)
+                                vibrator?.vibrate(VibrationEffect.createWaveform(pattern, amplitudes, -1))
+                            } else {
+                                @Suppress("DEPRECATION")
+                                vibrate(200)
+                                Thread.sleep(300)
+                                vibrate(200)
+                                Thread.sleep(300)
+                                vibrate(200)
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error during background vibration", e)
+                }
+            }.start()
+        }
+    }
+
+    /**
+     * Speaks the given text using TTS if available.
+     * Queues the message if TTS is not yet ready, and will speak it when initialization completes.
+     * Public method accessible from MainActivity for feedback messages.
+     */
+    open fun speak(text: String) {
+        Log.d(TAG, "Speak requested: $text (TTS ready: $isTtsReady)")
+        
+        if (isTtsReady && textToSpeech != null) {
+            speakNow(text)
+        } else {
+            // TTS not ready yet, queue the message
+            Log.d(TAG, "Queueing speech: $text")
+            if (!pendingSpeech.contains(text)) {
+                pendingSpeech.add(text)
+            }
+            
+            // Re-initialize if TTS was never created
+            if (textToSpeech == null) {
+                Log.d(TAG, "TTS is null, reinitializing")
+                initializeTts()
+            }
+        }
+    }
+    
+    /**
+     * Immediately speaks the given text, stopping any ongoing speech.
+     */
+    private fun speakNow(text: String) {
+        try {
+            textToSpeech?.let { tts ->
+                // Stop any ongoing speech for immediate response
+                tts.stop()
+                
+                // Use the modern API with Bundle instead of deprecated HashMap
+                val utteranceId = "phase_change_${System.currentTimeMillis()}"
+                val params = Bundle().apply {
+                    putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
+                }
+                
+                // Use QUEUE_FLUSH to ensure this message plays immediately, interrupting anything else
+                val result = tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, utteranceId)
+                
+                if (result == TextToSpeech.ERROR) {
+                    Log.e(TAG, "TTS speak() returned ERROR")
+                    // Try to recover by reinitializing
+                    isTtsReady = false
+                    tts.shutdown()
+                    textToSpeech = null
+                    initializeTts()
+                    if (!pendingSpeech.contains(text)) {
+                        pendingSpeech.add(text)
+                    }
+                } else {
+                    Log.d(TAG, "Successfully queued speech: $text")
+                }
+            } ?: run {
+                Log.e(TAG, "TTS is null when trying to speak")
+                pendingSpeech.add(text)
+                initializeTts()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception while speaking", e)
+            // Try to recover
+            isTtsReady = false
+            textToSpeech?.shutdown()
+            textToSpeech = null
+            initializeTts()
+            if (!pendingSpeech.contains(text)) {
+                pendingSpeech.add(text)
+            }
+        }
+    }
+
+    /**
+     * Announces the start of the workout with the initial phase.
+     */
+    open fun announceStart(startingPhase: IntervalPhase) {
+        val message = when (startingPhase) {
+            is IntervalPhase.Slow -> "Starting workout. Slow walk"
+            is IntervalPhase.Fast -> "Starting workout. Fast walk"
+            is IntervalPhase.Completed -> "Workout complete"
+        }
+        Log.d(TAG, "Announcing start: $message")
+        speak(message)
+    }
+    
+    /**
+     * Tests TTS by speaking a sample message.
+     * Useful for verifying TTS is working when user enables voice notifications.
+     */
+    open fun testTts() {
+        Log.d(TAG, "Testing TTS...")
+        speak("Voice notifications enabled")
+    }
+    
+    /**
+     * Returns whether TTS is currently ready to speak.
+     */
+    fun isTtsReady(): Boolean = isTtsReady
+    
+    /**
+     * Releases all resources. Call this when the helper is no longer needed.
+     */
+    open fun release() {
+        Log.d(TAG, "Releasing NotificationHelper resources")
+        textToSpeech?.stop()
+        textToSpeech?.shutdown()
+        textToSpeech = null
+        isTtsReady = false
+        pendingSpeech.clear()
+    }
+}
+

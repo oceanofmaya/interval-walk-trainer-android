@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Minimalist info icon: simple "i" in a circle -->
+    <!-- Circle outline -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#757575"
+        android:strokeWidth="1.5"
+        android:pathData="M12,2 C6.48,2 2,6.48 2,12 C2,17.52 6.48,22 12,22 C17.52,22 22,17.52 22,12 C22,6.48 17.52,2 12,2 Z"/>
+    <!-- Dot on top (small filled circle) -->
+    <path
+        android:fillColor="#757575"
+        android:pathData="M12,5.8 A1.2,1.2 0 1,1 12,8.2 A1.2,1.2 0 1,1 12,5.8 Z"/>
+    <!-- Vertical line (filled rectangle) -->
+    <path
+        android:fillColor="#757575"
+        android:pathData="M11.25,10 L12.75,10 L12.75,16 L11.25,16 Z"/>
+</vector>
