@@ -184,24 +184,29 @@ jobs:
         run: ./gradlew bundleRelease
 
       - name: Verify artifacts exist
+        id: artifacts
         run: |
-          if [ ! -f "app/build/outputs/apk/release/app-release.apk" ]; then
+          APK_FILE=$(ls app/build/outputs/apk/release/*.apk 2>/dev/null | head -1)
+          AAB_FILE=$(ls app/build/outputs/bundle/release/*.aab 2>/dev/null | head -1)
+          if [ -z "$APK_FILE" ]; then
             echo "Error: Release APK not found"
             exit 1
           fi
-          if [ ! -f "app/build/outputs/bundle/release/app-release.aab" ]; then
+          if [ -z "$AAB_FILE" ]; then
             echo "Error: Release AAB not found"
             exit 1
           fi
-          echo "Artifacts verified successfully"
+          echo "APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
+          echo "AAB_FILE=$AAB_FILE" >> $GITHUB_OUTPUT
+          echo "Artifacts verified: $APK_FILE, $AAB_FILE"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.version_info.outputs.TAG_NAME }}
           files: |
-            app/build/outputs/apk/release/app-release.apk
-            app/build/outputs/bundle/release/app-release.aab
+            ${{ steps.artifacts.outputs.APK_FILE }}
+            ${{ steps.artifacts.outputs.AAB_FILE }}
           name: Release ${{ steps.version_info.outputs.VERSION }}
           body: |
             ## Version ${{ steps.version_info.outputs.VERSION }}
