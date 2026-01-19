@@ -16,8 +16,8 @@ android {
         applicationId = "com.oceanofmaya.intervalwalktrainer"
         minSdk = 24
         targetSdk = 35
-        versionCode = 6
-        versionName = "1.0.0-beta.6"
+        versionCode = 7
+        versionName = "1.0.0-beta.7"
     }
 
     signingConfigs {
@@ -43,6 +43,16 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+
+    applicationVariants.all {
+        val variant = this
+        outputs.all {
+            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            val appName = "intervalwalktrainer"
+            val extension = output.outputFileName.substringAfterLast('.')
+            output.outputFileName = "$appName-${variant.versionName}.$extension"
         }
     }
 

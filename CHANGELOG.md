@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.0.0-beta.7 - 2026-01-19
+
+#### Build Improvements
+
+- Release artifacts now include version in filename (e.g., `intervalwalktrainer-1.0.0-beta.7.aab`)
+
 ### 1.0.0-beta.6 - 2026-01-18
 
 #### UI/UX Improvements
