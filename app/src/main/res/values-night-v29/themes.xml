@@ -9,11 +9,7 @@
         <item name="android:windowBackground">@color/background_dark</item>
         <item name="android:textColorPrimary">@color/text_primary_dark</item>
         <item name="android:textColorSecondary">@color/text_secondary_dark</item>
-    </style>
-    
-    <style name="HintTextAppearance" parent="TextAppearance.MaterialComponents.Body2">
-        <item name="android:textSize">13sp</item>
-        <item name="android:letterSpacing">0.01</item>
+        <item name="android:enforceStatusBarContrast">true</item>
+        <item name="android:enforceNavigationBarContrast">true</item>
     </style>
 </resources>
-
