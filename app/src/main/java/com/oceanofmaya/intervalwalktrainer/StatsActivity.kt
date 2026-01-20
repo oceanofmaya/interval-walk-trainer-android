@@ -629,8 +629,8 @@ class StatsActivity : AppCompatActivity() {
 
         contentView.doOnLayout {
             val screenHeight = resources.displayMetrics.heightPixels
-            val minPeekHeight = (screenHeight * 0.50f).toInt()
-            val maxPeekHeight = (screenHeight * 0.75f).toInt()
+            val minPeekHeight = (screenHeight * 0.40f).toInt()
+            val maxPeekHeight = (screenHeight * 0.80f).toInt()
             val widthSpec = View.MeasureSpec.makeMeasureSpec(resources.displayMetrics.widthPixels, View.MeasureSpec.AT_MOST)
             val heightSpec = View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.AT_MOST)
             contentView.measure(widthSpec, heightSpec)
