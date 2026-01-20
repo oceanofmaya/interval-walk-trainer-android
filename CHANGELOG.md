@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.0-beta.8 - 2026-01-20
+
+#### UI/UX Improvements
+
+- Enhanced bottom sheets with draggable peek states and content-aware heights
+- Fixed workout detail labels/values truncating in the summary cards
+
 ### 1.0.0-beta.7 - 2026-01-19
 
 #### Build Improvements
