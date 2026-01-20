@@ -31,7 +31,6 @@ class StatsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStatsBinding
     private lateinit var workoutRepository: WorkoutRepository
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    
     // Track the currently displayed month
     private var displayedYear: Int = 0
     private var displayedMonth: Int = 0
@@ -82,8 +81,6 @@ class StatsActivity : AppCompatActivity() {
 
     private fun setupEdgeToEdge() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.statusBarColor = Color.TRANSPARENT
-        window.navigationBarColor = Color.TRANSPARENT
 
         val isDarkTheme = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
             android.content.res.Configuration.UI_MODE_NIGHT_YES
@@ -632,7 +629,7 @@ class StatsActivity : AppCompatActivity() {
 
         contentView.doOnLayout {
             val screenHeight = resources.displayMetrics.heightPixels
-            val minPeekHeight = (screenHeight * 0.75f).toInt()
+            val minPeekHeight = (screenHeight * 0.50f).toInt()
             val maxPeekHeight = (screenHeight * 0.75f).toInt()
             val widthSpec = View.MeasureSpec.makeMeasureSpec(resources.displayMetrics.widthPixels, View.MeasureSpec.AT_MOST)
             val heightSpec = View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.AT_MOST)

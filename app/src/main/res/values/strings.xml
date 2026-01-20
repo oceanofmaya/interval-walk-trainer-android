@@ -96,5 +96,11 @@
     <string name="streak_progress">%1$d / %2$d</string>
     <string name="no_best_day_data">No workout data available</string>
     <string name="no_monthly_trend_data">No data for this month</string>
+    <string name="tip_custom_formula_title">Custom formula</string>
+    <string name="tip_custom_formula_body">Create your own interval or circuit training formula.</string>
+    <string name="tip_circuit_mode_title">Circuit mode</string>
+    <string name="tip_circuit_mode_body">Build three-phase circuits with custom patterns.</string>
+    <string name="tip_voice_title">Voice cues</string>
+    <string name="tip_voice_body">Tap to hear phase announcements during workouts.</string>
 </resources>
 

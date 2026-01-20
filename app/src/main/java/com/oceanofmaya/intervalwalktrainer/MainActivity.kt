@@ -17,6 +17,7 @@ import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.DecelerateInterpolator
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
@@ -30,6 +31,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.oceanofmaya.intervalwalktrainer.databinding.ActivityMainBinding
@@ -78,6 +80,9 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_CUSTOM_CIRCUIT_PATTERN = "custom_circuit_pattern" // "fast_slow_fast" or "slow_fast_slow"
         private const val KEY_IS_CUSTOM_FORMULA = "is_custom_formula"
         private const val KEY_CUSTOM_FORMULA_MODE = "custom_formula_mode" // "circuit" or "interval"
+        private const val KEY_TIP_CUSTOM_FORMULA = "tip_custom_formula_shown"
+        private const val KEY_TIP_CIRCUIT_MODE = "tip_circuit_mode_shown"
+        private const val KEY_TIP_VOICE_BUTTON = "tip_voice_button_shown"
         
         // Saved state keys
         private const val KEY_SAVED_FORMULA_NAME = "saved_formula_name"
@@ -119,6 +124,7 @@ open class MainActivity : AppCompatActivity() {
         setupFormulaSpinner()
         setupControls()
         setupStatsButton()
+        maybeShowVoiceTip()
         
         // Restore timer state if activity was recreated (e.g., theme change)
         if (savedInstanceState != null) {
@@ -134,8 +140,6 @@ open class MainActivity : AppCompatActivity() {
      */
     private fun setupEdgeToEdge() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.statusBarColor = Color.TRANSPARENT
-        window.navigationBarColor = Color.TRANSPARENT
 
         val isDarkTheme = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
             android.content.res.Configuration.UI_MODE_NIGHT_YES
@@ -422,6 +426,7 @@ open class MainActivity : AppCompatActivity() {
         }
         
         bottomSheetDialog.show()
+        maybeShowCustomFormulaTip(bottomSheetDialog, recyclerView, formulas.size)
     }
     
     private fun showCustomFormulaDialog() {
@@ -715,6 +720,87 @@ open class MainActivity : AppCompatActivity() {
         }
         
         bottomSheetDialog.show()
+        maybeShowCircuitModeTip(bottomSheetDialog, circuitModeButton)
+    }
+
+    private fun maybeShowCustomFormulaTip(
+        dialog: BottomSheetDialog,
+        recyclerView: RecyclerView,
+        customPosition: Int
+    ) {
+        if (sharedPreferences.getBoolean(KEY_TIP_CUSTOM_FORMULA, false)) {
+            return
+        }
+        val root = dialog.window?.decorView as? ViewGroup ?: return
+        recyclerView.post {
+            var holder = recyclerView.findViewHolderForAdapterPosition(customPosition)
+            if (holder == null) {
+                recyclerView.scrollToPosition(customPosition)
+                recyclerView.post {
+                    holder = recyclerView.findViewHolderForAdapterPosition(customPosition)
+                    val target = holder?.itemView ?: return@post
+                    CoachMarkOverlay.show(
+                        root,
+                        target,
+                        getString(R.string.tip_custom_formula_title),
+                        getString(R.string.tip_custom_formula_body),
+                        onDismiss = {
+                        sharedPreferences.edit { putBoolean(KEY_TIP_CUSTOM_FORMULA, true) }
+                        }
+                    )
+                }
+            } else {
+                CoachMarkOverlay.show(
+                    root,
+                    holder?.itemView ?: return@post,
+                    getString(R.string.tip_custom_formula_title),
+                    getString(R.string.tip_custom_formula_body),
+                    onDismiss = {
+                    sharedPreferences.edit { putBoolean(KEY_TIP_CUSTOM_FORMULA, true) }
+                    }
+                )
+            }
+        }
+    }
+
+    private fun maybeShowCircuitModeTip(dialog: BottomSheetDialog, circuitButton: View) {
+        if (sharedPreferences.getBoolean(KEY_TIP_CIRCUIT_MODE, false)) {
+            return
+        }
+        val root = dialog.window?.decorView as? ViewGroup ?: return
+        circuitButton.post {
+            CoachMarkOverlay.show(
+                root,
+                circuitButton,
+                getString(R.string.tip_circuit_mode_title),
+                getString(R.string.tip_circuit_mode_body),
+                onDismiss = {
+                sharedPreferences.edit { putBoolean(KEY_TIP_CIRCUIT_MODE, true) }
+                },
+                paddingDp = 0
+            )
+        }
+    }
+
+    private fun maybeShowVoiceTip() {
+        if (sharedPreferences.getBoolean(KEY_TIP_VOICE_BUTTON, false)) {
+            return
+        }
+        val root = window.decorView as? ViewGroup ?: return
+        binding.voiceButton.post {
+            if (!binding.voiceButton.isShown) {
+                return@post
+            }
+            CoachMarkOverlay.show(
+                root,
+                binding.voiceButton,
+                getString(R.string.tip_voice_title),
+                getString(R.string.tip_voice_body),
+                onDismiss = {
+                sharedPreferences.edit { putBoolean(KEY_TIP_VOICE_BUTTON, true) }
+                }
+            )
+        }
     }
 
     private fun configureBottomSheet(dialog: BottomSheetDialog, contentView: View) {
@@ -726,7 +812,7 @@ open class MainActivity : AppCompatActivity() {
 
         contentView.doOnLayout {
             val screenHeight = resources.displayMetrics.heightPixels
-            val minPeekHeight = (screenHeight * 0.75f).toInt()
+            val minPeekHeight = (screenHeight * 0.50f).toInt()
             val maxPeekHeight = (screenHeight * 0.75f).toInt()
             val widthSpec = View.MeasureSpec.makeMeasureSpec(resources.displayMetrics.widthPixels, View.MeasureSpec.AT_MOST)
             val heightSpec = View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.AT_MOST)
