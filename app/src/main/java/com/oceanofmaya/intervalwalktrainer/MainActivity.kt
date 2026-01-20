@@ -23,12 +23,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.updatePadding
 import androidx.core.view.WindowCompat
+import androidx.core.view.doOnLayout
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.oceanofmaya.intervalwalktrainer.databinding.ActivityMainBinding
 import kotlinx.coroutines.Job
@@ -393,6 +395,7 @@ open class MainActivity : AppCompatActivity() {
         val bottomSheetDialog = BottomSheetDialog(this)
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_formula_selector, android.widget.FrameLayout(this), false)
         bottomSheetDialog.setContentView(view)
+        configureBottomSheet(bottomSheetDialog, view)
         
         val recyclerView = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.formulaRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -425,11 +428,7 @@ open class MainActivity : AppCompatActivity() {
         val bottomSheetDialog = BottomSheetDialog(this)
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_custom_formula, android.widget.FrameLayout(this), false)
         bottomSheetDialog.setContentView(view)
-        
-        // Ensure bottom sheet can expand fully and buttons are accessible
-        val behavior = bottomSheetDialog.behavior
-        behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
-        behavior.skipCollapsed = true
+        configureBottomSheet(bottomSheetDialog, view)
         
         val slowValue = view.findViewById<android.widget.TextView>(R.id.slowDurationValue)
         val fastValue = view.findViewById<android.widget.TextView>(R.id.fastDurationValue)
@@ -716,6 +715,25 @@ open class MainActivity : AppCompatActivity() {
         }
         
         bottomSheetDialog.show()
+    }
+
+    private fun configureBottomSheet(dialog: BottomSheetDialog, contentView: View) {
+        val behavior = dialog.behavior
+        behavior.isFitToContents = true
+        behavior.isDraggable = true
+        behavior.skipCollapsed = false
+        behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
+        contentView.doOnLayout {
+            val screenHeight = resources.displayMetrics.heightPixels
+            val minPeekHeight = (screenHeight * 0.75f).toInt()
+            val maxPeekHeight = (screenHeight * 0.75f).toInt()
+            val widthSpec = View.MeasureSpec.makeMeasureSpec(resources.displayMetrics.widthPixels, View.MeasureSpec.AT_MOST)
+            val heightSpec = View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.AT_MOST)
+            contentView.measure(widthSpec, heightSpec)
+            val contentHeight = contentView.measuredHeight
+            behavior.peekHeight = contentHeight.coerceIn(minPeekHeight, maxPeekHeight)
+        }
     }
 
     private fun setupControls() {

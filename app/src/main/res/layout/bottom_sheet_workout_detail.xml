@@ -7,6 +7,14 @@
     android:paddingTop="8dp"
     android:paddingBottom="24dp">
 
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bottom_sheet_drag_handle" />
+
     <TextView
         android:id="@+id/workoutDetailDate"
         android:layout_width="match_parent"
@@ -39,20 +47,26 @@
             android:background="@drawable/formula_details_background"
             android:layout_marginEnd="8dp">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/total_workouts"
                 android:textSize="12sp"
                 android:textColor="@color/text_secondary"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:singleLine="false"
                 android:layout_marginBottom="4dp" />
             <TextView
                 android:id="@+id/workoutDetailCount"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="0"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_primary"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:singleLine="true" />
         </LinearLayout>
 
         <LinearLayout
@@ -65,20 +79,26 @@
             android:background="@drawable/formula_details_background"
             android:layout_marginStart="8dp">
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/total_minutes"
                 android:textSize="12sp"
                 android:textColor="@color/text_secondary"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:singleLine="false"
                 android:layout_marginBottom="4dp" />
             <TextView
                 android:id="@+id/workoutDetailMinutes"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="0 min"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/text_primary"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:singleLine="true" />
         </LinearLayout>
 
     </LinearLayout>
@@ -90,6 +110,9 @@
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:singleLine="false"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
         android:paddingTop="16dp"
