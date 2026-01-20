@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.0.0-beta.10 - 2026-01-21
+
+#### UI/UX Improvements
+
+- Adjusted bottom sheet peek range to 40-80% for better content visibility
+
 ### 1.0.0-beta.9 - 2026-01-21
 
 #### UI/UX Improvements
