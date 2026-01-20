@@ -2,6 +2,14 @@
 
 ## Version 1
 
+### 1.0.0-beta.9 - 2026-01-21
+
+#### UI/UX Improvements
+
+- Added one-time coach marks for custom formula and circuit mode
+- Added a hint for voice cues
+- Adjusted bottom sheet peek minimum to 50% of screen height for better usability
+
 ### 1.0.0-beta.8 - 2026-01-20
 
 #### UI/UX Improvements
