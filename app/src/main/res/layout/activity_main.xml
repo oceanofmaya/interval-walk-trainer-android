@@ -241,23 +241,23 @@
             android:padding="12dp" />
 
         <ImageButton
-            android:id="@+id/themeButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_dark_theme"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/dark"
-            app:tint="@color/text_secondary"
-            android:padding="12dp"
-            android:layout_marginStart="24dp" />
-
-        <ImageButton
             android:id="@+id/statsButton"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/outline_bar_chart_24"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/view_stats"
+            app:tint="@color/text_secondary"
+            android:padding="12dp"
+            android:layout_marginStart="24dp" />
+
+        <ImageButton
+            android:id="@+id/settingsButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_settings"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/settings_button"
             app:tint="@color/text_secondary"
             android:padding="12dp"
             android:layout_marginStart="24dp" />

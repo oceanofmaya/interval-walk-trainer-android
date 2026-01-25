@@ -13,6 +13,8 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import android.content.Intent
+import android.net.Uri
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
@@ -72,6 +74,7 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_THEME_MODE = "theme_mode"
         private const val KEY_VIBRATION_ENABLED = "vibration_enabled"
         private const val KEY_VOICE_ENABLED = "voice_enabled"
+        private const val KEY_SAVE_WORKOUTS = "save_workouts"
         private const val KEY_CUSTOM_SLOW_MINUTES = "custom_slow_minutes"
         private const val KEY_CUSTOM_FAST_MINUTES = "custom_fast_minutes"
         private const val KEY_CUSTOM_ROUNDS = "custom_rounds"
@@ -80,9 +83,6 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_CUSTOM_CIRCUIT_PATTERN = "custom_circuit_pattern" // "fast_slow_fast" or "slow_fast_slow"
         private const val KEY_IS_CUSTOM_FORMULA = "is_custom_formula"
         private const val KEY_CUSTOM_FORMULA_MODE = "custom_formula_mode" // "circuit" or "interval"
-        private const val KEY_TIP_CUSTOM_FORMULA = "tip_custom_formula_shown"
-        private const val KEY_TIP_CIRCUIT_MODE = "tip_circuit_mode_shown"
-        private const val KEY_TIP_VOICE_BUTTON = "tip_voice_button_shown"
         
         // Saved state keys
         private const val KEY_SAVED_FORMULA_NAME = "saved_formula_name"
@@ -124,7 +124,7 @@ open class MainActivity : AppCompatActivity() {
         setupFormulaSpinner()
         setupControls()
         setupStatsButton()
-        maybeShowVoiceTip()
+        setupSettingsButton()
         
         // Restore timer state if activity was recreated (e.g., theme change)
         if (savedInstanceState != null) {
@@ -336,12 +336,13 @@ open class MainActivity : AppCompatActivity() {
             onPhaseChange = { phase ->
                 // Handle phase change notifications (including early notifications for TTS)
                 if (!isRestoringTimerState) {
+                    if (notificationHelper == null) {
+                        notificationHelper = createNotificationHelper()
+                    }
                     val useVibration = sharedPreferences.getBoolean(KEY_VIBRATION_ENABLED, true)
                     val useVoice = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, false)
                     
-                    android.util.Log.d("MainActivity", "Phase change: $phase, Voice: $useVoice, Vibration: $useVibration")
-                    
-                    // Ensure we notify regardless of state, logic is safe in helper
+                    // Notify phase change for voice and/or vibration
                     notificationHelper?.notifyPhaseChange(phase, useVoice, useVibration)
                     lastNotifiedPhase = phase
                 }
@@ -378,6 +379,13 @@ open class MainActivity : AppCompatActivity() {
             hapticSelection(view)
             val intent = android.content.Intent(this, StatsActivity::class.java)
             startActivity(intent)
+        }
+    }
+    
+    private fun setupSettingsButton() {
+        binding.settingsButton.setOnClickListener { view ->
+            hapticSelection(view)
+            showSettingsDialog()
         }
     }
 
@@ -426,7 +434,6 @@ open class MainActivity : AppCompatActivity() {
         }
         
         bottomSheetDialog.show()
-        maybeShowCustomFormulaTip(bottomSheetDialog, recyclerView, formulas.size)
     }
     
     private fun showCustomFormulaDialog() {
@@ -720,88 +727,8 @@ open class MainActivity : AppCompatActivity() {
         }
         
         bottomSheetDialog.show()
-        maybeShowCircuitModeTip(bottomSheetDialog, circuitModeButton)
     }
 
-    private fun maybeShowCustomFormulaTip(
-        dialog: BottomSheetDialog,
-        recyclerView: RecyclerView,
-        customPosition: Int
-    ) {
-        if (sharedPreferences.getBoolean(KEY_TIP_CUSTOM_FORMULA, false)) {
-            return
-        }
-        val root = dialog.window?.decorView as? ViewGroup ?: return
-        recyclerView.post {
-            var holder = recyclerView.findViewHolderForAdapterPosition(customPosition)
-            if (holder == null) {
-                recyclerView.scrollToPosition(customPosition)
-                recyclerView.post {
-                    holder = recyclerView.findViewHolderForAdapterPosition(customPosition)
-                    val target = holder?.itemView ?: return@post
-                    CoachMarkOverlay.show(
-                        root,
-                        target,
-                        getString(R.string.tip_custom_formula_title),
-                        getString(R.string.tip_custom_formula_body),
-                        onDismiss = {
-                        sharedPreferences.edit { putBoolean(KEY_TIP_CUSTOM_FORMULA, true) }
-                        }
-                    )
-                }
-            } else {
-                CoachMarkOverlay.show(
-                    root,
-                    holder?.itemView ?: return@post,
-                    getString(R.string.tip_custom_formula_title),
-                    getString(R.string.tip_custom_formula_body),
-                    onDismiss = {
-                    sharedPreferences.edit { putBoolean(KEY_TIP_CUSTOM_FORMULA, true) }
-                    }
-                )
-            }
-        }
-    }
-
-    private fun maybeShowCircuitModeTip(dialog: BottomSheetDialog, circuitButton: View) {
-        if (sharedPreferences.getBoolean(KEY_TIP_CIRCUIT_MODE, false)) {
-            return
-        }
-        val root = dialog.window?.decorView as? ViewGroup ?: return
-        circuitButton.post {
-            CoachMarkOverlay.show(
-                root,
-                circuitButton,
-                getString(R.string.tip_circuit_mode_title),
-                getString(R.string.tip_circuit_mode_body),
-                onDismiss = {
-                sharedPreferences.edit { putBoolean(KEY_TIP_CIRCUIT_MODE, true) }
-                },
-                paddingDp = 0
-            )
-        }
-    }
-
-    private fun maybeShowVoiceTip() {
-        if (sharedPreferences.getBoolean(KEY_TIP_VOICE_BUTTON, false)) {
-            return
-        }
-        val root = window.decorView as? ViewGroup ?: return
-        binding.voiceButton.post {
-            if (!binding.voiceButton.isShown) {
-                return@post
-            }
-            CoachMarkOverlay.show(
-                root,
-                binding.voiceButton,
-                getString(R.string.tip_voice_title),
-                getString(R.string.tip_voice_body),
-                onDismiss = {
-                sharedPreferences.edit { putBoolean(KEY_TIP_VOICE_BUTTON, true) }
-                }
-            )
-        }
-    }
 
     private fun configureBottomSheet(dialog: BottomSheetDialog, contentView: View) {
         val behavior = dialog.behavior
@@ -819,6 +746,127 @@ open class MainActivity : AppCompatActivity() {
             contentView.measure(widthSpec, heightSpec)
             val contentHeight = contentView.measuredHeight
             behavior.peekHeight = contentHeight.coerceIn(minPeekHeight, maxPeekHeight)
+        }
+    }
+    
+    private fun showSettingsDialog() {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_settings, android.widget.FrameLayout(this), false)
+        bottomSheetDialog.setContentView(view)
+        configureBottomSheet(bottomSheetDialog, view)
+        
+        // Set app version
+        val versionText = view.findViewById<android.widget.TextView>(R.id.appVersion)
+        try {
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+            versionText.text = getString(R.string.version, packageInfo.versionName)
+        } catch (e: Exception) {
+            versionText.text = getString(R.string.version, "Unknown")
+        }
+        
+        // Privacy Policy button
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.privacyPolicyButton).setOnClickListener { btn ->
+            hapticSelection(btn)
+            openUrl("https://github.com/oceanofmaya/interval-walk-trainer-android/blob/main/PRIVACY.md")
+            bottomSheetDialog.dismiss()
+        }
+        
+        // Terms button
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.termsButton).setOnClickListener { btn ->
+            hapticSelection(btn)
+            openUrl("https://github.com/oceanofmaya/interval-walk-trainer-android/blob/main/TERMS.md")
+            bottomSheetDialog.dismiss()
+        }
+        
+        // Theme mode buttons
+        val currentThemeMode = sharedPreferences.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        
+        val themeSystemButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.themeSystemButton)
+        val themeLightButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.themeLightButton)
+        val themeDarkButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.themeDarkButton)
+        
+        // Highlight current selection with primary color for text and icon (minimalistic)
+        val selectedColor = getColor(R.color.button_primary)
+        val unselectedTextColor = getColor(R.color.text_primary)
+        val unselectedIconColor = getColor(R.color.text_secondary)
+        val selectedIconColor = android.content.res.ColorStateList.valueOf(selectedColor)
+        val unselectedIconColorState = android.content.res.ColorStateList.valueOf(unselectedIconColor)
+
+        fun applySelection(button: com.google.android.material.button.MaterialButton, isSelected: Boolean) {
+            if (isSelected) {
+                button.setTextColor(selectedColor)
+                button.iconTint = selectedIconColor
+            } else {
+                button.setTextColor(unselectedTextColor)
+                button.iconTint = unselectedIconColorState
+            }
+        }
+
+        applySelection(themeSystemButton, currentThemeMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        applySelection(themeLightButton, currentThemeMode == AppCompatDelegate.MODE_NIGHT_NO)
+        applySelection(themeDarkButton, currentThemeMode == AppCompatDelegate.MODE_NIGHT_YES)
+        
+        themeSystemButton.setOnClickListener { btn ->
+            hapticSelection(btn)
+            setThemeMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            bottomSheetDialog.dismiss()
+        }
+        
+        themeLightButton.setOnClickListener { btn ->
+            hapticSelection(btn)
+            setThemeMode(AppCompatDelegate.MODE_NIGHT_NO)
+            bottomSheetDialog.dismiss()
+        }
+        
+        themeDarkButton.setOnClickListener { btn ->
+            hapticSelection(btn)
+            setThemeMode(AppCompatDelegate.MODE_NIGHT_YES)
+            bottomSheetDialog.dismiss()
+        }
+        
+        // Clear stats button
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.clearStatsButton).setOnClickListener { btn ->
+            hapticSelection(btn)
+            showClearStatsConfirmationDialog(bottomSheetDialog)
+        }
+        
+        // Save workouts toggle button
+        val saveWorkoutsButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.saveWorkoutsButton)
+        val saveWorkoutsEnabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
+        updateSaveWorkoutsButton(saveWorkoutsButton, saveWorkoutsEnabled)
+        
+        saveWorkoutsButton.setOnClickListener { btn ->
+            hapticSelection(btn)
+            val currentEnabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
+            if (currentEnabled) {
+                showDisableSaveWorkoutsDialog {
+                    sharedPreferences.edit { putBoolean(KEY_SAVE_WORKOUTS, false) }
+                    updateSaveWorkoutsButton(saveWorkoutsButton, false)
+                }
+            } else {
+                sharedPreferences.edit { putBoolean(KEY_SAVE_WORKOUTS, true) }
+                updateSaveWorkoutsButton(saveWorkoutsButton, true)
+            }
+        }
+        
+        bottomSheetDialog.show()
+    }
+    
+    private fun setThemeMode(mode: Int) {
+        sharedPreferences.edit { putInt(KEY_THEME_MODE, mode) }
+        Handler(Looper.getMainLooper()).postDelayed({
+            AppCompatDelegate.setDefaultNightMode(mode)
+            setupTheme()
+        }, 150)
+    }
+    
+    private fun openUrl(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        } catch (e: Exception) {
+            // If no browser is available, show error (unlikely on Android)
+            android.widget.Toast.makeText(this, "Unable to open link", android.widget.Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -845,29 +893,11 @@ open class MainActivity : AppCompatActivity() {
             val newEnabled = !currentEnabled
             sharedPreferences.edit { putBoolean(KEY_VIBRATION_ENABLED, newEnabled) }
             updateIconState(binding.vibrationButton, newEnabled)
+            pulseIcon(binding.vibrationButton)
         }
         
         // Set up voice button listener
         setupVoiceButtonListener()
-        
-        binding.themeButton.setOnClickListener { view ->
-            hapticSelection(view)
-            val currentNightMode = AppCompatDelegate.getDefaultNightMode()
-            val isDarkMode = currentNightMode == AppCompatDelegate.MODE_NIGHT_YES
-            val newNightMode = if (isDarkMode) {
-                AppCompatDelegate.MODE_NIGHT_NO
-            } else {
-                AppCompatDelegate.MODE_NIGHT_YES
-            }
-            
-            // Save preference immediately
-            sharedPreferences.edit { putInt(KEY_THEME_MODE, newNightMode) }
-            
-            // Delay theme change to allow touch feedback to be visible
-            Handler(Looper.getMainLooper()).postDelayed({
-                AppCompatDelegate.setDefaultNightMode(newNightMode)
-            }, 150) // 150ms delay for graceful transition
-        }
 
         // Initial UI state
         updateButtonStates()
@@ -886,16 +916,36 @@ open class MainActivity : AppCompatActivity() {
         iconButton.imageTintList = android.content.res.ColorStateList.valueOf(tintColor)
     }
 
+    private fun pulseIcon(iconButton: android.widget.ImageButton) {
+        iconButton.animate().cancel()
+        iconButton.scaleX = 1f
+        iconButton.scaleY = 1f
+        iconButton.alpha = 1f
+        iconButton.animate()
+            .scaleX(1.08f)
+            .scaleY(1.08f)
+            .alpha(0.85f)
+            .setDuration(120)
+            .withEndAction {
+                iconButton.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .alpha(1f)
+                    .setDuration(140)
+                    .start()
+            }
+            .start()
+    }
+
     private fun applyThemePreference() {
-        // Default to light theme if no preference is set
-        val savedThemeMode = sharedPreferences.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_NO)
+        // Default to system mode if no preference is set
+        val savedThemeMode = sharedPreferences.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         AppCompatDelegate.setDefaultNightMode(savedThemeMode)
     }
 
     private fun setupTheme() {
-        val currentNightMode = AppCompatDelegate.getDefaultNightMode()
-        val isDarkMode = currentNightMode == AppCompatDelegate.MODE_NIGHT_YES
-        updateIconState(binding.themeButton, isDarkMode)
+        // Theme is now managed entirely through settings
+        // This method is kept for potential future use
     }
     
     private fun restoreNotificationPreferences() {
@@ -922,6 +972,9 @@ open class MainActivity : AppCompatActivity() {
             
             // Only speak if this is a user-initiated change (not during restoration)
             if (!isRestoringPreferences) {
+                if (notificationHelper == null) {
+                    notificationHelper = createNotificationHelper()
+                }
                 if (newEnabled) {
                     // Test TTS by speaking when enabled
                     notificationHelper?.testTts()
@@ -934,6 +987,7 @@ open class MainActivity : AppCompatActivity() {
             // Save voice preference
             sharedPreferences.edit { putBoolean(KEY_VOICE_ENABLED, newEnabled) }
             updateIconState(binding.voiceButton, newEnabled)
+            pulseIcon(binding.voiceButton)
         }
     }
 
@@ -1195,6 +1249,13 @@ open class MainActivity : AppCompatActivity() {
      * Records a completed workout in the database.
      */
     private fun recordWorkoutCompletion() {
+        // Check if workout saving is enabled
+        val saveWorkoutsEnabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
+        if (!saveWorkoutsEnabled) {
+            android.util.Log.d("MainActivity", "Workout saving is disabled, skipping record")
+            return
+        }
+        
         // Use formula's total duration since state might not be updated yet when called early
         val totalSeconds = currentFormula.totalDurationSeconds
         if (totalSeconds > 0) {
@@ -1209,6 +1270,54 @@ open class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+    
+    private fun updateSaveWorkoutsButton(button: com.google.android.material.button.MaterialButton, isEnabled: Boolean) {
+        val primaryColor = getColor(R.color.button_primary)
+        val secondaryColor = getColor(R.color.text_secondary)
+        
+        if (isEnabled) {
+            button.setTextColor(primaryColor)
+            button.iconTint = android.content.res.ColorStateList.valueOf(primaryColor)
+        } else {
+            button.setTextColor(secondaryColor)
+            button.iconTint = android.content.res.ColorStateList.valueOf(secondaryColor)
+        }
+    }
+    
+    private fun showClearStatsConfirmationDialog(parentDialog: BottomSheetDialog) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.clear_stats_title)
+            .setMessage(R.string.clear_stats_message)
+            .setPositiveButton(R.string.clear) { _, _ ->
+                clearAllStats()
+                parentDialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+    
+    private fun clearAllStats() {
+        lifecycleScope.launch {
+            try {
+                workoutRepository.clearAllData()
+                kotlinx.coroutines.delay(100)
+                android.util.Log.d("MainActivity", "All workout stats cleared")
+            } catch (e: Exception) {
+                android.util.Log.e("MainActivity", "Error clearing stats", e)
+            }
+        }
+    }
+
+    private fun showDisableSaveWorkoutsDialog(onConfirm: () -> Unit) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.disable_save_workouts_title)
+            .setMessage(R.string.disable_save_workouts_message)
+            .setPositiveButton(R.string.turn_off) { _, _ ->
+                onConfirm()
+            }
+            .setNegativeButton(R.string.keep_on, null)
+            .show()
     }
 
     /**
@@ -1301,6 +1410,7 @@ open class MainActivity : AppCompatActivity() {
         super.onDestroy()
         intervalTimer?.dispose()
         notificationHelper?.release()
+        notificationHelper = null
         releaseWakeLock()
     }
 }
