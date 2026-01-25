@@ -825,7 +825,11 @@ open class MainActivity : AppCompatActivity() {
         }
         
         // Clear stats button
-        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.clearStatsButton).setOnClickListener { btn ->
+        val clearStatsButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.clearStatsButton)
+        // Enable text wrapping for smaller screens
+        clearStatsButton.maxLines = 2
+        clearStatsButton.ellipsize = null
+        clearStatsButton.setOnClickListener { btn ->
             hapticSelection(btn)
             showClearStatsConfirmationDialog(bottomSheetDialog)
         }

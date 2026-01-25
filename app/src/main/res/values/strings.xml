@@ -39,7 +39,7 @@
     <string name="current_streak">Current Streak</string>
     <string name="avg_workouts_per_week">Avg per Week</string>
     <string name="view_stats">Stats</string>
-    <string name="clear_stats">Clear Workout History</string>
+    <string name="clear_stats">Clear History</string>
     <string name="clear_stats_title">Clear Workout History?</string>
     <string name="clear_stats_message">This will permanently delete all your workout history. This action cannot be undone.</string>
     <string name="clear">Clear</string>
@@ -115,7 +115,7 @@
     <string name="theme_dark">Dark</string>
     <string name="settings_button">Settings</string>
     <string name="workout_settings">Workout Settings</string>
-    <string name="save_workouts">Save Workout History</string>
+    <string name="save_workouts">Save Workouts</string>
     <string name="disable_save_workouts_title">Turn off workout history?</string>
     <string name="disable_save_workouts_message">New workouts will not be saved to history while this is off.</string>
     <string name="turn_off">Turn Off</string>

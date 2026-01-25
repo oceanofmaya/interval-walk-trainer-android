@@ -2,6 +2,14 @@
 
 ## Version 1
 
+### 1.0.0-beta.13 - 2026-01-25
+
+#### UI/UX Improvements
+
+- Improved button text visibility on smaller screens
+- Shortened button labels for better readability ("Clear History", "Save Workouts")
+- Fixed text wrapping in settings buttons
+
 ### 1.0.0-beta.12 - 2026-01-21
 
 #### Features
