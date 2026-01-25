@@ -30,6 +30,7 @@ import java.util.*
 class StatsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStatsBinding
     private lateinit var workoutRepository: WorkoutRepository
+    private lateinit var sharedPreferences: android.content.SharedPreferences
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     // Track the currently displayed month
     private var displayedYear: Int = 0
@@ -41,6 +42,7 @@ class StatsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupEdgeToEdge()
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         
         // Initialize workout repository
         val database = AppDatabase.getDatabase(this)
@@ -52,6 +54,7 @@ class StatsActivity : AppCompatActivity() {
         displayedMonth = calendar.get(Calendar.MONTH)
         
         setupToolbar()
+        setupSaveWorkoutsButton()
         setupClearButton()
         setupMonthNavigation()
         setupTodayButton()
@@ -178,6 +181,38 @@ class StatsActivity : AppCompatActivity() {
             showClearConfirmationDialog()
         }
     }
+
+    private fun setupSaveWorkoutsButton() {
+        updateSaveWorkoutsIcon()
+        binding.saveWorkoutsButton.setOnClickListener { view ->
+            hapticSelection(view)
+            val currentEnabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
+            if (currentEnabled) {
+                showDisableSaveWorkoutsDialog {
+                    sharedPreferences.edit().putBoolean(KEY_SAVE_WORKOUTS, false).apply()
+                    updateSaveWorkoutsIcon()
+                }
+            } else {
+                sharedPreferences.edit().putBoolean(KEY_SAVE_WORKOUTS, true).apply()
+                updateSaveWorkoutsIcon()
+            }
+        }
+    }
+
+    private fun updateSaveWorkoutsIcon() {
+        val enabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
+        val tintColor = if (enabled) {
+            getColor(R.color.button_primary)
+        } else {
+            getColor(R.color.text_secondary)
+        }
+        binding.saveWorkoutsButton.imageTintList = android.content.res.ColorStateList.valueOf(tintColor)
+    }
+
+    companion object {
+        private const val PREFS_NAME = "interval_walk_trainer_prefs"
+        private const val KEY_SAVE_WORKOUTS = "save_workouts"
+    }
     
     private fun showClearConfirmationDialog() {
         AlertDialog.Builder(this)
@@ -187,6 +222,17 @@ class StatsActivity : AppCompatActivity() {
                 clearAllStats()
             }
             .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun showDisableSaveWorkoutsDialog(onConfirm: () -> Unit) {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.disable_save_workouts_title)
+            .setMessage(R.string.disable_save_workouts_message)
+            .setPositiveButton(R.string.turn_off) { _, _ ->
+                onConfirm()
+            }
+            .setNegativeButton(R.string.keep_on, null)
             .show()
     }
     

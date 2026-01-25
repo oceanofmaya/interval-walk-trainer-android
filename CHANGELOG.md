@@ -2,6 +2,30 @@
 
 ## Version 1
 
+### 1.0.0-beta.12 - 2026-01-21
+
+#### Features
+
+- Added system theme integration - app automatically follows device theme (default)
+- Added theme selector in settings (System, Light, Dark) with intuitive icons
+- Added settings dialog accessible via the settings button
+- Added Privacy Policy access from settings
+- Added Terms and Conditions with medical disclaimer
+- Added workout stats section in settings with clear all stats option
+- Added workout saving preference toggle (default: enabled)
+
+#### UI/UX Improvements
+
+- Removed coach marks for cleaner onboarding experience
+- Removed theme toggle from home screen (now accessible via settings)
+- Settings screen provides comprehensive access to app configuration and legal documents
+
+#### Updates
+
+- System theme is now the default theme mode
+- Workout recording respects user preference (can be disabled in settings)
+- Added confirmation before disabling workout history saving
+
 ### 1.0.0-beta.11 - 2026-01-21
 
 #### Updates

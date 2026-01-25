@@ -32,15 +32,15 @@
     <string name="circuit_pattern">Circuit Pattern</string>
     <string name="fast_slow_fast">Fast → Slow → Fast</string>
     <string name="slow_fast_slow">Slow → Fast → Slow</string>
-    <string name="workout_stats">Workout Stats</string>
+    <string name="workout_stats">Workout History</string>
     <string name="total_workouts">Total Workouts</string>
     <string name="total_minutes">Total Minutes</string>
     <string name="total_days">Days Active</string>
     <string name="current_streak">Current Streak</string>
     <string name="avg_workouts_per_week">Avg per Week</string>
     <string name="view_stats">Stats</string>
-    <string name="clear_stats">Clear All</string>
-    <string name="clear_stats_title">Clear All Stats?</string>
+    <string name="clear_stats">Clear Workout History</string>
+    <string name="clear_stats_title">Clear Workout History?</string>
     <string name="clear_stats_message">This will permanently delete all your workout history. This action cannot be undone.</string>
     <string name="clear">Clear</string>
     <string name="cancel">Cancel</string>
@@ -102,5 +102,23 @@
     <string name="tip_circuit_mode_body">Build three-phase circuits with custom patterns.</string>
     <string name="tip_voice_title">Voice cues</string>
     <string name="tip_voice_body">Tap to hear phase announcements during workouts.</string>
+    <string name="tip_theme_title">Theme</string>
+    <string name="tip_theme_body">System follows your device theme. Tap to cycle through System, Light, and Dark.</string>
+    <string name="tip_settings_title">Settings</string>
+    <string name="tip_settings_body">Access privacy policy, terms, and theme selection.</string>
+    <string name="settings">Settings</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="theme_mode">Theme</string>
+    <string name="theme_system">System (Auto)</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="settings_button">Settings</string>
+    <string name="workout_settings">Workout Settings</string>
+    <string name="save_workouts">Save Workout History</string>
+    <string name="disable_save_workouts_title">Turn off workout history?</string>
+    <string name="disable_save_workouts_message">New workouts will not be saved to history while this is off.</string>
+    <string name="turn_off">Turn Off</string>
+    <string name="keep_on">Keep On</string>
 </resources>
 

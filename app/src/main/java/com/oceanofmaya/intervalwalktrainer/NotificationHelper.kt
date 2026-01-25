@@ -40,6 +40,7 @@ open class NotificationHelper(private val context: Context) {
 
     private var textToSpeech: TextToSpeech? = null
     private var isTtsReady = false
+    private var isInitializing = false
     private val pendingSpeech = mutableListOf<String>()
     
     companion object {
@@ -52,8 +53,14 @@ open class NotificationHelper(private val context: Context) {
     }
 
     private fun initializeTts() {
-        Log.d(TAG, "Initializing TTS")
-        textToSpeech = TextToSpeech(context.applicationContext) { status ->
+        if (isInitializing || (isTtsReady && textToSpeech != null)) {
+            return
+        }
+        isInitializing = true
+        
+        try {
+            textToSpeech = TextToSpeech(context.applicationContext) { status ->
+            isInitializing = false
             if (status == TextToSpeech.SUCCESS) {
                 textToSpeech?.let { tts ->
                     try {
@@ -80,9 +87,11 @@ open class NotificationHelper(private val context: Context) {
                             tts.setSpeechRate(1.0f) // Normal speed
                             tts.setPitch(1.0f) // Normal pitch
                             
-                            // Set AudioAttributes for better prioritization
+                            // Set AudioAttributes for spoken guidance during workouts
+                            // USAGE_ASSISTANCE_NAVIGATION_GUIDANCE ensures announcements are heard
+                            // similar to navigation apps giving turn-by-turn directions
                             val attributes = AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
                                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                                 .build()
                             tts.setAudioAttributes(attributes)
@@ -128,6 +137,9 @@ open class NotificationHelper(private val context: Context) {
                         Log.e(TAG, "Error configuring TTS", e)
                         isTtsReady = false
                     }
+                } ?: run {
+                    Log.e(TAG, "TTS initialization callback with null engine")
+                    isTtsReady = false
                 }
             } else {
                 Log.e(TAG, "TTS initialization failed with status: $status")
@@ -135,6 +147,12 @@ open class NotificationHelper(private val context: Context) {
                 // Reset textToSpeech to null so we can try again later
                 textToSpeech = null
             }
+        }
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception creating TextToSpeech", e)
+            isInitializing = false
+            isTtsReady = false
+            textToSpeech = null
         }
     }
 
@@ -152,7 +170,6 @@ open class NotificationHelper(private val context: Context) {
 
 
     open fun notifyPhaseChange(phase: IntervalPhase, useVoice: Boolean, useVibration: Boolean) {
-        Log.d(TAG, "notifyPhaseChange: $phase, voice: $useVoice, vibe: $useVibration")
         
         // 1. Queue voice message IMMEDIATELY
         if (useVoice) {
@@ -161,7 +178,6 @@ open class NotificationHelper(private val context: Context) {
                 is IntervalPhase.Fast -> "Fast walk"
                 is IntervalPhase.Completed -> "Workout complete"
             }
-            Log.d(TAG, "Speaking message: $message")
             speak(message)
         }
         
@@ -170,7 +186,6 @@ open class NotificationHelper(private val context: Context) {
         // For other phases: delay slightly to avoid interfering with TTS audio focus acquisition
         if (useVibration) {
             val vibrationRunnable = Runnable {
-                Log.d(TAG, "Executing vibration for phase: $phase")
                 try {
                     executeVibration(phase)
                 } catch (e: Exception) {
@@ -239,20 +254,16 @@ open class NotificationHelper(private val context: Context) {
      * Public method accessible from MainActivity for feedback messages.
      */
     open fun speak(text: String) {
-        Log.d(TAG, "Speak requested: $text (TTS ready: $isTtsReady)")
-        
         if (isTtsReady && textToSpeech != null) {
             speakNow(text)
         } else {
             // TTS not ready yet, queue the message
-            Log.d(TAG, "Queueing speech: $text")
             if (!pendingSpeech.contains(text)) {
                 pendingSpeech.add(text)
             }
             
             // Re-initialize if TTS was never created
             if (textToSpeech == null) {
-                Log.d(TAG, "TTS is null, reinitializing")
                 initializeTts()
             }
         }
@@ -286,8 +297,6 @@ open class NotificationHelper(private val context: Context) {
                     if (!pendingSpeech.contains(text)) {
                         pendingSpeech.add(text)
                     }
-                } else {
-                    Log.d(TAG, "Successfully queued speech: $text")
                 }
             } ?: run {
                 Log.e(TAG, "TTS is null when trying to speak")
@@ -316,7 +325,6 @@ open class NotificationHelper(private val context: Context) {
             is IntervalPhase.Fast -> "Starting workout. Fast walk"
             is IntervalPhase.Completed -> "Workout complete"
         }
-        Log.d(TAG, "Announcing start: $message")
         speak(message)
     }
     
@@ -325,7 +333,6 @@ open class NotificationHelper(private val context: Context) {
      * Useful for verifying TTS is working when user enables voice notifications.
      */
     open fun testTts() {
-        Log.d(TAG, "Testing TTS...")
         speak("Voice notifications enabled")
     }
     
@@ -338,7 +345,7 @@ open class NotificationHelper(private val context: Context) {
      * Releases all resources. Call this when the helper is no longer needed.
      */
     open fun release() {
-        Log.d(TAG, "Releasing NotificationHelper resources")
+        isInitializing = false
         textToSpeech?.stop()
         textToSpeech?.shutdown()
         textToSpeech = null

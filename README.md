@@ -55,13 +55,14 @@ These scripts are utilities to automate the generation of Play Store assets and 
 - **Design Your Own**: Create custom interval formulas with adjustable slow/fast durations, rounds, and starting phase
 - Vibration patterns: gentle for slow, strong double-pulse for fast
 - Voice notifications: optional text-to-speech announcements with early timing for perfect alignment
-- Dark and light theme support with persistence
+- **Themes**: System (follows device), Light, or Dark with easy cycling
 - Runs in background: continues working when phone is locked
 - Minimalist design with large, readable timer
 - Progress tracking: current interval and total intervals
 - Visual progress bar showing overall workout completion
 - Elapsed and remaining time displays for clear progress feedback
 - Icon-based controls for vibration, voice, and theme settings
+- **Settings screen**: Access app version, Privacy Policy, Terms and Conditions, and theme selector
 - **Workout statistics and history**
   - Calendar view showing workout days
   - Total workouts, minutes, and streaks
@@ -108,6 +109,8 @@ Three pre-configured formulas covering the main training patterns. Additional va
    - Select from three pre-configured formulas, or
    - Choose "Design Your Own" to create a custom interval or circuit formula
 2. Tap the vibration, voice, or theme icons to toggle settings (icons turn blue when active)
+   - **Theme button**: Tap to cycle through System → Light → Dark themes
+   - **Settings button** (info icon): Access Privacy Policy, Terms and Conditions, and theme selector
 3. Tap **Start** to begin
 4. Monitor progress using the progress bar and elapsed/remaining time displays
 5. Use **Pause** or **Reset** as needed
@@ -198,7 +201,13 @@ The app requires the following permissions:
 
 ## Design
 
-Minimalist interface with clean typography. Color coding: blue for slow phase, red for fast phase. Supports both light and dark themes with automatic persistence of user preference.
+Minimalist interface with clean typography. Color coding: blue for slow phase, red for fast phase. Supports three themes:
+
+- **System**: Automatically follows your device's theme setting
+- **Light**: Always use light theme
+- **Dark**: Always use dark theme
+
+Theme preference is automatically saved and persists across app restarts.
 
 ## Capturing Screenshots
 
@@ -262,3 +271,9 @@ See [LICENSE](LICENSE) file for details.
 ## Privacy Policy
 
 See [PRIVACY.md](PRIVACY.md) for our privacy policy.
+
+## Terms and Conditions
+
+See [TERMS.md](TERMS.md) for our terms and conditions, including important medical disclaimer information.
+
+**Note**: The app includes a medical disclaimer. Please consult with your healthcare provider before beginning any exercise program, especially if you have pre-existing medical conditions.
