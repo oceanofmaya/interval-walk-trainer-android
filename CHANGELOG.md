@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.0.0-beta.11 - 2026-01-21
+
+#### Updates
+
+- Added a non-destructive database migration to preserve workout history
+
 ### 1.0.0-beta.10 - 2026-01-21
 
 #### UI/UX Improvements
