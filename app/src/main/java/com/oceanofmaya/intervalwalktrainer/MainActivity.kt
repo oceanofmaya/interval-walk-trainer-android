@@ -762,6 +762,20 @@ open class MainActivity : AppCompatActivity() {
         val bottomSheetDialog = BottomSheetDialog(this)
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_settings, android.widget.FrameLayout(this), false)
         bottomSheetDialog.setContentView(view)
+        
+        // Enable edge-to-edge for bottom sheet dialog
+        bottomSheetDialog.window?.let { window ->
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            
+            // Apply window insets to account for system navigation bar at bottom
+            ViewCompat.setOnApplyWindowInsetsListener(view) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                // Add bottom padding to prevent content from being hidden behind navigation bar
+                v.updatePadding(bottom = insets.bottom + 16) // 16dp extra for visual spacing
+                windowInsets
+            }
+        }
+        
         configureBottomSheet(bottomSheetDialog, view)
         
         // Set app version
