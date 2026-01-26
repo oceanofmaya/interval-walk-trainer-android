@@ -766,12 +766,14 @@ open class MainActivity : AppCompatActivity() {
         // Enable edge-to-edge for bottom sheet dialog
         bottomSheetDialog.window?.let { window ->
             WindowCompat.setDecorFitsSystemWindows(window, false)
-            
+
+            val scrollView = view.findViewById<androidx.core.widget.NestedScrollView>(R.id.settingsScroll)
+            val basePaddingBottom = scrollView.paddingBottom
             // Apply window insets to account for system navigation bar at bottom
-            ViewCompat.setOnApplyWindowInsetsListener(view) { v, windowInsets ->
+            ViewCompat.setOnApplyWindowInsetsListener(scrollView) { v, windowInsets ->
                 val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
                 // Add bottom padding to prevent content from being hidden behind navigation bar
-                v.updatePadding(bottom = insets.bottom + 16) // 16dp extra for visual spacing
+                v.updatePadding(bottom = basePaddingBottom + insets.bottom)
                 windowInsets
             }
         }

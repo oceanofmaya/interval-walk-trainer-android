@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.0-beta.16 - 2026-01-25
+
+#### Bug Fixes
+
+- Fixed settings bottom sheet content being obscured by gesture navigation bar when scrolled to the bottom
+- Applied navigation bar insets to the settings sheet scroll view so the last buttons remain fully visible
+
 ### 1.0.0-beta.15 - 2026-01-25
 
 #### Bug Fixes
