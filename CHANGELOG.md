@@ -2,6 +2,14 @@
 
 ## Version 1
 
+### 1.0.0-beta.15 - 2026-01-25
+
+#### Bug Fixes
+
+- Fixed settings bottom sheet content being hidden behind system navigation bar on devices with gesture navigation
+- Added window insets handling to bottom sheet to account for system navigation bar overlay
+- Improved bottom padding to ensure last button remains visible when scrolling
+
 ### 1.0.0-beta.14 - 2026-01-25
 
 #### Bug Fixes
