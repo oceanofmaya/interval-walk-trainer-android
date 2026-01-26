@@ -745,7 +745,16 @@ open class MainActivity : AppCompatActivity() {
             val heightSpec = View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.AT_MOST)
             contentView.measure(widthSpec, heightSpec)
             val contentHeight = contentView.measuredHeight
-            behavior.peekHeight = contentHeight.coerceIn(minPeekHeight, maxPeekHeight)
+            // Ensure peek height is at least the full content height to prevent bottom buttons from being cut off
+            // Always use full content height if it fits, otherwise cap at max
+            val finalPeekHeight = if (contentHeight <= maxPeekHeight) {
+                // Content fits - use full height to show everything including bottom button
+                contentHeight
+            } else {
+                // Content too tall - use max height (content will be scrollable)
+                maxPeekHeight
+            }
+            behavior.peekHeight = finalPeekHeight.coerceAtLeast(minPeekHeight)
         }
     }
     
@@ -753,6 +762,20 @@ open class MainActivity : AppCompatActivity() {
         val bottomSheetDialog = BottomSheetDialog(this)
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_settings, android.widget.FrameLayout(this), false)
         bottomSheetDialog.setContentView(view)
+        
+        // Enable edge-to-edge for bottom sheet dialog
+        bottomSheetDialog.window?.let { window ->
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            
+            // Apply window insets to account for system navigation bar at bottom
+            ViewCompat.setOnApplyWindowInsetsListener(view) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                // Add bottom padding to prevent content from being hidden behind navigation bar
+                v.updatePadding(bottom = insets.bottom + 16) // 16dp extra for visual spacing
+                windowInsets
+            }
+        }
+        
         configureBottomSheet(bottomSheetDialog, view)
         
         // Set app version
