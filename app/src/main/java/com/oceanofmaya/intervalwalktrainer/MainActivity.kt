@@ -745,7 +745,16 @@ open class MainActivity : AppCompatActivity() {
             val heightSpec = View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.AT_MOST)
             contentView.measure(widthSpec, heightSpec)
             val contentHeight = contentView.measuredHeight
-            behavior.peekHeight = contentHeight.coerceIn(minPeekHeight, maxPeekHeight)
+            // Ensure peek height is at least the full content height to prevent bottom buttons from being cut off
+            // Always use full content height if it fits, otherwise cap at max
+            val finalPeekHeight = if (contentHeight <= maxPeekHeight) {
+                // Content fits - use full height to show everything including bottom button
+                contentHeight
+            } else {
+                // Content too tall - use max height (content will be scrollable)
+                maxPeekHeight
+            }
+            behavior.peekHeight = finalPeekHeight.coerceAtLeast(minPeekHeight)
         }
     }
     
