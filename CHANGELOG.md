@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.0.0-beta.17 - 2026-01-25
+
+#### UI/UX Improvements
+
+- Made all settings actions use the same text button style for consistent UI
+
 ### 1.0.0-beta.16 - 2026-01-25
 
 #### Bug Fixes

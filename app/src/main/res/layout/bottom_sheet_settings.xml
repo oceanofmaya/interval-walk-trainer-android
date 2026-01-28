@@ -65,8 +65,9 @@
         app:iconTint="@color/text_secondary"
         app:iconPadding="12dp"
         app:cornerRadius="12dp"
-        app:backgroundTint="@color/surface"
-        app:strokeWidth="0dp"
+        app:backgroundTint="@android:color/transparent"
+        app:strokeWidth="1dp"
+        app:strokeColor="@android:color/transparent"
         style="@style/Widget.MaterialComponents.Button.TextButton" />
 
     <com.google.android.material.button.MaterialButton
@@ -87,8 +88,9 @@
         app:iconTint="@color/text_secondary"
         app:iconPadding="12dp"
         app:cornerRadius="12dp"
-        app:backgroundTint="@color/surface"
-        app:strokeWidth="0dp"
+        app:backgroundTint="@android:color/transparent"
+        app:strokeWidth="1dp"
+        app:strokeColor="@android:color/transparent"
         style="@style/Widget.MaterialComponents.Button.TextButton" />
 
     <View
@@ -226,8 +228,9 @@
         app:iconTint="@color/text_secondary"
         app:iconPadding="12dp"
         app:cornerRadius="12dp"
-        app:backgroundTint="@color/surface"
-        app:strokeWidth="0dp"
+        app:backgroundTint="@android:color/transparent"
+        app:strokeWidth="1dp"
+        app:strokeColor="@android:color/transparent"
         style="@style/Widget.MaterialComponents.Button.TextButton" />
 
     <com.google.android.material.button.MaterialButton
@@ -248,8 +251,9 @@
         app:iconTint="@color/text_secondary"
         app:iconPadding="8dp"
         app:cornerRadius="12dp"
-        app:backgroundTint="@color/surface"
-        app:strokeWidth="0dp"
+        app:backgroundTint="@android:color/transparent"
+        app:strokeWidth="1dp"
+        app:strokeColor="@android:color/transparent"
         style="@style/Widget.MaterialComponents.Button.TextButton" />
 
     <View
