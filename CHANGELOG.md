@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.0.0-beta.18 - 2026-01-25
+
+#### UI/UX Improvements
+
+- Tidied settings headings for consistency
+
 ### 1.0.0-beta.17 - 2026-01-25
 
 #### UI/UX Improvements

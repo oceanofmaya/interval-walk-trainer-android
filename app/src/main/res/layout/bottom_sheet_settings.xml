@@ -47,6 +47,21 @@
         android:paddingEnd="24dp"
         android:paddingBottom="24dp" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/legal"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:gravity="start|center_vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
+        android:singleLine="true"
+        android:ellipsize="none" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/privacyPolicyButton"
         android:layout_width="match_parent"
@@ -103,13 +118,13 @@
         android:background="@color/stroke_light" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/theme_mode"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
-        android:layout_gravity="center_horizontal"
+        android:gravity="start|center_vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
         android:paddingTop="16dp"
@@ -196,13 +211,13 @@
         android:background="@color/stroke_light" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/workout_settings"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
-        android:layout_gravity="center_horizontal"
+        android:gravity="start|center_vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
         android:paddingTop="16dp"
