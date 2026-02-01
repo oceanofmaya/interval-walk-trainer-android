@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.0.0-beta.20 - 2026-02-01
+
+#### Chore
+
+- Updated to modern edge-to-edge API using `enableEdgeToEdge()`
+
 ### 1.0.0-beta.19 - 2026-01-25
 
 make #### Features
