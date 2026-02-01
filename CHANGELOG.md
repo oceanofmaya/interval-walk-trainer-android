@@ -2,6 +2,17 @@
 
 ## Version 1
 
+### 1.0.0-beta.19 - 2026-01-25
+
+make #### Features
+
+- Added pre-start countdown with voice and haptic cues (configurable in settings)
+
+#### UI/UX Improvements
+
+- Improved settings layout and toggle controls
+- Updated Terms of Service
+
 ### 1.0.0-beta.18 - 2026-01-25
 
 #### UI/UX Improvements

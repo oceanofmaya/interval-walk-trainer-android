@@ -7,8 +7,8 @@
     android:fillViewport="true"
     android:clipToPadding="false"
     android:background="@color/background"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,7 +20,7 @@
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="4dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="8dp"
         android:background="@drawable/bottom_sheet_drag_handle" />
 
     <TextView
@@ -33,32 +33,32 @@
         android:layout_gravity="center_horizontal"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp" />
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp" />
 
     <TextView
         android:id="@+id/appVersion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
+        android:textSize="16sp"
         android:textColor="@color/text_secondary"
         android:gravity="center"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingBottom="24dp" />
+        android:paddingBottom="16dp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/legal"
+        android:text="@string/about"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
         android:gravity="start|center_vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="6dp"
         android:singleLine="true"
         android:ellipsize="none" />
 
@@ -72,9 +72,9 @@
         android:gravity="start|center_vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:minHeight="56dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:minHeight="52dp"
         app:icon="@drawable/ic_privacy"
         app:iconGravity="start"
         app:iconTint="@color/text_secondary"
@@ -95,9 +95,9 @@
         android:gravity="start|center_vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:minHeight="56dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:minHeight="52dp"
         app:icon="@drawable/ic_terms"
         app:iconGravity="start"
         app:iconTint="@color/text_secondary"
@@ -113,8 +113,8 @@
         android:layout_height="1dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
         android:background="@color/stroke_light" />
 
     <TextView
@@ -127,8 +127,8 @@
         android:gravity="start|center_vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="6dp"
         android:singleLine="true"
         android:ellipsize="none" />
 
@@ -142,9 +142,9 @@
         android:gravity="start|center_vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:minHeight="56dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:minHeight="52dp"
         app:icon="@drawable/ic_system_theme"
         app:iconGravity="start"
         app:iconTint="@color/text_secondary"
@@ -165,9 +165,9 @@
         android:gravity="start|center_vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:minHeight="56dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:minHeight="52dp"
         app:icon="@drawable/ic_light_theme"
         app:iconGravity="start"
         app:iconTint="@color/text_secondary"
@@ -188,9 +188,9 @@
         android:gravity="start|center_vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:minHeight="56dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:minHeight="52dp"
         app:icon="@drawable/ic_dark_theme"
         app:iconGravity="start"
         app:iconTint="@color/text_secondary"
@@ -206,8 +206,8 @@
         android:layout_height="1dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
         android:background="@color/stroke_light" />
 
     <TextView
@@ -220,33 +220,136 @@
         android:gravity="start|center_vertical"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="6dp"
         android:singleLine="true"
         android:ellipsize="none" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/saveWorkoutsButton"
+    <!-- Countdown toggle row - using same pattern as working buttons -->
+    <FrameLayout
+        android:id="@+id/startCountdownRow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/save_workouts"
-        android:textSize="16sp"
-        android:textColor="@color/text_primary"
-        android:gravity="start|center_vertical"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:minHeight="56dp"
-        app:icon="@drawable/ic_save"
-        app:iconGravity="start"
-        app:iconTint="@color/text_secondary"
-        app:iconPadding="12dp"
-        app:cornerRadius="12dp"
-        app:backgroundTint="@android:color/transparent"
-        app:strokeWidth="1dp"
-        app:strokeColor="@android:color/transparent"
-        style="@style/Widget.MaterialComponents.Button.TextButton" />
+        android:minHeight="52dp">
+        
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/countdownLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Countdown"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            android:gravity="start|center_vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="120dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:minHeight="52dp"
+            android:clickable="false"
+            android:focusable="false"
+            app:icon="@drawable/ic_timer"
+            app:iconGravity="start"
+            app:iconTint="@color/text_secondary"
+            app:iconPadding="12dp"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@android:color/transparent"
+            app:strokeWidth="0dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton" />
+        
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="16dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            
+            <TextView
+                android:id="@+id/startCountdownValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3s"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:layout_marginEnd="4dp" />
+
+            <ImageButton
+                android:id="@+id/startCountdownDecrease"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_remove"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Decrease"
+                app:tint="@color/text_secondary"
+                android:scaleType="centerInside" />
+
+            <ImageButton
+                android:id="@+id/startCountdownIncrease"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_add"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Increase"
+                app:tint="@color/text_secondary"
+                android:scaleType="centerInside" />
+            
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/startCountdownSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                app:thumbTint="@color/switch_thumb_color"
+                app:trackTint="@color/switch_track_color" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Controls visibility wrapper for countdown (used by code) -->
+    <View
+        android:id="@+id/startCountdownControls"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+
+    <!-- Save Workouts toggle row -->
+    <FrameLayout
+        android:id="@+id/saveWorkoutsRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="52dp">
+        
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/saveWorkoutsLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Workouts"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            android:gravity="start|center_vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="80dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:minHeight="52dp"
+            android:clickable="false"
+            android:focusable="false"
+            app:icon="@drawable/ic_save"
+            app:iconGravity="start"
+            app:iconTint="@color/text_secondary"
+            app:iconPadding="12dp"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@android:color/transparent"
+            app:strokeWidth="0dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton" />
+        
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/saveWorkoutsSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="16dp"
+            app:thumbTint="@color/switch_thumb_color"
+            app:trackTint="@color/switch_track_color" />
+    </FrameLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/clearStatsButton"
@@ -258,9 +361,9 @@
         android:gravity="start|center_vertical"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:minHeight="56dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:minHeight="52dp"
         app:icon="@drawable/outline_delete_24"
         app:iconGravity="start"
         app:iconTint="@color/text_secondary"
