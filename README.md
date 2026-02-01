@@ -62,7 +62,8 @@ These scripts are utilities to automate the generation of Play Store assets and 
 - Visual progress bar showing overall workout completion
 - Elapsed and remaining time displays for clear progress feedback
 - Icon-based controls for vibration, voice, and theme settings
-- **Settings screen**: Access app version, Privacy Policy, Terms and Conditions, and theme selector
+- **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
+- **Settings screen**: Access app version, Privacy Policy, Terms of Service, theme selector, and toggle controls for countdown and workout saving
 - **Workout statistics and history**
   - Calendar view showing workout days
   - Total workouts, minutes, and streaks
@@ -111,7 +112,7 @@ Three pre-configured formulas covering the main training patterns. Additional va
 2. Tap the vibration, voice, or theme icons to toggle settings (icons turn blue when active)
    - **Theme button**: Tap to cycle through System → Light → Dark themes
    - **Settings button** (info icon): Access Privacy Policy, Terms and Conditions, and theme selector
-3. Tap **Start** to begin
+3. Tap **Start** to begin (a short countdown will appear if enabled in settings)
 4. Monitor progress using the progress bar and elapsed/remaining time displays
 5. Use **Pause** or **Reset** as needed
 6. The timer continues running even when the phone is locked
@@ -272,8 +273,8 @@ See [LICENSE](LICENSE) file for details.
 
 See [PRIVACY.md](PRIVACY.md) for our privacy policy.
 
-## Terms and Conditions
+## Terms of Service
 
-See [TERMS.md](TERMS.md) for our terms and conditions, including important medical disclaimer information.
+See [TERMS.md](TERMS.md) for our terms of service, including important medical disclaimer information.
 
 **Note**: The app includes a medical disclaimer. Please consult with your healthcare provider before beginning any exercise program, especially if you have pre-existing medical conditions.

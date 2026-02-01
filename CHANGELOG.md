@@ -2,7 +2,14 @@
 
 ## Version 1
 
-### 1.0.0-beta.20 - 2026-02-01
+### 1.0.0-beta.21 - 2026-01-31
+
+#### Documentation
+
+- Updated README with pre-start countdown feature documentation
+- Updated Terms and Conditions references to Terms of Service
+
+### 1.0.0-beta.20 - 2026-01-31
 
 #### Chore
 
