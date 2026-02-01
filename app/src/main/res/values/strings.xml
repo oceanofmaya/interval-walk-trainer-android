@@ -107,19 +107,23 @@
     <string name="tip_settings_title">Settings</string>
     <string name="tip_settings_body">Access privacy policy, terms, and theme selection.</string>
     <string name="settings">Settings</string>
-    <string name="legal">Privacy &amp; Terms</string>
+    <string name="about">About</string>
     <string name="privacy_policy">Privacy Policy</string>
-    <string name="terms_and_conditions">Terms and Conditions</string>
+    <string name="terms_and_conditions">Terms of Service</string>
     <string name="theme_mode">Theme</string>
     <string name="theme_system">System (Auto)</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="settings_button">Settings</string>
     <string name="workout_settings">Workout Settings</string>
+    <string name="start_countdown">Countdown</string>
+    <string name="countdown_seconds_format">%1$ds</string>
+    <string name="countdown_seconds_default">3s</string>
     <string name="save_workouts">Save Workouts</string>
     <string name="disable_save_workouts_title">Turn off workout history?</string>
     <string name="disable_save_workouts_message">New workouts will not be saved to history while this is off.</string>
     <string name="turn_off">Turn Off</string>
     <string name="keep_on">Keep On</string>
+    <string name="go">Go</string>
 </resources>
 

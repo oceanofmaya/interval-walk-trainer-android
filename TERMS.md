@@ -1,10 +1,10 @@
-# Terms and Conditions
+# Terms of Service
 
-**Last Updated:** January 2025
+**Last Updated:** January 31, 2025
 
 ## Agreement to Terms
 
-By downloading, installing, or using Interval Walk Trainer ("the app"), you agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use the app.
+By downloading, installing, or using Interval Walk Trainer ("the app"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the app.
 
 ## Description of Service
 
@@ -65,30 +65,30 @@ Your use of the app is also governed by our Privacy Policy. Please review our Pr
 
 ## Modifications to Terms
 
-We reserve the right to modify these Terms and Conditions at any time. We will notify users of any material changes by updating the "Last Updated" date at the top of this document. Your continued use of the app after such modifications constitutes your acceptance of the updated terms.
+We reserve the right to modify these Terms of Service at any time. We will notify users of any material changes by updating the "Last Updated" date at the top of this document. Your continued use of the app after such modifications constitutes your acceptance of the updated terms.
 
 ## Termination
 
-We reserve the right to terminate or suspend your access to the app at any time, without prior notice, for any reason, including if you breach these Terms and Conditions.
+We reserve the right to terminate or suspend your access to the app at any time, without prior notice, for any reason, including if you breach these Terms of Service.
 
 ## Governing Law
 
-These Terms and Conditions shall be governed by and construed in accordance with the laws of the jurisdiction in which the app developer operates, without regard to its conflict of law provisions.
+These Terms of Service shall be governed by and construed in accordance with the laws of the jurisdiction in which the app developer operates, without regard to its conflict of law provisions.
 
 ## Severability
 
-If any provision of these Terms and Conditions is found to be unenforceable or invalid, that provision shall be limited or eliminated to the minimum extent necessary, and the remaining provisions shall remain in full force and effect.
+If any provision of these Terms of Service is found to be unenforceable or invalid, that provision shall be limited or eliminated to the minimum extent necessary, and the remaining provisions shall remain in full force and effect.
 
 ## Contact Information
 
-If you have any questions about these Terms and Conditions, please contact us through the app's support channels or GitHub repository.
+If you have any questions about these Terms of Service, please contact us through the app's support channels or GitHub repository.
 
 For support or legal inquiries, please open an issue on the app's GitHub repository or contact the developer through the contact information provided in the Google Play Store listing.
 
 ## Acknowledgment
 
-By using Interval Walk Trainer, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions, including the Medical Disclaimer.
+By using Interval Walk Trainer, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service, including the Medical Disclaimer.
 
 ---
 
-**Note**: These Terms and Conditions are designed to protect both users and developers while ensuring safe and responsible use of the app. The medical disclaimer is particularly important for fitness applications and helps ensure users understand the importance of consulting healthcare providers before beginning exercise programs.
+**Note**: These Terms of Service are designed to protect both users and developers while ensuring safe and responsible use of the app. The medical disclaimer is particularly important for fitness applications and helps ensure users understand the importance of consulting healthcare providers before beginning exercise programs.

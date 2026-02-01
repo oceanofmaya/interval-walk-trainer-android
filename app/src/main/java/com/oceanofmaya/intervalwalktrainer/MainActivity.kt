@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
@@ -67,6 +68,8 @@ open class MainActivity : AppCompatActivity() {
     private var lastDisplayedTime = -1
     private var lastDisplayedPhase: IntervalPhase? = null
     private var hasShownCompletionConfetti = false
+    private var preStartCountdownTimer: CountDownTimer? = null
+    private var isPreStartCountdownActive = false
 
     companion object {
         // SharedPreferences keys
@@ -75,6 +78,8 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_VIBRATION_ENABLED = "vibration_enabled"
         private const val KEY_VOICE_ENABLED = "voice_enabled"
         private const val KEY_SAVE_WORKOUTS = "save_workouts"
+        private const val KEY_START_COUNTDOWN = "start_countdown"
+        private const val KEY_START_COUNTDOWN_SECONDS = "start_countdown_seconds"
         private const val KEY_CUSTOM_SLOW_MINUTES = "custom_slow_minutes"
         private const val KEY_CUSTOM_FAST_MINUTES = "custom_fast_minutes"
         private const val KEY_CUSTOM_ROUNDS = "custom_rounds"
@@ -95,6 +100,9 @@ open class MainActivity : AppCompatActivity() {
         private const val WAKE_LOCK_TAG = "IntervalWalkTrainer:TimerWakeLock"
         private const val WAKE_LOCK_TIMEOUT_HOURS = 10L
         private const val WAKE_LOCK_TIMEOUT_MS = WAKE_LOCK_TIMEOUT_HOURS * 60 * 60 * 1000L
+        private const val PRE_START_SECONDS_DEFAULT = 3
+        private const val PRE_START_SECONDS_MIN = 1
+        private const val PRE_START_SECONDS_MAX = 10
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -859,23 +867,58 @@ open class MainActivity : AppCompatActivity() {
             showClearStatsConfirmationDialog(bottomSheetDialog)
         }
         
-        // Save workouts toggle button
-        val saveWorkoutsButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.saveWorkoutsButton)
+        // Save workouts toggle switch
+        val saveWorkoutsSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.saveWorkoutsSwitch)
         val saveWorkoutsEnabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
-        updateSaveWorkoutsButton(saveWorkoutsButton, saveWorkoutsEnabled)
+        saveWorkoutsSwitch.isChecked = saveWorkoutsEnabled
         
-        saveWorkoutsButton.setOnClickListener { btn ->
-            hapticSelection(btn)
-            val currentEnabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
-            if (currentEnabled) {
-                showDisableSaveWorkoutsDialog {
-                    sharedPreferences.edit { putBoolean(KEY_SAVE_WORKOUTS, false) }
-                    updateSaveWorkoutsButton(saveWorkoutsButton, false)
-                }
+        var isUpdatingSaveWorkoutsSwitch = false
+        saveWorkoutsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isUpdatingSaveWorkoutsSwitch) return@setOnCheckedChangeListener
+            hapticSelection(buttonView)
+            if (!isChecked) {
+                // User is trying to turn off - show confirmation dialog
+                isUpdatingSaveWorkoutsSwitch = true
+                saveWorkoutsSwitch.isChecked = true // Revert immediately
+                isUpdatingSaveWorkoutsSwitch = false
+                showDisableSaveWorkoutsDialog(
+                    onConfirm = {
+                        sharedPreferences.edit { putBoolean(KEY_SAVE_WORKOUTS, false) }
+                        isUpdatingSaveWorkoutsSwitch = true
+                        saveWorkoutsSwitch.isChecked = false
+                        isUpdatingSaveWorkoutsSwitch = false
+                    }
+                )
             } else {
                 sharedPreferences.edit { putBoolean(KEY_SAVE_WORKOUTS, true) }
-                updateSaveWorkoutsButton(saveWorkoutsButton, true)
             }
+        }
+
+        // Start countdown toggle switch
+        val startCountdownSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.startCountdownSwitch)
+        val startCountdownEnabled = sharedPreferences.getBoolean(KEY_START_COUNTDOWN, true)
+        startCountdownSwitch.isChecked = startCountdownEnabled
+
+        startCountdownSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            hapticSelection(buttonView)
+            sharedPreferences.edit { putBoolean(KEY_START_COUNTDOWN, isChecked) }
+            updateStartCountdownControlsState(view, isChecked)
+        }
+
+        val startCountdownValue = view.findViewById<android.widget.TextView>(R.id.startCountdownValue)
+        val startCountdownDecrease = view.findViewById<android.widget.ImageButton>(R.id.startCountdownDecrease)
+        val startCountdownIncrease = view.findViewById<android.widget.ImageButton>(R.id.startCountdownIncrease)
+        updateStartCountdownValue(startCountdownValue)
+        updateStartCountdownControlsState(view, startCountdownEnabled, startCountdownDecrease, startCountdownIncrease, startCountdownValue)
+
+        startCountdownDecrease.setOnClickListener { btn ->
+            hapticSelection(btn)
+            adjustStartCountdownSeconds(startCountdownValue, -1)
+        }
+
+        startCountdownIncrease.setOnClickListener { btn ->
+            hapticSelection(btn)
+            adjustStartCountdownSeconds(startCountdownValue, 1)
         }
         
         bottomSheetDialog.show()
@@ -903,7 +946,9 @@ open class MainActivity : AppCompatActivity() {
         binding.startPauseButton.setOnClickListener { view ->
             hapticSuccess(view)
             animateControlPress(binding.startPauseButton)
-            if (intervalTimer?.state?.value?.isRunning == true) {
+            if (isPreStartCountdownActive) {
+                cancelPreStartCountdown(startImmediately = true)
+            } else if (intervalTimer?.state?.value?.isRunning == true) {
                 pauseTimer()
             } else {
                 startTimer()
@@ -913,6 +958,7 @@ open class MainActivity : AppCompatActivity() {
         binding.resetButton.setOnClickListener { view ->
             performHapticFeedback(view)
             animateControlPress(binding.resetButton)
+            cancelPreStartCountdown()
             resetTimer()
         }
 
@@ -1026,6 +1072,17 @@ open class MainActivity : AppCompatActivity() {
             observeTimerState()
         }
 
+        val state = intervalTimer?.state?.value
+        val startCountdownEnabled = sharedPreferences.getBoolean(KEY_START_COUNTDOWN, true)
+        if (startCountdownEnabled && state != null && state.elapsedSeconds == 0 && !state.isRunning && !isPreStartCountdownActive) {
+            startPreStartCountdown()
+            return
+        }
+
+        startTimerNow()
+    }
+
+    private fun startTimerNow() {
         // Acquire wake lock to keep device awake during timer
         acquireWakeLock()
         hasShownCompletionConfetti = false
@@ -1041,7 +1098,109 @@ open class MainActivity : AppCompatActivity() {
         updateButtonStates()
     }
 
+    private fun startPreStartCountdown() {
+        if (isPreStartCountdownActive) return
+        isPreStartCountdownActive = true
+        preStartCountdownTimer?.cancel()
+        val countdownSeconds = getStartCountdownSeconds()
+        binding.preStartCountdown.text = countdownSeconds.toString()
+        binding.preStartOverlay.visibility = View.VISIBLE
+        binding.preStartOverlay.setOnClickListener {
+            cancelPreStartCountdown(startImmediately = true)
+        }
+
+        val useVibration = sharedPreferences.getBoolean(KEY_VIBRATION_ENABLED, true)
+        val useVoice = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, false)
+        if (useVoice && notificationHelper == null) {
+            notificationHelper = createNotificationHelper()
+        }
+
+        preStartCountdownTimer = object : CountDownTimer(countdownSeconds * 1000L, 1000L) {
+            override fun onTick(millisUntilFinished: Long) {
+                val secondsLeft = ((millisUntilFinished + 999) / 1000).toInt()
+                binding.preStartCountdown.text = secondsLeft.toString()
+                if (useVibration) {
+                    hapticSelection(binding.root)
+                }
+                if (useVoice) {
+                    notificationHelper?.speak(secondsLeft.toString())
+                }
+            }
+
+            override fun onFinish() {
+                binding.preStartCountdown.text = getString(R.string.go)
+                if (useVibration) {
+                    hapticSuccess(binding.root)
+                }
+                if (useVoice) {
+                    notificationHelper?.speak(getString(R.string.go))
+                }
+                Handler(Looper.getMainLooper()).postDelayed({
+                    cancelPreStartCountdown(startImmediately = true)
+                }, 800)
+            }
+        }.start()
+
+        updateButtonStates()
+    }
+
+    private fun cancelPreStartCountdown(startImmediately: Boolean = false) {
+        preStartCountdownTimer?.cancel()
+        preStartCountdownTimer = null
+        isPreStartCountdownActive = false
+        binding.preStartOverlay.visibility = View.GONE
+        binding.preStartOverlay.setOnClickListener(null)
+        if (startImmediately) {
+            startTimerNow()
+        } else {
+            updateButtonStates()
+        }
+    }
+
+    private fun getStartCountdownSeconds(): Int {
+        val stored = sharedPreferences.getInt(KEY_START_COUNTDOWN_SECONDS, PRE_START_SECONDS_DEFAULT)
+        return stored.coerceIn(PRE_START_SECONDS_MIN, PRE_START_SECONDS_MAX)
+    }
+
+    private fun updateStartCountdownValue(valueView: android.widget.TextView) {
+        val seconds = getStartCountdownSeconds()
+        valueView.text = getString(R.string.countdown_seconds_format, seconds)
+    }
+
+    private fun adjustStartCountdownSeconds(valueView: android.widget.TextView, delta: Int) {
+        val current = getStartCountdownSeconds()
+        val next = (current + delta).coerceIn(PRE_START_SECONDS_MIN, PRE_START_SECONDS_MAX)
+        if (next != current) {
+            sharedPreferences.edit { putInt(KEY_START_COUNTDOWN_SECONDS, next) }
+            updateStartCountdownValue(valueView)
+        }
+    }
+
+    private fun updateStartCountdownControlsState(
+        view: View, 
+        enabled: Boolean,
+        decreaseBtn: android.widget.ImageButton? = null,
+        increaseBtn: android.widget.ImageButton? = null,
+        valueText: android.widget.TextView? = null
+    ) {
+        val alpha = if (enabled) 1f else 0.4f
+        val decrease = decreaseBtn ?: view.findViewById<android.widget.ImageButton>(R.id.startCountdownDecrease)
+        val increase = increaseBtn ?: view.findViewById<android.widget.ImageButton>(R.id.startCountdownIncrease)
+        val value = valueText ?: view.findViewById<android.widget.TextView>(R.id.startCountdownValue)
+        
+        decrease?.apply {
+            this.alpha = alpha
+            isEnabled = enabled
+        }
+        increase?.apply {
+            this.alpha = alpha
+            isEnabled = enabled
+        }
+        value?.alpha = alpha
+    }
+
     private fun resetTimer() {
+        cancelPreStartCountdown()
         intervalTimer?.dispose()
         intervalTimer = null
         // Release wake lock when reset
@@ -1301,19 +1460,6 @@ open class MainActivity : AppCompatActivity() {
         }
     }
     
-    private fun updateSaveWorkoutsButton(button: com.google.android.material.button.MaterialButton, isEnabled: Boolean) {
-        val primaryColor = getColor(R.color.button_primary)
-        val secondaryColor = getColor(R.color.text_secondary)
-        
-        if (isEnabled) {
-            button.setTextColor(primaryColor)
-            button.iconTint = android.content.res.ColorStateList.valueOf(primaryColor)
-        } else {
-            button.setTextColor(secondaryColor)
-            button.iconTint = android.content.res.ColorStateList.valueOf(secondaryColor)
-        }
-    }
-    
     private fun showClearStatsConfirmationDialog(parentDialog: BottomSheetDialog) {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(R.string.clear_stats_title)
@@ -1338,14 +1484,19 @@ open class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showDisableSaveWorkoutsDialog(onConfirm: () -> Unit) {
+    private fun showDisableSaveWorkoutsDialog(onConfirm: () -> Unit, onCancel: (() -> Unit)? = null) {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(R.string.disable_save_workouts_title)
             .setMessage(R.string.disable_save_workouts_message)
             .setPositiveButton(R.string.turn_off) { _, _ ->
                 onConfirm()
             }
-            .setNegativeButton(R.string.keep_on, null)
+            .setNegativeButton(R.string.keep_on) { _, _ ->
+                onCancel?.invoke()
+            }
+            .setOnCancelListener {
+                onCancel?.invoke()
+            }
             .show()
     }
 
@@ -1437,6 +1588,7 @@ open class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        preStartCountdownTimer?.cancel()
         intervalTimer?.dispose()
         notificationHelper?.release()
         notificationHelper = null
