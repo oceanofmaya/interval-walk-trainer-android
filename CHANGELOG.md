@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.0 - 2025-02-03
+
+#### Production Release
+
+- **Interval Walk Trainer 1.0.0** — first stable production release.
+- Pre-configured formulas (3-3 Japanese, 5-2 High Intensity, 5-4-5 Circuit), custom interval/circuit builder, workout tracking with progress and phase colors, stats and calendar history, notifications (voice + haptics), optional pre-start countdown, theme support (system/light/dark), and optional workout saving — all refined through the beta period and ready for production use.
+
 ### 1.0.0-beta.22 - 2026-02-01
 
 #### Chore
