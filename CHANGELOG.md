@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.0.0-beta.22 - 2026-02-01
+
+#### Chore
+
+- Reworked edge-to-edge setup to avoid deprecated Android 15 APIs
+
 ### 1.0.0-beta.21 - 2026-01-31
 
 #### Documentation
@@ -13,11 +19,11 @@
 
 #### Chore
 
-- Updated to modern edge-to-edge API using `enableEdgeToEdge()`
+- Updated edge-to-edge handling for modern system insets
 
 ### 1.0.0-beta.19 - 2026-01-25
 
-make #### Features
+#### Features
 
 - Added pre-start countdown with voice and haptic cues (configurable in settings)
 
