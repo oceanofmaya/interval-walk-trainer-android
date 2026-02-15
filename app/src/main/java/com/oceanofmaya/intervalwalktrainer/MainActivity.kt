@@ -41,6 +41,7 @@ import com.oceanofmaya.intervalwalktrainer.databinding.ActivityMainBinding
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import androidx.core.content.edit
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 /**
  * Main activity for the Interval Walk Trainer app.
@@ -109,6 +110,9 @@ open class MainActivity : AppCompatActivity() {
         // Load and apply theme preference before setting content view
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
         applyThemePreference()
+
+        // Install splash screen (must be called before super.onCreate)
+        installSplashScreen()
         
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)

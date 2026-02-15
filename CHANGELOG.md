@@ -2,6 +2,20 @@
 
 ## Version 1
 
+### 1.0.1 - 2026-02-14
+
+#### UI/UX Improvements
+
+- Updated app icon to use the new hand-designed logo across all density buckets
+- Added splash screen showing the app logo on launch (supports both light and dark themes)
+- Added legacy launcher icon support for pre-API 26 devices
+
+#### Chore
+
+- Replaced generated store assets (app icon, feature graphic, promotional graphic) with manually designed versions
+- Removed asset generation scripts in favor of manually designed assets
+- Added AndroidX SplashScreen dependency for backward-compatible splash screen support
+
 ### 1.0.0 - 2025-02-03
 
 #### Production Release
