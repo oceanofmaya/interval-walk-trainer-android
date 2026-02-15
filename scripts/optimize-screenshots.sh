@@ -22,7 +22,7 @@ for img in "$SCREENSHOT_DIR"/*.png; do
     if [ -f "$img" ]; then
         echo "Optimizing $(basename "$img")..."
         # Resize to max width of 1080px (if larger), maintain aspect ratio, reduce quality slightly
-        $IMAGEMAGICK_CMD "$img" -resize '1080x>' -quality 85 "$img"
+        $IMAGEMAGICK_CMD "$img" -resize '1080x>' -quality 95 "$img"
     fi
 done
 

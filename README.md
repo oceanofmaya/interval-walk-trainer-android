@@ -29,12 +29,9 @@ interval-walk-trainer/
 
 The `scripts/` directory contains utility scripts to automate asset generation:
 
-- **`generate-app-icon.sh`** - Generates the 512x512px Play Store app icon
-- **`generate-feature-graphic.sh`** - Generates the 1024x500px feature graphic
-- **`generate-promotional-graphic.sh`** - Generates the 180x120px promotional graphic
 - **`optimize-screenshots.sh`** - Optimizes screenshot file sizes
 
-These scripts are utilities to automate the generation of Play Store assets and are not required for building or running the app.
+These scripts are utilities to optimize Play Store assets and are not required for building or running the app.
 
 **Requirements:**
 
