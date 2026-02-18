@@ -41,9 +41,9 @@ These scripts are utilities to optimize Play Store assets and are not required f
 ## Screenshots
 
 <div align="center">
-  <img src="assets/store/screenshots/phone/home-light.png" alt="Home Screen" width="250"/>
-  <img src="assets/store/screenshots/phone/formula-light.png" alt="Formula Selector" width="250"/>
-  <img src="assets/store/screenshots/phone/fast-light.png" alt="Timer Running" width="250"/>
+  <img src="assets/store/screenshots/promo/01-slow-light-promo.png" alt="Slow Phase Promo" width="250"/>
+  <img src="assets/store/screenshots/promo/02-fast-light-promo.png" alt="Fast Phase Promo" width="250"/>
+  <img src="assets/store/screenshots/promo/03-formula-light-promo.png" alt="Formula Selector Promo" width="250"/>
 </div>
 
 ## Features
@@ -207,60 +207,14 @@ Minimalist interface with clean typography. Color coding: blue for slow phase, r
 
 Theme preference is automatically saved and persists across app restarts.
 
-## Capturing Screenshots
+## Capturing Store Screenshots
 
-Screenshots are stored in `assets/store/screenshots/phone/` and used for both documentation and Play Store listings.
+Store screenshots are organized in two layers:
 
-### Capture from Emulator
+- `assets/store/screenshots/phone/` - raw emulator captures (source assets)
+- `assets/store/screenshots/promo/` - manually designed Play Store-ready promo images derived from phone screenshots
 
-Capture screenshots manually from the Android Emulator:
-
-1. Run app in Android Emulator
-2. Navigate to the screen you want to capture
-3. Click camera icon (📷) in emulator toolbar
-4. Screenshots save to `~/Desktop/` or `~/Pictures/`
-5. Move and rename to `assets/store/screenshots/phone/`
-
-### File Naming Convention
-
-Use the following naming pattern: `[screen]-[theme].png`
-
-- `splash.png` - Launch/splash screen
-- `home-light.png`, `home-dark.png` - Home screen
-- `slow-light.png`, `slow-dark.png` - Timer slow phase
-- `fast-light.png`, `fast-dark.png` - Timer fast phase
-- `formula-light.png`, `formula-dark.png` - Formula selector
-- `complete-light.png`, `complete-dark.png` - Timer completed state
-
-### Image Requirements
-
-**For README:**
-
-- Format: PNG (preferred) or JPEG
-- Max Width: 1080px
-- Aspect Ratio: Match device (usually 9:16 for phone)
-- File Size: < 500KB per image (after optimization)
-
-**For Play Store:**
-
-- Phone: 2-8 screenshots, 16:9 or 9:16 ratio
-- 7-inch tablet: 2-8 screenshots (optional)
-- 10-inch tablet: 2-8 screenshots (optional)
-- Dimensions: 320px minimum, 3840px maximum
-
-### Optimization
-
-After capturing, optimize images to reduce file size:
-
-```bash
-./scripts/optimize-screenshots.sh
-```
-
-This requires ImageMagick:
-
-```bash
-brew install imagemagick
-```
+See [assets/store/SCREENSHOTS.md](assets/store/SCREENSHOTS.md) for the full workflow, naming standards, keep/remove guidance, and update checklist.
 
 ## License
 

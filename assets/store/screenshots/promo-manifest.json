@@ -1,0 +1,80 @@
+{
+  "platform": "android-play-store",
+  "device": "phone",
+  "manual_composition": true,
+  "last_updated": "2026-02-17",
+  "items": [
+    {
+      "position": 1,
+      "source": "phone/slow-light.png",
+      "promo": "promo/01-slow-light-promo.png",
+      "feature_message": "Clear slow-phase pacing with large, readable timing",
+      "caption": {
+        "headline": "Walk Smarter, Not Harder",
+        "supporting_text": "Includes the Japanese 3-3 Interval Walking Training Method",
+        "callouts": [
+          "Works in the background",
+          "Voice Notifications"
+        ]
+      }
+    },
+    {
+      "position": 2,
+      "source": "phone/fast-light.png",
+      "promo": "promo/02-fast-light-promo.png",
+      "feature_message": "Fast-phase cues with voice and vibration support",
+      "caption": {
+        "headline": "Never Miss a Beat",
+        "supporting_text": "Color-Coded Phases & Vibration Alerts",
+        "callouts": [
+          "Color-Coded Phases",
+          "Vibration Alerts"
+        ]
+      }
+    },
+    {
+      "position": 3,
+      "source": "phone/formula-light.png",
+      "promo": "promo/03-formula-light-promo.png",
+      "feature_message": "Choose a guided formula or build your own interval workout",
+      "caption": {
+        "headline": "Scientifically Backed Routines",
+        "supporting_text": "Pre-set-formulas (3-3, 5-2, 5-4-5)",
+        "callouts": []
+      }
+    },
+    {
+      "position": 4,
+      "source": "phone/custom-interval-light.png",
+      "promo": "promo/04-custom-interval-light-promo.png",
+      "feature_message": "Design your own interval durations and rounds",
+      "caption": {
+        "headline": "Your Training, Your Way",
+        "supporting_text": "Customization (Intervals vs. Circuit)",
+        "callouts": []
+      }
+    },
+    {
+      "position": 5,
+      "source": "phone/stats-overview-light.png",
+      "promo": "promo/05-stats-overview-light-promo.png",
+      "feature_message": "Track workouts, streaks, and progress over time",
+      "caption": {
+        "headline": "Track Your Progress",
+        "supporting_text": "Motivation through streaks and history",
+        "callouts": []
+      }
+    },
+    {
+      "position": 6,
+      "source": "phone/complete-light.png",
+      "promo": "promo/06-complete-light-promo.png",
+      "feature_message": "Finish sessions with clear completion and summary feedback",
+      "caption": {
+        "headline": "Zero Distractions",
+        "supporting_text": "Ad-free, subscription-free, pure focus",
+        "callouts": []
+      }
+    }
+  ]
+}

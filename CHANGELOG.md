@@ -2,6 +2,23 @@
 
 ## Version 1
 
+### 1.0.2 - 2026-02-17
+
+#### UI/UX Improvements
+
+- Reworked Play Store phone screenshots into a curated six-image promo sequence with numbered ordering for consistent upload flow
+- Removed lower-priority and duplicate phone screenshots to keep only the active light-theme source set used for promo composition
+
+#### Documentation
+
+- Updated README screenshot section to use the new ordered promo assets
+- Added `assets/store/SCREENSHOTS.md` to document screenshot structure, naming, maintenance workflow, and source-to-promo process
+- Added `assets/store/screenshots/promo-manifest.json` to track promo ordering, source mapping, feature intent, and exact rendered caption copy
+
+#### Chore
+
+- Removed `assets/store/promotional-graphic.png` because it was tied to legacy Android promotional graphic requirements that are no longer supported
+
 ### 1.0.1 - 2026-02-14
 
 #### UI/UX Improvements
