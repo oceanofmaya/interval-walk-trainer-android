@@ -2,7 +2,9 @@ package com.oceanofmaya.intervalwalktrainer
 
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
+import android.Manifest
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
@@ -23,6 +25,7 @@ import android.view.animation.DecelerateInterpolator
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -71,6 +74,7 @@ open class MainActivity : AppCompatActivity() {
     private var hasShownCompletionConfetti = false
     private var preStartCountdownTimer: CountDownTimer? = null
     private var isPreStartCountdownActive = false
+    private var shouldStartForegroundServiceAfterPermission = false
 
     companion object {
         // SharedPreferences keys
@@ -104,6 +108,7 @@ open class MainActivity : AppCompatActivity() {
         private const val PRE_START_SECONDS_DEFAULT = 3
         private const val PRE_START_SECONDS_MIN = 1
         private const val PRE_START_SECONDS_MAX = 10
+        private const val REQUEST_CODE_ACTIVITY_RECOGNITION = 1001
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -264,6 +269,7 @@ open class MainActivity : AppCompatActivity() {
                 // Acquire wake lock if timer was running
                 if (savedIsRunning) {
                     acquireWakeLock()
+                    startWorkoutForegroundService()
                 }
                 
                 updateUI()
@@ -369,6 +375,7 @@ open class MainActivity : AppCompatActivity() {
                 // Release wake lock and record workout when timer completes
                 if (phase is IntervalPhase.Completed) {
                     releaseWakeLock()
+                    stopWorkoutForegroundService()
                     recordWorkoutCompletion()
                 }
             },
@@ -1096,6 +1103,7 @@ open class MainActivity : AppCompatActivity() {
     private fun startTimerNow() {
         // Acquire wake lock to keep device awake during timer
         acquireWakeLock()
+        startWorkoutForegroundService()
         hasShownCompletionConfetti = false
         intervalTimer?.start()
         
@@ -1106,6 +1114,7 @@ open class MainActivity : AppCompatActivity() {
         intervalTimer?.pause()
         // Release wake lock when paused
         releaseWakeLock()
+        stopWorkoutForegroundService()
         updateButtonStates()
     }
 
@@ -1216,6 +1225,7 @@ open class MainActivity : AppCompatActivity() {
         intervalTimer = null
         // Release wake lock when reset
         releaseWakeLock()
+        stopWorkoutForegroundService()
         hasShownCompletionConfetti = false
 
         intervalTimer = createIntervalTimer()
@@ -1590,6 +1600,84 @@ open class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun startWorkoutForegroundService() {
+        if (needsActivityRecognitionForHealthForegroundService() && !hasActivityRecognitionPermission()) {
+            shouldStartForegroundServiceAfterPermission = true
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+                REQUEST_CODE_ACTIVITY_RECOGNITION
+            )
+            android.widget.Toast.makeText(
+                this,
+                getString(R.string.activity_recognition_permission_needed),
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        val intent = Intent(this, WorkoutForegroundService::class.java).apply {
+            action = WorkoutForegroundService.ACTION_START
+        }
+        try {
+            ContextCompat.startForegroundService(this, intent)
+        } catch (_: SecurityException) {
+            // Guard against API 34+ foreground service permission edge-cases.
+            android.widget.Toast.makeText(
+                this,
+                getString(R.string.activity_recognition_permission_denied),
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun stopWorkoutForegroundService() {
+        shouldStartForegroundServiceAfterPermission = false
+        val intent = Intent(this, WorkoutForegroundService::class.java).apply {
+            action = WorkoutForegroundService.ACTION_STOP
+        }
+        stopService(intent)
+    }
+
+    private fun needsActivityRecognitionForHealthForegroundService(): Boolean {
+        return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+    }
+
+    private fun hasActivityRecognitionPermission(): Boolean {
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.Q) {
+            return true
+        }
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACTIVITY_RECOGNITION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != REQUEST_CODE_ACTIVITY_RECOGNITION) return
+
+        val granted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+        if (granted && shouldStartForegroundServiceAfterPermission && intervalTimer?.state?.value?.isRunning == true) {
+            shouldStartForegroundServiceAfterPermission = false
+            startWorkoutForegroundService()
+            return
+        }
+
+        shouldStartForegroundServiceAfterPermission = false
+        if (!granted) {
+            android.widget.Toast.makeText(
+                this,
+                getString(R.string.activity_recognition_permission_denied),
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
     /**
      * Factory method for creating NotificationHelper. Can be overridden in tests.
      */
@@ -1604,6 +1692,7 @@ open class MainActivity : AppCompatActivity() {
         notificationHelper?.release()
         notificationHelper = null
         releaseWakeLock()
+        stopWorkoutForegroundService()
     }
 }
 

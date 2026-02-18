@@ -2,6 +2,22 @@
 
 ## Version 1
 
+### 1.0.3 - 2026-02-18
+
+#### Updates
+
+- Added a dedicated workout foreground service to keep interval sessions alive while the app is backgrounded or the screen is off
+- Added Android health foreground-service declarations and required permissions for modern background workout execution
+- Upgraded UI support dependencies (`androidx.appcompat` and Material Components) to newer stable versions
+
+#### UI/UX Improvements
+
+- Updated Play Store promo screenshots with refreshed visuals across the six active light-theme promo assets
+
+#### Documentation
+
+- Updated privacy policy to document foreground-service and physical-activity permission behavior, including explicit on-device-only data handling
+
 ### 1.0.2 - 2026-02-17
 
 #### UI/UX Improvements

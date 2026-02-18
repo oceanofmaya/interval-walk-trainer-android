@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated:** December 2024
+**Last Updated:** February 2026
 
 ## Introduction
 
@@ -49,6 +49,12 @@ The app requests the following permissions:
 - **VIBRATE**: Used to provide vibration notifications during interval phase changes. This permission does not collect or transmit any data.
 - **POST_NOTIFICATIONS**: Required on Android 13+ to display system notifications. The app only shows timer-related notifications and does not collect data through notifications.
 - **WAKE_LOCK**: Used to keep the timer running accurately when your device screen is locked. This ensures the timer continues functioning in the background without collecting any data.
+- **FOREGROUND_SERVICE**: Required by Android to run an active workout as a foreground service so interval timing can continue while the app is in the background.
+- **FOREGROUND_SERVICE_HEALTH**: Required by Android for health/fitness foreground-service use cases on newer Android versions.
+- **ACTIVITY_RECOGNITION**: Required by Android when starting a health foreground service on Android 14+.
+  - Interval Walk Trainer does **not** read step counts, movement events, or any physical activity sensor stream.
+  - This permission is used only to satisfy Android platform requirements for background workout execution.
+  - No activity-recognition data is collected, stored, transmitted, or shared.
 
 ## Third-Party Services
 
