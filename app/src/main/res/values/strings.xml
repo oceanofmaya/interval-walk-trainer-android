@@ -129,7 +129,7 @@
     <string name="workout_notifications_channel_description">Keeps interval workouts running in the background</string>
     <string name="workout_in_progress_notification_title">Interval Walk Trainer</string>
     <string name="workout_in_progress_notification_body">Workout running in background</string>
-    <string name="activity_recognition_permission_needed">Allow Physical activity permission to keep workouts running in the background.</string>
-    <string name="activity_recognition_permission_denied">Background workout mode is unavailable without Physical activity permission.</string>
+    <string name="activity_recognition_permission_needed">Allow Physical activity to keep workouts running in background.</string>
+    <string name="activity_recognition_permission_denied">Background workouts need Physical activity permission.</string>
 </resources>
 

@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.0.4 - 2026-02-18
+
+#### UI/UX Improvements
+
+- Shortened activity-recognition permission messaging to reduce truncation on smaller screens
+
 ### 1.0.3 - 2026-02-18
 
 #### Updates
