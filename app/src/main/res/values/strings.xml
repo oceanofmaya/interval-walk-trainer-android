@@ -120,6 +120,7 @@
     <string name="countdown_seconds_format">%1$ds</string>
     <string name="countdown_seconds_default">3s</string>
     <string name="save_workouts">Save Workouts</string>
+    <string name="notifications">Notifications</string>
     <string name="disable_save_workouts_title">Turn off workout history?</string>
     <string name="disable_save_workouts_message">New workouts will not be saved to history while this is off.</string>
     <string name="turn_off">Turn Off</string>
