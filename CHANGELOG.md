@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.5 - 2026-02-19
+
+#### UI/UX Improvements
+
+- Added a Notifications toggle as the first control in Workout Settings, with a dedicated notifications icon and direct system permission/settings flow
+- Polished all six active Play Store promo screenshots in the light-theme promo set
+
 ### 1.0.4 - 2026-02-18
 
 #### UI/UX Improvements

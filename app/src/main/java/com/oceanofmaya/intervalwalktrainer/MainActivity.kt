@@ -26,6 +26,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -75,6 +76,9 @@ open class MainActivity : AppCompatActivity() {
     private var preStartCountdownTimer: CountDownTimer? = null
     private var isPreStartCountdownActive = false
     private var shouldStartForegroundServiceAfterPermission = false
+    private var settingsNotificationsSwitch: com.google.android.material.switchmaterial.SwitchMaterial? = null
+    private var isUpdatingNotificationsSwitch = false
+    private var lastKnownNotificationsEnabled = false
 
     companion object {
         // SharedPreferences keys
@@ -109,6 +113,7 @@ open class MainActivity : AppCompatActivity() {
         private const val PRE_START_SECONDS_MIN = 1
         private const val PRE_START_SECONDS_MAX = 10
         private const val REQUEST_CODE_ACTIVITY_RECOGNITION = 1001
+        private const val REQUEST_CODE_POST_NOTIFICATIONS = 1002
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,6 +147,7 @@ open class MainActivity : AppCompatActivity() {
         setupControls()
         setupStatsButton()
         setupSettingsButton()
+        lastKnownNotificationsEnabled = areAppNotificationsEnabled()
         
         // Restore timer state if activity was recreated (e.g., theme change)
         if (savedInstanceState != null) {
@@ -149,6 +155,14 @@ open class MainActivity : AppCompatActivity() {
         } else {
             updateUI()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val notificationsEnabled = areAppNotificationsEnabled()
+        handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
+        lastKnownNotificationsEnabled = notificationsEnabled
+        refreshNotificationsSwitchState()
     }
     
     /**
@@ -788,6 +802,9 @@ open class MainActivity : AppCompatActivity() {
         val bottomSheetDialog = BottomSheetDialog(this)
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_settings, android.widget.FrameLayout(this), false)
         bottomSheetDialog.setContentView(view)
+        bottomSheetDialog.setOnDismissListener {
+            settingsNotificationsSwitch = null
+        }
         
         // Enable edge-to-edge for bottom sheet dialog
         bottomSheetDialog.window?.let { window ->
@@ -910,6 +927,25 @@ open class MainActivity : AppCompatActivity() {
             } else {
                 sharedPreferences.edit { putBoolean(KEY_SAVE_WORKOUTS, true) }
             }
+        }
+
+        val notificationsSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.notificationsSwitch)
+        settingsNotificationsSwitch = notificationsSwitch
+        refreshNotificationsSwitchState()
+        notificationsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isUpdatingNotificationsSwitch) return@setOnCheckedChangeListener
+            hapticSelection(buttonView)
+            val currentlyEnabled = areAppNotificationsEnabled()
+            if (isChecked == currentlyEnabled) return@setOnCheckedChangeListener
+
+            // This toggle reflects system notification state. We can request permission when enabling,
+            // but disabling notifications must be done in system settings.
+            if (isChecked) {
+                requestNotificationPermissionOrOpenSettings()
+            } else {
+                openAppNotificationSettings()
+            }
+            refreshNotificationsSwitchState()
         }
 
         // Start countdown toggle switch
@@ -1653,12 +1689,75 @@ open class MainActivity : AppCompatActivity() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    private fun areAppNotificationsEnabled(): Boolean {
+        if (!NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+            return false
+        }
+        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.TIRAMISU) {
+            return true
+        }
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun refreshNotificationsSwitchState() {
+        val switch = settingsNotificationsSwitch ?: return
+        isUpdatingNotificationsSwitch = true
+        switch.isChecked = areAppNotificationsEnabled()
+        isUpdatingNotificationsSwitch = false
+    }
+
+    private fun handleNotificationsEnabledTransition(previousEnabled: Boolean, currentEnabled: Boolean) {
+        // Re-post the foreground notification when notifications are re-enabled
+        // during an active workout so users immediately see ongoing workout status.
+        if (!previousEnabled && currentEnabled && intervalTimer?.state?.value?.isRunning == true) {
+            startWorkoutForegroundService()
+        }
+    }
+
+    private fun requestNotificationPermissionOrOpenSettings() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                REQUEST_CODE_POST_NOTIFICATIONS
+            )
+            return
+        }
+        openAppNotificationSettings()
+    }
+
+    private fun openAppNotificationSettings() {
+        try {
+            val intent = Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, packageName)
+            }
+            startActivity(intent)
+        } catch (_: Exception) {
+            val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", packageName, null)
+            }
+            startActivity(intent)
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_POST_NOTIFICATIONS) {
+            val notificationsEnabled = areAppNotificationsEnabled()
+            handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
+            lastKnownNotificationsEnabled = notificationsEnabled
+            refreshNotificationsSwitchState()
+            return
+        }
         if (requestCode != REQUEST_CODE_ACTIVITY_RECOGNITION) return
 
         val granted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
