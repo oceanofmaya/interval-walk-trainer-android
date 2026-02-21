@@ -21,6 +21,7 @@ import android.net.Uri
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -87,6 +88,7 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_VIBRATION_ENABLED = "vibration_enabled"
         private const val KEY_VOICE_ENABLED = "voice_enabled"
         private const val KEY_SAVE_WORKOUTS = "save_workouts"
+        private const val KEY_KEEP_SCREEN_AWAKE = "keep_screen_awake"
         private const val KEY_START_COUNTDOWN = "start_countdown"
         private const val KEY_START_COUNTDOWN_SECONDS = "start_countdown_seconds"
         private const val KEY_CUSTOM_SLOW_MINUTES = "custom_slow_minutes"
@@ -159,10 +161,17 @@ open class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        applyKeepScreenAwakePreference()
         val notificationsEnabled = areAppNotificationsEnabled()
         handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
         lastKnownNotificationsEnabled = notificationsEnabled
         refreshNotificationsSwitchState()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Ensure this preference is inert once the app leaves the foreground.
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
     
     /**
@@ -779,9 +788,11 @@ open class MainActivity : AppCompatActivity() {
 
         contentView.doOnLayout {
             val screenHeight = resources.displayMetrics.heightPixels
+            val availableWidth = (contentView.parent as? View)?.width?.takeIf { it > 0 }
+                ?: resources.displayMetrics.widthPixels
             val minPeekHeight = (screenHeight * 0.40f).toInt()
             val maxPeekHeight = (screenHeight * 0.80f).toInt()
-            val widthSpec = View.MeasureSpec.makeMeasureSpec(resources.displayMetrics.widthPixels, View.MeasureSpec.AT_MOST)
+            val widthSpec = View.MeasureSpec.makeMeasureSpec(availableWidth, View.MeasureSpec.EXACTLY)
             val heightSpec = View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.AT_MOST)
             contentView.measure(widthSpec, heightSpec)
             val contentHeight = contentView.measuredHeight
@@ -832,6 +843,13 @@ open class MainActivity : AppCompatActivity() {
             versionText.text = getString(R.string.version, "Unknown")
         }
         
+        // FAQ button
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.faqButton).setOnClickListener { btn ->
+            hapticSelection(btn)
+            bottomSheetDialog.dismiss()
+            showFaqDialog()
+        }
+
         // Privacy Policy button
         view.findViewById<com.google.android.material.button.MaterialButton>(R.id.privacyPolicyButton).setOnClickListener { btn ->
             hapticSelection(btn)
@@ -948,6 +966,14 @@ open class MainActivity : AppCompatActivity() {
             refreshNotificationsSwitchState()
         }
 
+        val keepScreenAwakeSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.keepScreenAwakeSwitch)
+        keepScreenAwakeSwitch.isChecked = sharedPreferences.getBoolean(KEY_KEEP_SCREEN_AWAKE, false)
+        keepScreenAwakeSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            hapticSelection(buttonView)
+            sharedPreferences.edit { putBoolean(KEY_KEEP_SCREEN_AWAKE, isChecked) }
+            applyKeepScreenAwakePreference()
+        }
+
         // Start countdown toggle switch
         val startCountdownSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.startCountdownSwitch)
         val startCountdownEnabled = sharedPreferences.getBoolean(KEY_START_COUNTDOWN, true)
@@ -976,6 +1002,85 @@ open class MainActivity : AppCompatActivity() {
         }
         
         bottomSheetDialog.show()
+    }
+
+    private fun showFaqDialog() {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_faq, android.widget.FrameLayout(this), false)
+        view.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        bottomSheetDialog.setContentView(view)
+        bottomSheetDialog.setOnShowListener {
+            val bottomSheet = bottomSheetDialog.findViewById<android.widget.FrameLayout>(
+                com.google.android.material.R.id.design_bottom_sheet
+            )
+            bottomSheet?.layoutParams?.width = ViewGroup.LayoutParams.MATCH_PARENT
+            bottomSheet?.requestLayout()
+        }
+
+        bottomSheetDialog.window?.let { window ->
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+
+            val scrollView = view.findViewById<androidx.core.widget.NestedScrollView>(R.id.faqScroll)
+            val basePaddingBottom = scrollView.paddingBottom
+            ViewCompat.setOnApplyWindowInsetsListener(scrollView) { v, windowInsets ->
+                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+                v.updatePadding(bottom = basePaddingBottom + insets.bottom)
+                windowInsets
+            }
+        }
+
+        setupFaqAccordion(view)
+        configureBottomSheet(bottomSheetDialog, view)
+        bottomSheetDialog.show()
+    }
+
+    private fun setupFaqAccordion(view: View) {
+        val header1 = view.findViewById<View>(R.id.faqQuestion1Header)
+        val header2 = view.findViewById<View>(R.id.faqQuestion2Header)
+        val header3 = view.findViewById<View>(R.id.faqQuestion3Header)
+        val header4 = view.findViewById<View>(R.id.faqQuestion4Header)
+
+        val answer1 = view.findViewById<View>(R.id.faqAnswer1)
+        val answer2 = view.findViewById<View>(R.id.faqAnswer2)
+        val answer3 = view.findViewById<View>(R.id.faqAnswer3)
+        val answer4 = view.findViewById<View>(R.id.faqAnswer4)
+
+        val chevron1 = view.findViewById<View>(R.id.faqQuestion1Chevron)
+        val chevron2 = view.findViewById<View>(R.id.faqQuestion2Chevron)
+        val chevron3 = view.findViewById<View>(R.id.faqQuestion3Chevron)
+        val chevron4 = view.findViewById<View>(R.id.faqQuestion4Chevron)
+
+        val headers = listOf(header1, header2, header3, header4)
+        val answers = listOf(answer1, answer2, answer3, answer4)
+        val chevrons = listOf(chevron1, chevron2, chevron3, chevron4)
+        var expandedIndex = 0
+
+        fun renderExpandedState() {
+            answers.forEachIndexed { i, answer ->
+                val isExpanded = i == expandedIndex
+                answer.visibility = if (isExpanded) View.VISIBLE else View.GONE
+                chevrons[i].animate().rotation(if (answer.visibility == View.VISIBLE) 90f else 0f).setDuration(150).start()
+            }
+        }
+
+        fun expandAt(index: Int) {
+            if (expandedIndex == index) {
+                return
+            }
+            expandedIndex = index
+            renderExpandedState()
+            headers[index].performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+        }
+
+        header1.setOnClickListener { expandAt(0) }
+        header2.setOnClickListener { expandAt(1) }
+        header3.setOnClickListener { expandAt(2) }
+        header4.setOnClickListener { expandAt(3) }
+
+        renderExpandedState()
     }
     
     private fun setThemeMode(mode: Int) {
@@ -1075,6 +1180,14 @@ open class MainActivity : AppCompatActivity() {
     private fun setupTheme() {
         // Theme is now managed entirely through settings
         // This method is kept for potential future use
+    }
+
+    private fun applyKeepScreenAwakePreference() {
+        if (sharedPreferences.getBoolean(KEY_KEEP_SCREEN_AWAKE, false)) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
     }
     
     private fun restoreNotificationPreferences() {

@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.7 - 2026-02-21
+
+#### Features
+
+- Added a Keep Screen Awake setting (default off) that keeps the display on only while the app is in the foreground.
+- Added an FAQ entry under Settings > About with a dedicated bottom-sheet accordion experience, including guidance on interval walking, notifications, and background behavior.
+
 ### 1.0.6 - 2026-02-20
 
 #### UI/UX Improvements
