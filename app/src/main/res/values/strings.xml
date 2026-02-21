@@ -115,7 +115,7 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="settings_button">Settings</string>
-    <string name="workout_settings">Workout Settings</string>
+    <string name="workout_settings">Workout</string>
     <string name="start_countdown">Countdown</string>
     <string name="countdown_seconds_format">%1$ds</string>
     <string name="countdown_seconds_default">3s</string>
