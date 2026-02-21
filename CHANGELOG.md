@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.6 - 2026-02-20
+
+#### UI/UX Improvements
+
+- Updated Settings bottom sheet layout for better organization and readability.
+- Shortened the section heading text from "Workout Settings" to "Workout" in Settings.
+
 ### 1.0.5 - 2026-02-19
 
 #### UI/UX Improvements
