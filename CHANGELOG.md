@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.0.9 - 2026-02-23
+
+#### UI/UX Improvements
+
+- Added a new Magenta accent swatch in Settings > Accent.
+
 ### 1.0.8 - 2026-02-22
 
 #### UI/UX Improvements

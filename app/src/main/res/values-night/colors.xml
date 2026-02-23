@@ -10,6 +10,7 @@
     <color name="accent_teal">#26A69A</color>
     <color name="accent_purple">#9575CD</color>
     <color name="accent_amber">#FFCA28</color>
+    <color name="accent_magenta">#EC407A</color>
     <color name="stroke_light">#404040</color>
     <color name="formula_details_bg">#2A2A2A</color>
     <color name="streak_highlight_bg">#1E3A5F</color>

@@ -229,6 +229,7 @@ class StatsActivity : AppCompatActivity() {
         private const val ACCENT_TEAL = "teal"
         private const val ACCENT_PURPLE = "purple"
         private const val ACCENT_AMBER = "amber"
+        private const val ACCENT_MAGENTA = "magenta"
     }
 
     private fun getAccentStyle(): String {
@@ -240,6 +241,7 @@ class StatsActivity : AppCompatActivity() {
             ACCENT_TEAL -> R.color.accent_teal
             ACCENT_PURPLE -> R.color.accent_purple
             ACCENT_AMBER -> R.color.accent_amber
+            ACCENT_MAGENTA -> R.color.accent_magenta
             else -> R.color.accent_blue
         }
     }
