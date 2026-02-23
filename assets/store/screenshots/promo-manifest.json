@@ -2,7 +2,7 @@
   "platform": "android-play-store",
   "device": "phone",
   "manual_composition": true,
-  "last_updated": "2026-02-17",
+  "last_updated": "2026-02-22",
   "items": [
     {
       "position": 1,
@@ -25,9 +25,9 @@
       "feature_message": "Fast-phase cues with voice and vibration support",
       "caption": {
         "headline": "Never Miss a Beat",
-        "supporting_text": "Color-Coded Phases & Vibration Alerts",
+        "supporting_text": "Clear Phase Cues & Vibration Alerts",
         "callouts": [
-          "Color-Coded Phases",
+          "Clear Phase Cues",
           "Vibration Alerts"
         ]
       }
@@ -67,8 +67,21 @@
     },
     {
       "position": 6,
+      "source": "phone/settings-theme-accent-light.png",
+      "promo": "promo/06-settings-theme-accent-light-promo.png",
+      "feature_message": "Personalize theme and accent styles for your preferred look",
+      "caption": {
+        "headline": "Make It Yours",
+        "supporting_text": "Theme + Accent Customization",
+        "callouts": [
+          "System/Light/Dark\nBlue/Teal/Purple/Amber"
+        ]
+      }
+    },
+    {
+      "position": 7,
       "source": "phone/complete-light.png",
-      "promo": "promo/06-complete-light-promo.png",
+      "promo": "promo/07-complete-light-promo.png",
       "feature_message": "Finish sessions with clear completion and summary feedback",
       "caption": {
         "headline": "Zero Distractions",

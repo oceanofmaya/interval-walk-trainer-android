@@ -47,9 +47,10 @@ Keep these in `promo/` as the active sequence:
 3. `03-formula-light-promo.png` (setup and customization entry point)
 4. `04-custom-interval-light-promo.png` (design-your-own value)
 5. `05-stats-overview-light-promo.png` (progress tracking proof)
-6. `06-complete-light-promo.png` (session completion outcome)
+6. `06-settings-theme-accent-light-promo.png` (theme + accent personalization)
+7. `07-complete-light-promo.png` (session completion outcome)
 
-This sequence tells a clear story: pace -> intensity -> setup -> personalize -> track -> complete.
+This sequence tells a clear story: pace -> intensity -> setup -> personalize workout -> track -> personalize look -> complete.
 
 ## What to Keep vs. Remove in `phone/`
 
@@ -60,6 +61,7 @@ Keep in active source set:
 - `fast-light.png`
 - `custom-interval-light.png`
 - `stats-overview-light.png`
+- `settings-theme-accent-light.png`
 - `complete-light.png`
 - `home-light.png` (useful fallback hero)
 - `splash.png` (branding/reference)
@@ -67,7 +69,6 @@ Keep in active source set:
 Safe removal candidates:
 
 - Most dark variants if store uploads are light-theme-only
-- `settings-*` screenshots (lower marketing value for top 6-8 slots)
 - `custom-circuit-*` if current message focuses on interval workflow
 - `stats-calendar-*` if `stats-overview-*` already communicates outcomes
 

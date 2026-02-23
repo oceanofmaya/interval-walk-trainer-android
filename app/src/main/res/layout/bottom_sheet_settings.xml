@@ -301,29 +301,117 @@
         android:singleLine="true"
         android:ellipsize="none" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/themeSystemButton"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/theme_system"
-        app:icon="@drawable/ic_system_theme"
-        style="@style/Widget.IntervalWalkTrainer.SettingsActionButton" />
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/themeLightButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/theme_light"
-        app:icon="@drawable/ic_light_theme"
-        style="@style/Widget.IntervalWalkTrainer.SettingsActionButton" />
+        <ImageButton
+            android:id="@+id/themeSystemButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/theme_swatch_unselected_bg"
+            android:src="@drawable/swatch_theme_system"
+            android:contentDescription="@string/theme_system"
+            android:padding="4dp"
+            app:tint="@null" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/themeDarkButton"
+        <ImageButton
+            android:id="@+id/themeLightButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/theme_swatch_unselected_bg"
+            android:src="@drawable/swatch_theme_light"
+            android:contentDescription="@string/theme_light"
+            android:padding="4dp"
+            app:tint="@null" />
+
+        <ImageButton
+            android:id="@+id/themeDarkButton"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@drawable/theme_swatch_unselected_bg"
+            android:src="@drawable/swatch_theme_dark"
+            android:contentDescription="@string/theme_dark"
+            android:padding="4dp"
+            app:tint="@null" />
+    </LinearLayout>
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/theme_dark"
-        app:icon="@drawable/ic_dark_theme"
-        style="@style/Widget.IntervalWalkTrainer.SettingsActionButton" />
+        android:text="@string/accent_mode"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:gravity="start|center_vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="6dp"
+        android:singleLine="true"
+        android:ellipsize="none" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="8dp">
+
+        <ImageButton
+            android:id="@+id/accentBlueButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/theme_swatch_unselected_bg"
+            android:src="@drawable/swatch_accent_blue"
+            android:contentDescription="@string/accent_blue"
+            android:padding="4dp"
+            app:tint="@null" />
+
+        <ImageButton
+            android:id="@+id/accentTealButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/theme_swatch_unselected_bg"
+            android:src="@drawable/swatch_accent_teal"
+            android:contentDescription="@string/accent_teal"
+            android:padding="4dp"
+            app:tint="@null" />
+
+        <ImageButton
+            android:id="@+id/accentPurpleButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/theme_swatch_unselected_bg"
+            android:src="@drawable/swatch_accent_purple"
+            android:contentDescription="@string/accent_purple"
+            android:padding="4dp"
+            app:tint="@null" />
+
+        <ImageButton
+            android:id="@+id/accentAmberButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="@drawable/theme_swatch_unselected_bg"
+            android:src="@drawable/swatch_accent_amber"
+            android:contentDescription="@string/accent_amber"
+            android:padding="4dp"
+            app:tint="@null" />
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
