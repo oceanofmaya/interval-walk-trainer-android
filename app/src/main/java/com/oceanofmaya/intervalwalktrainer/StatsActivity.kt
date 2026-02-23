@@ -1,10 +1,13 @@
 package com.oceanofmaya.intervalwalktrainer
 
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
+import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -55,6 +58,7 @@ class StatsActivity : AppCompatActivity() {
         displayedMonth = calendar.get(Calendar.MONTH)
         
         setupToolbar()
+        applyAccentStyling()
         setupSaveWorkoutsButton()
         setupClearButton()
         setupMonthNavigation()
@@ -210,7 +214,7 @@ class StatsActivity : AppCompatActivity() {
     private fun updateSaveWorkoutsIcon() {
         val enabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
         val tintColor = if (enabled) {
-            getColor(R.color.button_primary)
+            getAccentColor()
         } else {
             getColor(R.color.text_secondary)
         }
@@ -220,7 +224,78 @@ class StatsActivity : AppCompatActivity() {
     companion object {
         private const val PREFS_NAME = "interval_walk_trainer_prefs"
         private const val KEY_SAVE_WORKOUTS = "save_workouts"
+        private const val KEY_ACCENT_STYLE = "accent_style"
+        private const val ACCENT_BLUE = "blue"
+        private const val ACCENT_TEAL = "teal"
+        private const val ACCENT_PURPLE = "purple"
+        private const val ACCENT_AMBER = "amber"
     }
+
+    private fun getAccentStyle(): String {
+        return sharedPreferences.getString(KEY_ACCENT_STYLE, ACCENT_BLUE) ?: ACCENT_BLUE
+    }
+
+    private fun getAccentColorRes(): Int {
+        return when (getAccentStyle()) {
+            ACCENT_TEAL -> R.color.accent_teal
+            ACCENT_PURPLE -> R.color.accent_purple
+            ACCENT_AMBER -> R.color.accent_amber
+            else -> R.color.accent_blue
+        }
+    }
+
+    private fun getAccentColor(): Int = ContextCompat.getColor(this, getAccentColorRes())
+
+    private fun applyAccentStyling() {
+        val accent = getAccentColor()
+        binding.streakProgressBar.progressTintList = android.content.res.ColorStateList.valueOf(accent)
+    }
+
+    private fun createCalendarDayBackground(
+        fillColor: Int?,
+        strokeColor: Int? = null
+    ): LayerDrawable {
+        val layers = mutableListOf<GradientDrawable>()
+
+        if (strokeColor != null) {
+            layers.add(
+                GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(Color.TRANSPARENT)
+                    setStroke(dpToPx(2.5f), strokeColor)
+                }
+            )
+        }
+
+        if (fillColor != null) {
+            layers.add(
+                GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(fillColor)
+                }
+            )
+        }
+
+        val layerDrawable = LayerDrawable(layers.toTypedArray())
+        if (strokeColor != null && fillColor != null) {
+            layerDrawable.setLayerSize(0, dpToPx(34f), dpToPx(34f))
+            layerDrawable.setLayerGravity(0, Gravity.CENTER)
+            layerDrawable.setLayerSize(1, dpToPx(31f), dpToPx(31f))
+            layerDrawable.setLayerGravity(1, Gravity.CENTER)
+        } else {
+            layerDrawable.setLayerSize(0, dpToPx(32f), dpToPx(32f))
+            layerDrawable.setLayerGravity(0, Gravity.CENTER)
+        }
+        return layerDrawable
+    }
+
+    private fun getTodayOutlineColor(): Int {
+        val isDarkMode = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+        return if (isDarkMode) Color.WHITE else Color.BLACK
+    }
+
+    private fun dpToPx(valueDp: Float): Int = (valueDp * resources.displayMetrics.density).toInt()
     
     private fun showClearConfirmationDialog() {
         AlertDialog.Builder(this)
@@ -525,36 +600,36 @@ class StatsActivity : AppCompatActivity() {
         currentValue: Int,
         previousValue: Int
     ) {
-        val primaryBlue = ContextCompat.getColor(this, R.color.button_primary)
-        val secondaryRed = ContextCompat.getColor(this, R.color.fast_phase)
+        val increaseColor = getAccentColor()
+        val decreaseColor = ContextCompat.getColor(this, android.R.color.holo_red_dark)
         
         when {
             changePercent > 0 -> {
-                // Increase - primary blue
+                // Increase - accent color.
                 val symbol = "▲" // Thicker up arrow
                 val percent = Math.abs(changePercent.toInt())
                 arrowView.text = symbol
-                arrowView.setTextColor(primaryBlue)
+                arrowView.setTextColor(increaseColor)
                 arrowView.visibility = android.view.View.VISIBLE
                 percentView.text = getString(R.string.month_comparison_change, percent)
-                percentView.setTextColor(primaryBlue)
+                percentView.setTextColor(increaseColor)
                 percentView.visibility = android.view.View.VISIBLE
             }
             changePercent < 0 -> {
-                // Decrease - secondary red
+                // Decrease - red for clear negative contrast.
                 val symbol = "▼" // Thicker down arrow
                 val percent = Math.abs(changePercent.toInt())
                 arrowView.text = symbol
-                arrowView.setTextColor(secondaryRed)
+                arrowView.setTextColor(decreaseColor)
                 arrowView.visibility = android.view.View.VISIBLE
                 percentView.text = getString(R.string.month_comparison_change, percent)
-                percentView.setTextColor(secondaryRed)
+                percentView.setTextColor(decreaseColor)
                 percentView.visibility = android.view.View.VISIBLE
             }
             previousValue == 0 && currentValue > 0 -> {
                 // New data (no previous month data)
                 arrowView.text = "New"
-                arrowView.setTextColor(primaryBlue)
+                arrowView.setTextColor(increaseColor)
                 arrowView.visibility = android.view.View.VISIBLE
                 percentView.visibility = android.view.View.GONE
             }
@@ -609,6 +684,7 @@ class StatsActivity : AppCompatActivity() {
             typeName.text = displayType
             typeCount.text = "$count ($percentage%)"
             typeProgress.progress = percentage
+            typeProgress.progressTintList = android.content.res.ColorStateList.valueOf(getAccentColor())
             
             binding.workoutTypesContainer.addView(itemView)
         }
@@ -761,17 +837,25 @@ class StatsActivity : AppCompatActivity() {
             
             when {
                 isToday && hasWorkout -> {
-                    // Today with workout: filled blue circle with outer ring
-                    textView.setBackgroundResource(R.drawable.calendar_day_today_with_workout)
+                    // Today with workout: accent fill with theme-aware ring.
+                    textView.background = createCalendarDayBackground(
+                        fillColor = getAccentColor(),
+                        strokeColor = getTodayOutlineColor()
+                    )
                     textView.setTextColor(getColor(R.color.white))
                 }
                 isToday -> {
-                    // Today without workout: outline ring
-                    textView.setBackgroundResource(R.drawable.calendar_day_today)
+                    // Today without workout: theme-aware outline ring.
+                    textView.background = createCalendarDayBackground(
+                        fillColor = null,
+                        strokeColor = getTodayOutlineColor()
+                    )
                 }
                 hasWorkout -> {
-                    // Past day with workout: filled blue circle
-                    textView.setBackgroundResource(R.drawable.calendar_day_highlight)
+                    // Workout day: accent fill.
+                    textView.background = createCalendarDayBackground(
+                        fillColor = getAccentColor()
+                    )
                     textView.setTextColor(getColor(R.color.white))
                 }
             }

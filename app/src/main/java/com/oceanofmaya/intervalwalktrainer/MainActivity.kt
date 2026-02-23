@@ -6,6 +6,7 @@ import android.Manifest
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -85,6 +86,7 @@ open class MainActivity : AppCompatActivity() {
         // SharedPreferences keys
         private const val PREFS_NAME = "interval_walk_trainer_prefs"
         private const val KEY_THEME_MODE = "theme_mode"
+        private const val KEY_ACCENT_STYLE = "accent_style"
         private const val KEY_VIBRATION_ENABLED = "vibration_enabled"
         private const val KEY_VOICE_ENABLED = "voice_enabled"
         private const val KEY_SAVE_WORKOUTS = "save_workouts"
@@ -114,6 +116,10 @@ open class MainActivity : AppCompatActivity() {
         private const val PRE_START_SECONDS_DEFAULT = 3
         private const val PRE_START_SECONDS_MIN = 1
         private const val PRE_START_SECONDS_MAX = 10
+        private const val ACCENT_BLUE = "blue"
+        private const val ACCENT_TEAL = "teal"
+        private const val ACCENT_PURPLE = "purple"
+        private const val ACCENT_AMBER = "amber"
         private const val REQUEST_CODE_ACTIVITY_RECOGNITION = 1001
         private const val REQUEST_CODE_POST_NOTIFICATIONS = 1002
     }
@@ -147,6 +153,7 @@ open class MainActivity : AppCompatActivity() {
         restoreCustomFormula()
         setupFormulaSpinner()
         setupControls()
+        applyAccentStyling()
         setupStatsButton()
         setupSettingsButton()
         lastKnownNotificationsEnabled = areAppNotificationsEnabled()
@@ -511,6 +518,13 @@ open class MainActivity : AppCompatActivity() {
         val fastFirstRadio = view.findViewById<android.widget.RadioButton>(R.id.fastFirstRadio)
         val resetDefaultsButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.resetDefaultsButton)
         val createButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.createButton)
+        val accentColor = getAccentColor()
+        val accentTint = android.content.res.ColorStateList.valueOf(accentColor)
+        createButton.backgroundTintList = accentTint
+        slowFirstRadio.buttonTintList = accentTint
+        fastFirstRadio.buttonTintList = accentTint
+        fastSlowFastRadio.buttonTintList = accentTint
+        slowFastSlowRadio.buttonTintList = accentTint
         
         // Default values
         val defaultSlowMinutes = 3
@@ -579,7 +593,7 @@ open class MainActivity : AppCompatActivity() {
         
         // Update button styling based on selection
         fun updateButtonStyles() {
-            val primaryColor = ContextCompat.getColor(this, R.color.button_primary)
+            val primaryColor = getAccentColor()
             val whiteColor = ContextCompat.getColor(this, R.color.white)
             val surfaceColor = ContextCompat.getColor(this, R.color.surface)
             val textPrimaryColor = ContextCompat.getColor(this, R.color.text_primary)
@@ -867,30 +881,57 @@ open class MainActivity : AppCompatActivity() {
         // Theme mode buttons
         val currentThemeMode = sharedPreferences.getInt(KEY_THEME_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         
-        val themeSystemButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.themeSystemButton)
-        val themeLightButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.themeLightButton)
-        val themeDarkButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.themeDarkButton)
-        
-        // Highlight current selection with primary color for text and icon (minimalistic)
-        val selectedColor = getColor(R.color.button_primary)
-        val unselectedTextColor = getColor(R.color.text_primary)
-        val unselectedIconColor = getColor(R.color.text_secondary)
-        val selectedIconColor = android.content.res.ColorStateList.valueOf(selectedColor)
-        val unselectedIconColorState = android.content.res.ColorStateList.valueOf(unselectedIconColor)
+        val themeSystemButton = view.findViewById<android.widget.ImageButton>(R.id.themeSystemButton)
+        val themeLightButton = view.findViewById<android.widget.ImageButton>(R.id.themeLightButton)
+        val themeDarkButton = view.findViewById<android.widget.ImageButton>(R.id.themeDarkButton)
+        val accentBlueButton = view.findViewById<android.widget.ImageButton>(R.id.accentBlueButton)
+        val accentTealButton = view.findViewById<android.widget.ImageButton>(R.id.accentTealButton)
+        val accentPurpleButton = view.findViewById<android.widget.ImageButton>(R.id.accentPurpleButton)
+        val accentAmberButton = view.findViewById<android.widget.ImageButton>(R.id.accentAmberButton)
+        var saveWorkoutsSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
+        var notificationsSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
+        var keepScreenAwakeSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
+        var startCountdownSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
 
-        fun applySelection(button: com.google.android.material.button.MaterialButton, isSelected: Boolean) {
-            if (isSelected) {
-                button.setTextColor(selectedColor)
-                button.iconTint = selectedIconColor
+        fun applySelection(button: android.widget.ImageButton, isSelected: Boolean) {
+            val strokeWidth = if (isSelected) 3 else 2
+            val strokeColor = if (isSelected) {
+                getAccentColor()
             } else {
-                button.setTextColor(unselectedTextColor)
-                button.iconTint = unselectedIconColorState
+                ContextCompat.getColor(this, R.color.stroke_light)
             }
+            val bg = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Color.TRANSPARENT)
+                setStroke((strokeWidth * resources.displayMetrics.density).toInt(), strokeColor)
+            }
+            button.background = bg
+        }
+
+        fun applyAccentSelections(selectedAccent: String) {
+            applySelection(accentBlueButton, selectedAccent == ACCENT_BLUE)
+            applySelection(accentTealButton, selectedAccent == ACCENT_TEAL)
+            applySelection(accentPurpleButton, selectedAccent == ACCENT_PURPLE)
+            applySelection(accentAmberButton, selectedAccent == ACCENT_AMBER)
+        }
+
+        fun applyDialogSwitchTints() {
+            val thumbTint = createSwitchThumbTint()
+            val trackTint = createSwitchTrackTint()
+            saveWorkoutsSwitchRef?.thumbTintList = thumbTint
+            saveWorkoutsSwitchRef?.trackTintList = trackTint
+            notificationsSwitchRef?.thumbTintList = thumbTint
+            notificationsSwitchRef?.trackTintList = trackTint
+            keepScreenAwakeSwitchRef?.thumbTintList = thumbTint
+            keepScreenAwakeSwitchRef?.trackTintList = trackTint
+            startCountdownSwitchRef?.thumbTintList = thumbTint
+            startCountdownSwitchRef?.trackTintList = trackTint
         }
 
         applySelection(themeSystemButton, currentThemeMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         applySelection(themeLightButton, currentThemeMode == AppCompatDelegate.MODE_NIGHT_NO)
         applySelection(themeDarkButton, currentThemeMode == AppCompatDelegate.MODE_NIGHT_YES)
+        applyAccentSelections(getAccentStyle())
         
         themeSystemButton.setOnClickListener { btn ->
             hapticSelection(btn)
@@ -909,6 +950,43 @@ open class MainActivity : AppCompatActivity() {
             setThemeMode(AppCompatDelegate.MODE_NIGHT_YES)
             bottomSheetDialog.dismiss()
         }
+
+        fun setAccentStyle(style: String) {
+            sharedPreferences.edit { putString(KEY_ACCENT_STYLE, style) }
+            applyAccentStyling()
+            applySelection(themeSystemButton, currentThemeMode == AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            applySelection(themeLightButton, currentThemeMode == AppCompatDelegate.MODE_NIGHT_NO)
+            applySelection(themeDarkButton, currentThemeMode == AppCompatDelegate.MODE_NIGHT_YES)
+            applyAccentSelections(style)
+            applyDialogSwitchTints()
+            val currentState = intervalTimer?.state?.value
+            if (currentState != null) {
+                updateTimerDisplay(currentState)
+            } else {
+                updateUI()
+            }
+            updateFormulaDetails()
+        }
+
+        accentBlueButton.setOnClickListener { btn ->
+            hapticSelection(btn)
+            setAccentStyle(ACCENT_BLUE)
+        }
+
+        accentTealButton.setOnClickListener { btn ->
+            hapticSelection(btn)
+            setAccentStyle(ACCENT_TEAL)
+        }
+
+        accentPurpleButton.setOnClickListener { btn ->
+            hapticSelection(btn)
+            setAccentStyle(ACCENT_PURPLE)
+        }
+
+        accentAmberButton.setOnClickListener { btn ->
+            hapticSelection(btn)
+            setAccentStyle(ACCENT_AMBER)
+        }
         
         // Clear stats button
         val clearStatsButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.clearStatsButton)
@@ -922,8 +1000,11 @@ open class MainActivity : AppCompatActivity() {
         
         // Save workouts toggle switch
         val saveWorkoutsSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.saveWorkoutsSwitch)
+        saveWorkoutsSwitchRef = saveWorkoutsSwitch
         val saveWorkoutsEnabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
         saveWorkoutsSwitch.isChecked = saveWorkoutsEnabled
+        saveWorkoutsSwitch.thumbTintList = createSwitchThumbTint()
+        saveWorkoutsSwitch.trackTintList = createSwitchTrackTint()
         
         var isUpdatingSaveWorkoutsSwitch = false
         saveWorkoutsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -948,7 +1029,10 @@ open class MainActivity : AppCompatActivity() {
         }
 
         val notificationsSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.notificationsSwitch)
+        notificationsSwitchRef = notificationsSwitch
         settingsNotificationsSwitch = notificationsSwitch
+        notificationsSwitch.thumbTintList = createSwitchThumbTint()
+        notificationsSwitch.trackTintList = createSwitchTrackTint()
         refreshNotificationsSwitchState()
         notificationsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isUpdatingNotificationsSwitch) return@setOnCheckedChangeListener
@@ -967,7 +1051,10 @@ open class MainActivity : AppCompatActivity() {
         }
 
         val keepScreenAwakeSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.keepScreenAwakeSwitch)
+        keepScreenAwakeSwitchRef = keepScreenAwakeSwitch
         keepScreenAwakeSwitch.isChecked = sharedPreferences.getBoolean(KEY_KEEP_SCREEN_AWAKE, false)
+        keepScreenAwakeSwitch.thumbTintList = createSwitchThumbTint()
+        keepScreenAwakeSwitch.trackTintList = createSwitchTrackTint()
         keepScreenAwakeSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             hapticSelection(buttonView)
             sharedPreferences.edit { putBoolean(KEY_KEEP_SCREEN_AWAKE, isChecked) }
@@ -976,8 +1063,11 @@ open class MainActivity : AppCompatActivity() {
 
         // Start countdown toggle switch
         val startCountdownSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.startCountdownSwitch)
+        startCountdownSwitchRef = startCountdownSwitch
         val startCountdownEnabled = sharedPreferences.getBoolean(KEY_START_COUNTDOWN, true)
         startCountdownSwitch.isChecked = startCountdownEnabled
+        startCountdownSwitch.thumbTintList = createSwitchThumbTint()
+        startCountdownSwitch.trackTintList = createSwitchTrackTint()
 
         startCountdownSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             hapticSelection(buttonView)
@@ -1139,11 +1229,11 @@ open class MainActivity : AppCompatActivity() {
     
     /**
      * Updates the icon state (active/inactive) by changing the tint color.
-     * Active icons use button_primary color, inactive icons use text_secondary color.
+     * Active icons use the selected accent color, inactive icons use text_secondary color.
      */
     private fun updateIconState(iconButton: android.widget.ImageButton, isActive: Boolean) {
         val tintColor = if (isActive) {
-            getColor(R.color.button_primary)
+            getAccentColor()
         } else {
             getColor(R.color.text_secondary)
         }
@@ -1180,6 +1270,71 @@ open class MainActivity : AppCompatActivity() {
     private fun setupTheme() {
         // Theme is now managed entirely through settings
         // This method is kept for potential future use
+    }
+
+    private fun getAccentStyle(): String {
+        return sharedPreferences.getString(KEY_ACCENT_STYLE, ACCENT_BLUE) ?: ACCENT_BLUE
+    }
+
+    private fun getAccentColorRes(): Int {
+        return when (getAccentStyle()) {
+            ACCENT_TEAL -> R.color.accent_teal
+            ACCENT_PURPLE -> R.color.accent_purple
+            ACCENT_AMBER -> R.color.accent_amber
+            else -> R.color.accent_blue
+        }
+    }
+
+    private fun getAccentColor(): Int = ContextCompat.getColor(this, getAccentColorRes())
+
+    private fun getSlowColor(): Int = getAccentColor()
+
+    private fun getFastColor(): Int = getAccentColor()
+
+    private fun createSwitchThumbTint(): android.content.res.ColorStateList {
+        return android.content.res.ColorStateList(
+            arrayOf(
+                intArrayOf(android.R.attr.state_checked),
+                intArrayOf()
+            ),
+            intArrayOf(
+                getAccentColor(),
+                ContextCompat.getColor(this, android.R.color.darker_gray)
+            )
+        )
+    }
+
+    private fun createSwitchTrackTint(): android.content.res.ColorStateList {
+        val accentWithAlpha = android.graphics.Color.argb(
+            (255 * 0.5f).toInt(),
+            android.graphics.Color.red(getAccentColor()),
+            android.graphics.Color.green(getAccentColor()),
+            android.graphics.Color.blue(getAccentColor())
+        )
+        val unchecked = if ((resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+        ) {
+            ContextCompat.getColor(this, R.color.stroke_light)
+        } else {
+            ContextCompat.getColor(this, android.R.color.darker_gray)
+        }
+        return android.content.res.ColorStateList(
+            arrayOf(
+                intArrayOf(android.R.attr.state_checked),
+                intArrayOf()
+            ),
+            intArrayOf(accentWithAlpha, unchecked)
+        )
+    }
+
+    private fun applyAccentStyling() {
+        val accentColor = getAccentColor()
+        binding.startPauseButton.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
+        binding.workoutProgress.progressTintList = android.content.res.ColorStateList.valueOf(accentColor)
+        val vibrationEnabled = sharedPreferences.getBoolean(KEY_VIBRATION_ENABLED, true)
+        val voiceEnabled = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, false)
+        updateIconState(binding.vibrationButton, vibrationEnabled)
+        updateIconState(binding.voiceButton, voiceEnabled)
     }
 
     private fun applyKeepScreenAwakePreference() {
@@ -1426,16 +1581,19 @@ open class MainActivity : AppCompatActivity() {
 
         when (phase) {
             is IntervalPhase.Slow -> {
-                binding.phaseLabel.text = getString(R.string.slow_phase)
-                binding.phaseLabel.setTextColor(getColor(R.color.slow_phase))
+                binding.phaseLabel.text = "> ${getString(R.string.slow_phase)}"
+                binding.phaseLabel.setTextColor(getSlowColor())
+                binding.phaseLabel.setTypeface(null, Typeface.BOLD)
             }
             is IntervalPhase.Fast -> {
-                binding.phaseLabel.text = getString(R.string.fast_phase)
-                binding.phaseLabel.setTextColor(getColor(R.color.fast_phase))
+                binding.phaseLabel.text = ">> ${getString(R.string.fast_phase)}"
+                binding.phaseLabel.setTextColor(getFastColor())
+                binding.phaseLabel.setTypeface(null, Typeface.BOLD)
             }
             is IntervalPhase.Completed -> {
                 binding.phaseLabel.text = getString(R.string.completed)
                 binding.phaseLabel.setTextColor(getColor(R.color.text_secondary))
+                binding.phaseLabel.setTypeface(null, Typeface.BOLD)
             }
         }
     }
@@ -1560,7 +1718,7 @@ open class MainActivity : AppCompatActivity() {
         // Update styled text with colored note
         val fullText = getString(R.string.formula_summary_format, pattern, totalMin)
         val startNoteText = if (currentFormula.startsWithFast) getString(R.string.starts_fast) else getString(R.string.starts_slow)
-        val noteColor = if (currentFormula.startsWithFast) R.color.fast_phase else R.color.slow_phase
+        val noteColor = if (currentFormula.startsWithFast) getFastColor() else getSlowColor()
         
         val combinedText = getString(R.string.formula_full_text_format, fullText, startNoteText)
         val spannable = SpannableString(combinedText)
@@ -1569,7 +1727,7 @@ open class MainActivity : AppCompatActivity() {
         
         // Style the note with color and medium weight for elegance
         spannable.setSpan(
-            ForegroundColorSpan(ContextCompat.getColor(this, noteColor)),
+            ForegroundColorSpan(noteColor),
             noteStart,
             noteEnd,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

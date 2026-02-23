@@ -18,9 +18,5 @@
         <item name="postSplashScreenTheme">@style/Theme.IntervalWalkTrainer</item>
     </style>
     
-    <style name="HintTextAppearance" parent="TextAppearance.MaterialComponents.Body2">
-        <item name="android:textSize">13sp</item>
-        <item name="android:letterSpacing">0.01</item>
-    </style>
 </resources>
 

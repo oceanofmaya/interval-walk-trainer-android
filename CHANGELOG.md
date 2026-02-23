@@ -2,6 +2,19 @@
 
 ## Version 1
 
+### 1.0.8 - 2026-02-22
+
+#### UI/UX Improvements
+
+- Reworked Settings > Theme controls into compact visual swatches and added accent swatches (Blue, Teal, Purple, Amber) for UI customization.
+- Applied accent colors consistently across key interactive UI surfaces, including main controls, settings toggles, custom formula creation controls, and stats highlights.
+- Updated phase labeling to use stronger visual differentiation (`>` for slow and `>>` for fast) while keeping a cohesive accent-based color style.
+- Updated calendar day styling in stats so the current-day ring is theme-aware for contrast (black in light mode, white in dark mode), regardless of accent selection.
+
+#### Documentation
+
+- Updated README usage and design sections to reflect theme/accent swatches, accent-driven active states, and the latest Settings behavior.
+
 ### 1.0.7 - 2026-02-21
 
 #### Features

@@ -51,18 +51,19 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - Three pre-configured training formulas including Japanese 3-3 (IWT)
 - **Design Your Own**: Create custom interval formulas with adjustable slow/fast durations, rounds, and starting phase
 - Vibration patterns: gentle for slow, strong double-pulse for fast
-- Voice notifications: optional text-to-speech announcements with early timing for perfect alignment
-- **Themes**: System (follows device), Light, or Dark with easy cycling
+- Voice notifications: optional text-to-speech announcements with early timing for phase changes
+- **Themes**: System (follows device), Light, or Dark (selected in Settings)
+- **Accent styles**: Blue, Teal, Purple, or Amber accent swatches in Settings
 - Runs in background: continues working when phone is locked
 - Minimalist design with large, readable timer
 - Progress tracking: current interval and total intervals
 - Visual progress bar showing overall workout completion
 - Elapsed and remaining time displays for clear progress feedback
-- Icon-based controls for vibration, voice, and theme settings
+- Icon-based controls for vibration, voice, stats, and settings
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
-- **Settings screen**: Access app version, Privacy Policy, Terms of Service, theme selector, and toggle controls for countdown and workout saving
+- **Settings screen**: Access app version, FAQ, Privacy Policy, Terms of Service, theme swatches, accent swatches, and toggles for notifications, keep-screen-awake, countdown, and workout saving
 - **Workout statistics and history**
-  - Calendar view showing workout days
+  - Calendar view showing workout days with a high-contrast today indicator
   - Total workouts, minutes, and streaks
   - Monthly navigation to view past workouts
   - Clear all stats option
@@ -106,16 +107,21 @@ Three pre-configured formulas covering the main training patterns. Additional va
 1. Tap the formula button to open the selector and choose a training formula
    - Select from three pre-configured formulas, or
    - Choose "Design Your Own" to create a custom interval or circuit formula
-2. Tap the vibration, voice, or theme icons to toggle settings (icons turn blue when active)
-   - **Theme button**: Tap to cycle through System → Light → Dark themes
-   - **Settings button** (info icon): Access Privacy Policy, Terms and Conditions, and theme selector
-3. Tap **Start** to begin (a short countdown will appear if enabled in settings)
-4. Monitor progress using the progress bar and elapsed/remaining time displays
-5. Use **Pause** or **Reset** as needed
-6. The timer continues running even when the phone is locked
-7. View your workout history and statistics by tapping the **Stats** icon
-8. Navigate between months to see past workout history
-9. Clear all stats anytime using the delete icon in the Stats screen
+2. Tap the vibration or voice icons to toggle in-workout cues (active icons use your selected accent color)
+3. Tap the **Settings** icon to manage app options:
+   - Notifications permission and app notification state
+   - Keep Screen Awake (foreground-only behavior)
+   - Countdown on/off and countdown seconds (1-10)
+   - Save Workouts toggle and theme selection (System, Light, Dark) with compact swatches
+   - Accent selection (Blue, Teal, Purple, Amber) for interactive UI highlights
+   - FAQ, Privacy Policy, and Terms of Service
+4. Tap **Start** to begin (a short countdown appears if enabled)
+5. Monitor progress using the progress bar and elapsed/remaining time displays
+6. Use **Pause** or **Reset** as needed
+7. The timer continues running even when the phone is locked
+8. View your workout history and statistics by tapping the **Stats** icon
+9. Navigate between months to see past workout history
+10. Clear all stats anytime using the delete icon in the Stats screen
 
 ### Creating Custom Formulas
 
@@ -196,10 +202,13 @@ The app requires the following permissions:
 - `VIBRATE`: For vibration notifications
 - `POST_NOTIFICATIONS`: For system notifications (Android 13+)
 - `WAKE_LOCK`: To keep the timer running when the phone is locked
+- `FOREGROUND_SERVICE`: To run active workouts reliably in the background
+- `FOREGROUND_SERVICE_HEALTH`: Required for health/workout foreground service type on newer Android versions
+- `ACTIVITY_RECOGNITION`: Required on newer Android versions for health-type foreground workout execution
 
 ## Design
 
-Minimalist interface with clean typography. Color coding: blue for slow phase, red for fast phase. Supports three themes:
+Minimalist interface with clean typography. Slow/Fast phase labels use accent-colored glyph cues (`>` and `>>`) for quick scanning. Supports three themes and configurable accents in Settings:
 
 - **System**: Automatically follows your device's theme setting
 - **Light**: Always use light theme
