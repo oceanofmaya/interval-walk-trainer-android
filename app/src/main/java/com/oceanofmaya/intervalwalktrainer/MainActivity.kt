@@ -120,6 +120,7 @@ open class MainActivity : AppCompatActivity() {
         private const val ACCENT_TEAL = "teal"
         private const val ACCENT_PURPLE = "purple"
         private const val ACCENT_AMBER = "amber"
+        private const val ACCENT_MAGENTA = "magenta"
         private const val REQUEST_CODE_ACTIVITY_RECOGNITION = 1001
         private const val REQUEST_CODE_POST_NOTIFICATIONS = 1002
     }
@@ -888,6 +889,7 @@ open class MainActivity : AppCompatActivity() {
         val accentTealButton = view.findViewById<android.widget.ImageButton>(R.id.accentTealButton)
         val accentPurpleButton = view.findViewById<android.widget.ImageButton>(R.id.accentPurpleButton)
         val accentAmberButton = view.findViewById<android.widget.ImageButton>(R.id.accentAmberButton)
+        val accentMagentaButton = view.findViewById<android.widget.ImageButton>(R.id.accentMagentaButton)
         var saveWorkoutsSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
         var notificationsSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
         var keepScreenAwakeSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
@@ -913,6 +915,7 @@ open class MainActivity : AppCompatActivity() {
             applySelection(accentTealButton, selectedAccent == ACCENT_TEAL)
             applySelection(accentPurpleButton, selectedAccent == ACCENT_PURPLE)
             applySelection(accentAmberButton, selectedAccent == ACCENT_AMBER)
+            applySelection(accentMagentaButton, selectedAccent == ACCENT_MAGENTA)
         }
 
         fun applyDialogSwitchTints() {
@@ -986,6 +989,11 @@ open class MainActivity : AppCompatActivity() {
         accentAmberButton.setOnClickListener { btn ->
             hapticSelection(btn)
             setAccentStyle(ACCENT_AMBER)
+        }
+
+        accentMagentaButton.setOnClickListener { btn ->
+            hapticSelection(btn)
+            setAccentStyle(ACCENT_MAGENTA)
         }
         
         // Clear stats button
@@ -1281,6 +1289,7 @@ open class MainActivity : AppCompatActivity() {
             ACCENT_TEAL -> R.color.accent_teal
             ACCENT_PURPLE -> R.color.accent_purple
             ACCENT_AMBER -> R.color.accent_amber
+            ACCENT_MAGENTA -> R.color.accent_magenta
             else -> R.color.accent_blue
         }
     }

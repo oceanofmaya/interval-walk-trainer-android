@@ -53,7 +53,7 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - Vibration patterns: gentle for slow, strong double-pulse for fast
 - Voice notifications: optional text-to-speech announcements with early timing for phase changes
 - **Themes**: System (follows device), Light, or Dark (selected in Settings)
-- **Accent styles**: Blue, Teal, Purple, or Amber accent swatches in Settings
+- **Accent styles**: Blue, Teal, Purple, Amber or Magenta accent swatches in Settings
 - Runs in background: continues working when phone is locked
 - Minimalist design with large, readable timer
 - Progress tracking: current interval and total intervals
@@ -113,7 +113,7 @@ Three pre-configured formulas covering the main training patterns. Additional va
    - Keep Screen Awake (foreground-only behavior)
    - Countdown on/off and countdown seconds (1-10)
    - Save Workouts toggle and theme selection (System, Light, Dark) with compact swatches
-   - Accent selection (Blue, Teal, Purple, Amber) for interactive UI highlights
+   - Accent selection (Blue, Teal, Purple, Amber, Magenta) for interactive UI highlights
    - FAQ, Privacy Policy, and Terms of Service
 4. Tap **Start** to begin (a short countdown appears if enabled)
 5. Monitor progress using the progress bar and elapsed/remaining time displays

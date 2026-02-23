@@ -98,6 +98,7 @@
     <string name="accent_teal">Teal accent</string>
     <string name="accent_purple">Purple accent</string>
     <string name="accent_amber">Amber accent</string>
+    <string name="accent_magenta">Magenta accent</string>
     <string name="settings_button">Settings</string>
     <string name="workout_settings">Workout</string>
     <string name="countdown_seconds_format">%1$ds</string>
