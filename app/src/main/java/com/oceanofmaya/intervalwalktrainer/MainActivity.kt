@@ -37,8 +37,8 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -438,11 +438,11 @@ open class MainActivity : AppCompatActivity() {
     private fun observeTimerState() {
         timerJob?.cancel()
         timerJob = lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                intervalTimer?.state?.collect { state ->
+            intervalTimer?.state
+                ?.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                ?.collect { state ->
                     updateTimerDisplay(state)
                 }
-            }
         }
     }
 
