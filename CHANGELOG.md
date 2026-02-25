@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.10 - 2026-02-24
+
+#### Updates
+
+- Fixed fast-start interval formulas (including 5-2 and 5-4-5 patterns) to run the final slow phase correctly instead of ending early on the last fast phase.
+- Added automatic post-completion timer reset after a short delay (15s) so returning to the app no longer leaves users stuck on the completed 0:00 state.
+
 ### 1.0.9 - 2026-02-23
 
 #### UI/UX Improvements

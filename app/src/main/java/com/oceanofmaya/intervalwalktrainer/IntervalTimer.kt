@@ -72,6 +72,28 @@ class IntervalTimer(
     private var totalElapsedSeconds = 0
     private var phaseStartTime = 0
 
+    /**
+     * For fast-start formulas, the workout ends on a final slow phase.
+     * This is true after all configured rounds have had their fast phase completed.
+     */
+    private fun isFinalSlowPhaseForFastStart(): Boolean {
+        return formula.startsWithFast && isSlowPhase && currentIntervalIndex >= formula.totalIntervals
+    }
+
+    /**
+     * Determines the phase that should follow when the current fast phase finishes.
+     * For fast-start formulas, the last fast transitions to a trailing slow phase.
+     */
+    private fun nextPhaseAfterFastCompletes(): IntervalPhase {
+        return if (formula.startsWithFast && currentIntervalIndex + 1 >= formula.totalIntervals) {
+            IntervalPhase.Slow
+        } else if (currentIntervalIndex + 1 >= formula.totalIntervals) {
+            IntervalPhase.Completed
+        } else {
+            IntervalPhase.Slow
+        }
+    }
+
     fun start() {
         if (_state.value.isRunning) return
 
@@ -144,9 +166,10 @@ class IntervalTimer(
                 val remaining = (millisUntilFinished / 1000).toInt()
                 val elapsedInPhase = phaseStartTime - remaining
                 val currentElapsed = totalElapsedSeconds + elapsedInPhase
+                val displayInterval = (currentIntervalIndex + 1).coerceAtMost(formula.totalIntervals)
                 _state.value = _state.value.copy(
                     timeRemainingSeconds = remaining,
-                    currentInterval = currentIntervalIndex + 1,
+                    currentInterval = displayInterval,
                     elapsedSeconds = currentElapsed.coerceAtMost(formula.totalDurationSeconds)
                 )
                 
@@ -155,17 +178,15 @@ class IntervalTimer(
                 // The phaseChangeNotified flag ensures we only notify once per phase.
                 if (!phaseChangeNotified && millisUntilFinished <= notificationTime) {
                     if (isSlowPhase) {
-                        // About to transition from slow to fast phase
-                        onPhaseChange(IntervalPhase.Fast)
-                    } else {
-                        // About to complete fast phase - either finish workout or start next interval
-                        if (currentIntervalIndex + 1 >= formula.totalIntervals) {
-                            // Last interval completed - workout is done
+                        // About to transition from slow phase: either to fast or to completion
+                        if (isFinalSlowPhaseForFastStart()) {
                             onPhaseChange(IntervalPhase.Completed)
                         } else {
-                            // More intervals remaining - will start next slow phase
-                            onPhaseChange(IntervalPhase.Slow)
+                            onPhaseChange(IntervalPhase.Fast)
                         }
+                    } else {
+                        // About to complete fast phase - either finish workout or start next interval
+                        onPhaseChange(nextPhaseAfterFastCompletes())
                     }
                     // Mark as notified to prevent duplicate notifications in onFinish()
                     // The value is read in onFinish() via the closure, but compiler doesn't recognize it
@@ -179,13 +200,13 @@ class IntervalTimer(
                 val wasNotified = phaseChangeNotified
                 if (!wasNotified) {
                     if (isSlowPhase) {
-                         onPhaseChange(IntervalPhase.Fast)
-                    } else {
-                        if (currentIntervalIndex + 1 >= formula.totalIntervals) {
+                        if (isFinalSlowPhaseForFastStart()) {
                             onPhaseChange(IntervalPhase.Completed)
                         } else {
-                            onPhaseChange(IntervalPhase.Slow)
+                            onPhaseChange(IntervalPhase.Fast)
                         }
+                    } else {
+                        onPhaseChange(nextPhaseAfterFastCompletes())
                     }
                 }
 
@@ -193,23 +214,34 @@ class IntervalTimer(
                 totalElapsedSeconds += phaseStartTime
                 
                 if (isSlowPhase) {
-                    // Transition from slow to fast phase within the same interval
-                    isSlowPhase = false
-                    phaseStartTime = formula.fastDurationSeconds
-                    // Note: Phase change notification was already sent early (in onTick)
-                    // Here we just update the state and start the next timer
-                    startTimer(formula.fastDurationSeconds)
-                    _state.value = _state.value.copy(
-                        currentPhase = IntervalPhase.Fast,
-                        timeRemainingSeconds = formula.fastDurationSeconds,
-                        elapsedSeconds = totalElapsedSeconds
-                    )
+                    if (isFinalSlowPhaseForFastStart()) {
+                        // Fast-start formulas finish on this trailing slow phase.
+                        _state.value = _state.value.copy(
+                            currentPhase = IntervalPhase.Completed,
+                            isRunning = false,
+                            timeRemainingSeconds = 0,
+                            elapsedSeconds = formula.totalDurationSeconds
+                        )
+                        countDownTimer?.cancel()
+                    } else {
+                        // Transition from slow to fast phase within the same interval
+                        isSlowPhase = false
+                        phaseStartTime = formula.fastDurationSeconds
+                        // Note: Phase change notification was already sent early (in onTick)
+                        // Here we just update the state and start the next timer
+                        startTimer(formula.fastDurationSeconds)
+                        _state.value = _state.value.copy(
+                            currentPhase = IntervalPhase.Fast,
+                            timeRemainingSeconds = formula.fastDurationSeconds,
+                            elapsedSeconds = totalElapsedSeconds
+                        )
+                    }
                 } else {
                     // Fast phase completed - this completes one full interval
                     currentIntervalIndex++
                     onIntervalComplete()
 
-                    if (currentIntervalIndex >= formula.totalIntervals) {
+                    if (!formula.startsWithFast && currentIntervalIndex >= formula.totalIntervals) {
                         // All intervals completed - workout is finished
                         // Note: Completion notification was already sent early (in onTick)
                         _state.value = _state.value.copy(
@@ -225,10 +257,11 @@ class IntervalTimer(
                         phaseStartTime = formula.slowDurationSeconds
                         // Note: Phase change notification was already sent early (in onTick)
                         startTimer(formula.slowDurationSeconds)
+                        val displayInterval = (currentIntervalIndex + 1).coerceAtMost(formula.totalIntervals)
                         _state.value = _state.value.copy(
                             currentPhase = IntervalPhase.Slow,
                             timeRemainingSeconds = formula.slowDurationSeconds,
-                            currentInterval = currentIntervalIndex + 1,
+                            currentInterval = displayInterval,
                             elapsedSeconds = totalElapsedSeconds
                         )
                     }
