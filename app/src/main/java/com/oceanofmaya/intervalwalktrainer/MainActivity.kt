@@ -81,6 +81,9 @@ open class MainActivity : AppCompatActivity() {
     private var settingsNotificationsSwitch: com.google.android.material.switchmaterial.SwitchMaterial? = null
     private var isUpdatingNotificationsSwitch = false
     private var lastKnownNotificationsEnabled = false
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var completionAtMillis: Long? = null
+    private var completionAutoResetRunnable: Runnable? = null
 
     companion object {
         // SharedPreferences keys
@@ -108,6 +111,7 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_SAVED_CURRENT_INTERVAL = "saved_current_interval"
         private const val KEY_SAVED_IS_RUNNING = "saved_is_running"
         private const val KEY_SAVED_PHASE = "saved_phase"
+        private const val KEY_SAVED_COMPLETION_AT_MILLIS = "saved_completion_at_millis"
         
         // Wake lock configuration
         private const val WAKE_LOCK_TAG = "IntervalWalkTrainer:TimerWakeLock"
@@ -116,6 +120,7 @@ open class MainActivity : AppCompatActivity() {
         private const val PRE_START_SECONDS_DEFAULT = 3
         private const val PRE_START_SECONDS_MIN = 1
         private const val PRE_START_SECONDS_MAX = 10
+        private const val AUTO_RESET_AFTER_COMPLETION_DELAY_MS = 15_000L
         private const val ACCENT_BLUE = "blue"
         private const val ACCENT_TEAL = "teal"
         private const val ACCENT_PURPLE = "purple"
@@ -170,6 +175,7 @@ open class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         applyKeepScreenAwakePreference()
+        maybeAutoResetCompletedTimer()
         val notificationsEnabled = areAppNotificationsEnabled()
         handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
         lastKnownNotificationsEnabled = notificationsEnabled
@@ -245,6 +251,7 @@ open class MainActivity : AppCompatActivity() {
                 is IntervalPhase.Fast -> "fast"
                 is IntervalPhase.Completed -> "completed"
             })
+            outState.putLong(KEY_SAVED_COMPLETION_AT_MILLIS, completionAtMillis ?: -1L)
         }
     }
     
@@ -254,6 +261,8 @@ open class MainActivity : AppCompatActivity() {
         val savedCurrentInterval = savedInstanceState.getInt(KEY_SAVED_CURRENT_INTERVAL, 0)
         val savedIsRunning = savedInstanceState.getBoolean(KEY_SAVED_IS_RUNNING, false)
         val savedPhase = savedInstanceState.getString(KEY_SAVED_PHASE, "slow")
+        val savedCompletionAt = savedInstanceState.getLong(KEY_SAVED_COMPLETION_AT_MILLIS, -1L)
+        completionAtMillis = if (savedCompletionAt > 0) savedCompletionAt else null
         
         // Only restore if we have valid saved state
         if (savedFormulaName != null && savedTimeRemaining >= 0) {
@@ -296,6 +305,11 @@ open class MainActivity : AppCompatActivity() {
                 
                 // Observe state changes with lifecycle awareness
                 observeTimerState()
+
+                if (restoredPhase is IntervalPhase.Completed && completionAtMillis == null) {
+                    // If completion time was not available (e.g., old saved state), start delay from now.
+                    completionAtMillis = System.currentTimeMillis()
+                }
                 
                 // Acquire wake lock if timer was running
                 if (savedIsRunning) {
@@ -408,6 +422,7 @@ open class MainActivity : AppCompatActivity() {
                     releaseWakeLock()
                     stopWorkoutForegroundService()
                     recordWorkoutCompletion()
+                    scheduleCompletionAutoReset()
                 }
             },
             onIntervalComplete = {}
@@ -1414,6 +1429,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun startTimerNow() {
+        cancelCompletionAutoReset(clearCompletionTimestamp = true)
         // Acquire wake lock to keep device awake during timer
         acquireWakeLock()
         startWorkoutForegroundService()
@@ -1533,6 +1549,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun resetTimer() {
+        cancelCompletionAutoReset(clearCompletionTimestamp = true)
         cancelPreStartCountdown()
         intervalTimer?.dispose()
         intervalTimer = null
@@ -1821,6 +1838,55 @@ open class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun scheduleCompletionAutoReset() {
+        completionAtMillis = System.currentTimeMillis()
+        val runnable = Runnable {
+            val state = intervalTimer?.state?.value
+            if (state?.currentPhase is IntervalPhase.Completed && state.isRunning.not()) {
+                resetTimer()
+            }
+        }
+        completionAutoResetRunnable?.let { mainHandler.removeCallbacks(it) }
+        completionAutoResetRunnable = runnable
+        mainHandler.postDelayed(runnable, AUTO_RESET_AFTER_COMPLETION_DELAY_MS)
+    }
+
+    private fun cancelCompletionAutoReset(clearCompletionTimestamp: Boolean) {
+        completionAutoResetRunnable?.let { mainHandler.removeCallbacks(it) }
+        completionAutoResetRunnable = null
+        if (clearCompletionTimestamp) {
+            completionAtMillis = null
+        }
+    }
+
+    private fun maybeAutoResetCompletedTimer() {
+        val state = intervalTimer?.state?.value ?: return
+        if (state.currentPhase !is IntervalPhase.Completed || state.isRunning) return
+
+        val completedAt = completionAtMillis
+        if (completedAt == null) {
+            // Treat as just-completed when timestamp isn't available.
+            scheduleCompletionAutoReset()
+            return
+        }
+
+        val elapsed = System.currentTimeMillis() - completedAt
+        if (elapsed >= AUTO_RESET_AFTER_COMPLETION_DELAY_MS) {
+            resetTimer()
+        } else {
+            val remaining = AUTO_RESET_AFTER_COMPLETION_DELAY_MS - elapsed
+            val runnable = Runnable {
+                val current = intervalTimer?.state?.value
+                if (current?.currentPhase is IntervalPhase.Completed && current.isRunning.not()) {
+                    resetTimer()
+                }
+            }
+            completionAutoResetRunnable?.let { mainHandler.removeCallbacks(it) }
+            completionAutoResetRunnable = runnable
+            mainHandler.postDelayed(runnable, remaining)
+        }
+    }
+
     private fun showDisableSaveWorkoutsDialog(onConfirm: () -> Unit, onCancel: (() -> Unit)? = null) {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(R.string.disable_save_workouts_title)
@@ -2066,6 +2132,7 @@ open class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        cancelCompletionAutoReset(clearCompletionTimestamp = false)
         preStartCountdownTimer?.cancel()
         intervalTimer?.dispose()
         notificationHelper?.release()

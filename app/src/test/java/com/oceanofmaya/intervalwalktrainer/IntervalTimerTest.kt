@@ -349,6 +349,101 @@ class IntervalTimerTest {
     }
 
     @Test
+    fun `fast-start formula does not complete at end of last fast phase`() = runTest {
+        val fastStartFormula = IntervalFormula(
+            name = "Fast Start",
+            slowDurationSeconds = 2,
+            fastDurationSeconds = 2,
+            totalIntervals = 2,
+            startsWithFast = true
+        )
+        val timer = createTimer(fastStartFormula)
+        val intervalIndexField = timer.javaClass.getDeclaredField("currentIntervalIndex").apply { isAccessible = true }
+        val isSlowPhaseField = timer.javaClass.getDeclaredField("isSlowPhase").apply { isAccessible = true }
+        val helperMethod = timer.javaClass
+            .getDeclaredMethod("isFinalSlowPhaseForFastStart")
+            .apply { isAccessible = true }
+
+        // Simulate state after final fast phase has completed for a fast-start workout.
+        intervalIndexField.setInt(timer, 2)
+        isSlowPhaseField.setBoolean(timer, true)
+
+        val shouldComplete = helperMethod.invoke(timer) as Boolean
+        assertTrue(shouldComplete, "Fast-start workout should complete on the trailing slow phase")
+    }
+
+    @Test
+    fun `final slow phase completion helper is false for non-final states`() = runTest {
+        val fastStartFormula = IntervalFormula(
+            name = "Fast Start Counter",
+            slowDurationSeconds = 2,
+            fastDurationSeconds = 2,
+            totalIntervals = 2,
+            startsWithFast = true
+        )
+        val timer = createTimer(fastStartFormula)
+        val intervalIndexField = timer.javaClass.getDeclaredField("currentIntervalIndex").apply { isAccessible = true }
+        val isSlowPhaseField = timer.javaClass.getDeclaredField("isSlowPhase").apply { isAccessible = true }
+        val helperMethod = timer.javaClass
+            .getDeclaredMethod("isFinalSlowPhaseForFastStart")
+            .apply { isAccessible = true }
+
+        // Not enough completed intervals yet.
+        intervalIndexField.setInt(timer, 1)
+        isSlowPhaseField.setBoolean(timer, true)
+        val beforeFinalSlow = helperMethod.invoke(timer) as Boolean
+        assertFalse(beforeFinalSlow)
+
+        // Final interval count reached, but we're on fast phase.
+        intervalIndexField.setInt(timer, 2)
+        isSlowPhaseField.setBoolean(timer, false)
+        val finalFast = helperMethod.invoke(timer) as Boolean
+        assertFalse(finalFast)
+    }
+
+    @Test
+    fun `fast-start last fast transitions to slow notification`() = runTest {
+        val fastStartFormula = IntervalFormula(
+            name = "Fast Start Notification",
+            slowDurationSeconds = 2,
+            fastDurationSeconds = 2,
+            totalIntervals = 2,
+            startsWithFast = true
+        )
+        val timer = createTimer(fastStartFormula)
+        val intervalIndexField = timer.javaClass.getDeclaredField("currentIntervalIndex").apply { isAccessible = true }
+        val method = timer.javaClass
+            .getDeclaredMethod("nextPhaseAfterFastCompletes")
+            .apply { isAccessible = true }
+
+        // Simulate final fast phase completion boundary.
+        intervalIndexField.setInt(timer, 1) // currentIntervalIndex + 1 == totalIntervals
+        val phase = method.invoke(timer) as IntervalPhase
+        assertTrue(phase is IntervalPhase.Slow)
+    }
+
+    @Test
+    fun `slow-start last fast transitions to complete notification`() = runTest {
+        val slowStartFormula = IntervalFormula(
+            name = "Slow Start Notification",
+            slowDurationSeconds = 2,
+            fastDurationSeconds = 2,
+            totalIntervals = 2,
+            startsWithFast = false
+        )
+        val timer = createTimer(slowStartFormula)
+        val intervalIndexField = timer.javaClass.getDeclaredField("currentIntervalIndex").apply { isAccessible = true }
+        val method = timer.javaClass
+            .getDeclaredMethod("nextPhaseAfterFastCompletes")
+            .apply { isAccessible = true }
+
+        // Simulate final fast phase completion boundary.
+        intervalIndexField.setInt(timer, 1) // currentIntervalIndex + 1 == totalIntervals
+        val phase = method.invoke(timer) as IntervalPhase
+        assertTrue(phase is IntervalPhase.Completed)
+    }
+
+    @Test
     fun `dispose can be called multiple times safely`() = runTest {
         val timer = createTimer()
         timer.start()
