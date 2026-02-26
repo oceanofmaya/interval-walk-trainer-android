@@ -304,10 +304,42 @@ class StatsActivity : AppCompatActivity() {
             .setTitle(R.string.clear_stats_title)
             .setMessage(R.string.clear_stats_message)
             .setPositiveButton(R.string.clear) { _, _ ->
+                applyEmptyStatsUiImmediately()
                 clearAllStats()
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+    }
+
+    /**
+     * Updates the stats header and sections to show "no data" immediately (optimistic UI).
+     * Call before clearAllStats() so totals and related UI clear right away.
+     */
+    private fun applyEmptyStatsUiImmediately() {
+        binding.totalWorkoutsValue.text = "0"
+        binding.totalMinutesValue.text = formatMinutes(0)
+        binding.currentStreakValue.text = getString(R.string.days_format, 0)
+        binding.longestStreakValue.text = getString(R.string.days_format, 0)
+        binding.avgWorkoutsPerWeekValue.text = "0.0"
+        binding.currentStreakCard.setBackgroundResource(R.drawable.formula_details_background)
+        updateStreakProgress(0, 0)
+        binding.bestDayValue.visibility = android.view.View.GONE
+        binding.bestDayMinutes.visibility = android.view.View.GONE
+        binding.bestDayEmptyState.visibility = android.view.View.VISIBLE
+        binding.bestDayCard.visibility = android.view.View.VISIBLE
+        binding.emptyStateContainer.visibility = android.view.View.VISIBLE
+        binding.calendarSectionHeader.visibility = android.view.View.GONE
+        binding.calendarSectionContainer.visibility = android.view.View.GONE
+        binding.workoutsListTitle.visibility = android.view.View.GONE
+        binding.workoutsRecyclerView.visibility = android.view.View.GONE
+        binding.emptyWorkoutListMessage.visibility = android.view.View.GONE
+        // Reset Monthly trend section so it shows zero until reload completes
+        binding.monthComparisonWorkoutsValue.text = "0"
+        binding.monthComparisonMinutesValue.text = formatMinutes(0)
+        binding.monthComparisonWorkoutsBadgeContainer.visibility = android.view.View.GONE
+        binding.monthComparisonWorkoutsEmptyState.visibility = android.view.View.VISIBLE
+        binding.monthComparisonMinutesBadgeContainer.visibility = android.view.View.GONE
+        binding.monthComparisonMinutesEmptyState.visibility = android.view.View.VISIBLE
     }
 
     private fun showDisableSaveWorkoutsDialog(onConfirm: () -> Unit) {
@@ -324,11 +356,7 @@ class StatsActivity : AppCompatActivity() {
     private fun clearAllStats() {
         lifecycleScope.launch {
             try {
-                // Clear all data from database
                 workoutRepository.clearAllData()
-                // Small delay to ensure database operations are fully committed
-                kotlinx.coroutines.delay(100)
-                // Reload all UI components to reflect cleared state
                 loadStatistics()
                 loadCalendar()
                 loadWorkoutList()
@@ -564,10 +592,11 @@ class StatsActivity : AppCompatActivity() {
                     binding.monthComparisonWorkoutsBadgeContainer.visibility = android.view.View.VISIBLE
                     binding.monthComparisonWorkoutsEmptyState.visibility = android.view.View.GONE
                 } else {
+                    binding.monthComparisonWorkoutsValue.text = "0"
                     binding.monthComparisonWorkoutsBadgeContainer.visibility = android.view.View.GONE
                     binding.monthComparisonWorkoutsEmptyState.visibility = android.view.View.VISIBLE
                 }
-                
+
                 // Update minutes card
                 if (comparison.previousMonthMinutes > 0 || comparison.currentMonthMinutes > 0) {
                     binding.monthComparisonMinutesValue.text = getString(R.string.month_comparison_minutes_value, formatMinutes(comparison.currentMonthMinutes))
@@ -581,10 +610,11 @@ class StatsActivity : AppCompatActivity() {
                     binding.monthComparisonMinutesBadgeContainer.visibility = android.view.View.VISIBLE
                     binding.monthComparisonMinutesEmptyState.visibility = android.view.View.GONE
                 } else {
+                    binding.monthComparisonMinutesValue.text = formatMinutes(0)
                     binding.monthComparisonMinutesBadgeContainer.visibility = android.view.View.GONE
                     binding.monthComparisonMinutesEmptyState.visibility = android.view.View.VISIBLE
                 }
-                
+
                 binding.swipeRefreshLayout.isRefreshing = false
             } catch (e: Exception) {
                 android.util.Log.e("StatsActivity", "Error loading month comparison", e)
@@ -710,7 +740,53 @@ class StatsActivity : AppCompatActivity() {
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_workout_detail, FrameLayout(this), false)
         bottomSheetDialog.setContentView(view)
         configureBottomSheet(bottomSheetDialog, view)
-        
+
+        val countTextView = view.findViewById<TextView>(R.id.workoutDetailCount)
+        val minutesTextView = view.findViewById<TextView>(R.id.workoutDetailMinutes)
+        val recyclerView = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.workoutDetailRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        fun updateSheetWithSessions(sessions: List<WorkoutSession>, dateRecord: WorkoutRecord?) {
+            if (dateRecord != null) {
+                countTextView.text = dateRecord.completedWorkouts.toString()
+                minutesTextView.text = formatMinutes(dateRecord.totalMinutes)
+            }
+            recyclerView.adapter = WorkoutDetailAdapter(sessions) { session ->
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.delete_workout_title)
+                    .setMessage(R.string.delete_workout_message)
+                    .setPositiveButton(R.string.delete) { _, _ ->
+                        lifecycleScope.launch {
+                            try {
+                                workoutRepository.deleteSession(session)
+                                val remaining = workoutRepository.getSessionsByDate(record.date)
+                                if (remaining.isEmpty()) {
+                                    bottomSheetDialog.dismiss()
+                                    loadStatistics()
+                                    loadCalendar()
+                                    loadWorkoutList()
+                                    loadMonthComparison()
+                                    loadWorkoutTypeDistribution()
+                                } else {
+                                    val updatedRecord = workoutRepository.getRecordByDate(record.date)
+                                    updateSheetWithSessions(remaining, updatedRecord)
+                                    // Refresh main history list and stats so the day's row shows updated total
+                                    loadStatistics()
+                                    loadCalendar()
+                                    loadWorkoutList()
+                                    loadMonthComparison()
+                                    loadWorkoutTypeDistribution()
+                                }
+                            } catch (e: Exception) {
+                                android.util.Log.e("StatsActivity", "Error deleting workout session", e)
+                            }
+                        }
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+            }
+        }
+
         // Format and display date
         val dateTextView = view.findViewById<TextView>(R.id.workoutDetailDate)
         try {
@@ -724,31 +800,20 @@ class StatsActivity : AppCompatActivity() {
         } catch (e: Exception) {
             dateTextView.text = record.date
         }
-        
-        // Display workout count and total minutes
-        val countTextView = view.findViewById<TextView>(R.id.workoutDetailCount)
+
         countTextView.text = record.completedWorkouts.toString()
-        
-        val minutesTextView = view.findViewById<TextView>(R.id.workoutDetailMinutes)
         minutesTextView.text = formatMinutes(record.totalMinutes)
-        
-        // Load and display individual workout sessions
+
         lifecycleScope.launch {
             try {
                 val sessions = workoutRepository.getSessionsByDate(record.date)
-                // Sessions are already ordered by timestamp descending
-                val recyclerView = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.workoutDetailRecyclerView)
-                recyclerView.layoutManager = LinearLayoutManager(this@StatsActivity)
-                recyclerView.adapter = WorkoutDetailAdapter(sessions)
+                updateSheetWithSessions(sessions, record)
             } catch (e: Exception) {
                 android.util.Log.e("StatsActivity", "Error loading workout sessions", e)
-                // Fallback to empty list if sessions can't be loaded
-                val recyclerView = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.workoutDetailRecyclerView)
-                recyclerView.layoutManager = LinearLayoutManager(this@StatsActivity)
-                recyclerView.adapter = WorkoutDetailAdapter(emptyList())
+                updateSheetWithSessions(emptyList(), null)
             }
         }
-        
+
         bottomSheetDialog.show()
     }
 

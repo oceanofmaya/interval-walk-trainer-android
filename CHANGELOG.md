@@ -2,6 +2,18 @@
 
 ## Version 1
 
+### 1.0.13 - 2026-02-26
+
+#### Fixes
+
+- Fixed duplicate workout entries in history: completing a workout and then rotating the device or restoring the app no longer records the same workout again (recording is now skipped when restoring timer state).
+- Clear History now updates total workouts and total minutes in the stats header immediately via an optimistic UI update, so the screen reflects the cleared state without navigating away.
+
+#### UI/UX Improvements
+
+- Workout detail (per-day bottom sheet) now shows the time each workout was completed so multiple sessions on the same day can be distinguished.
+- Added the ability to delete individual workouts from history from the workout detail bottom sheet (delete icon per session with confirmation), instead of only clearing all history.
+
 ### 1.0.12 - 2026-02-25
 
 #### UI/UX Improvements

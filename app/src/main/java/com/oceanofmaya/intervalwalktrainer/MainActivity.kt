@@ -424,11 +424,13 @@ open class MainActivity : AppCompatActivity() {
                     lastNotifiedPhase = phase
                 }
 
-                // Release wake lock and record workout when timer completes
+                // Release wake lock and record workout when timer completes (skip record when restoring state to avoid duplicates)
                 if (phase is IntervalPhase.Completed) {
                     releaseWakeLock()
                     stopWorkoutForegroundService()
-                    recordWorkoutCompletion()
+                    if (!isRestoringTimerState) {
+                        recordWorkoutCompletion()
+                    }
                     scheduleCompletionAutoReset()
                 }
             },
