@@ -2,6 +2,26 @@
 
 ## Version 1
 
+### 1.0.11 - 2026-02-26
+
+#### UI/UX Improvements
+
+- Replaced main-screen Stats, Settings, Vibration, and Voice buttons with a single overflow menu (⋮) offering Workout History, Settings, Help, and Report Issue, with icons and clearer hierarchy.
+- Moved Vibration and Voice notification toggles into Settings under Workout (with switches), keeping the main screen focused on the timer and controls.
+- Updated Ux for a cleaner and more spacious layout.
+- FAQ is now available from the overflow as **Help**.
+
+#### Features
+
+- Voice notifications now default to **on** (was off).
+- **Report Issue** in the overflow opens the app’s GitHub Issues page
+- Added a GitHub issue form template for bug reports
+
+#### Updates
+
+- CI: Lint is required for the build
+- Updated store screenshots and promo images.
+
 ### 1.0.10 - 2026-02-24
 
 #### Updates

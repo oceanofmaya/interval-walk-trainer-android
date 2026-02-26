@@ -87,6 +87,7 @@
     <string name="settings">Settings</string>
     <string name="about">About</string>
     <string name="faq">FAQ</string>
+    <string name="frequently_asked_questions">Frequently Asked Questions</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="terms_and_conditions">Terms of Service</string>
     <string name="theme_mode">Theme</string>
@@ -94,6 +95,7 @@
     <string name="theme_system">System (Auto)</string>
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
+    <string name="menu">Menu</string>
     <string name="accent_blue">Blue accent</string>
     <string name="accent_teal">Teal accent</string>
     <string name="accent_purple">Purple accent</string>
@@ -103,8 +105,11 @@
     <string name="workout_settings">Workout</string>
     <string name="countdown_seconds_format">%1$ds</string>
     <string name="save_workouts">Save Workouts</string>
+    <string name="voice_notifications">Voice Notifications</string>
     <string name="notifications">Notifications</string>
     <string name="keep_screen_awake">Keep Screen Awake</string>
+    <string name="report_issue">Report Issue</string>
+    <string name="help">Help</string>
     <string name="disable_save_workouts_title">Turn off workout history?</string>
     <string name="disable_save_workouts_message">New workouts will not be saved to history while this is off.</string>
     <string name="turn_off">Turn Off</string>
