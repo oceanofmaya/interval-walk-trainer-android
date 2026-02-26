@@ -15,7 +15,6 @@ import android.os.Looper
 import android.os.PowerManager
 import android.text.SpannableString
 import android.text.Spanned
-import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.content.Intent
 import android.net.Uri
@@ -35,7 +34,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.doOnLayout
+import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
+import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -69,7 +70,6 @@ open class MainActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private var wakeLock: PowerManager.WakeLock? = null
     private var timerJob: Job? = null
-    private var isRestoringPreferences = false
     private var isRestoringTimerState = false
     private lateinit var workoutRepository: WorkoutRepository
     private var lastDisplayedTime = -1
@@ -155,13 +155,11 @@ open class MainActivity : AppCompatActivity() {
         workoutRepository = WorkoutRepository(database.workoutDao(), database.workoutSessionDao(), database)
 
         setupTheme()
-        restoreNotificationPreferences()
         restoreCustomFormula()
         setupFormulaSpinner()
         setupControls()
         applyAccentStyling()
-        setupStatsButton()
-        setupSettingsButton()
+        setupOverflowMenuButton()
         lastKnownNotificationsEnabled = areAppNotificationsEnabled()
         
         // Restore timer state if activity was recreated (e.g., theme change)
@@ -209,6 +207,11 @@ open class MainActivity : AppCompatActivity() {
             isAppearanceLightNavigationBars = !isDarkTheme
         }
 
+        val overflowMenuBaseTopMargin =
+            (binding.overflowMenuButton.layoutParams as android.widget.FrameLayout.LayoutParams).topMargin
+        val overflowMenuBaseEndMargin =
+            (binding.overflowMenuButton.layoutParams as android.widget.FrameLayout.LayoutParams).marginEnd
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.mainScrollView) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.updatePadding(
@@ -217,6 +220,10 @@ open class MainActivity : AppCompatActivity() {
                 right = insets.right,
                 bottom = insets.bottom
             )
+            binding.overflowMenuButton.updateLayoutParams<android.widget.FrameLayout.LayoutParams> {
+                topMargin = overflowMenuBaseTopMargin + insets.top
+                marginEnd = overflowMenuBaseEndMargin + insets.right
+            }
             windowInsets
         }
     }
@@ -410,7 +417,7 @@ open class MainActivity : AppCompatActivity() {
                         notificationHelper = createNotificationHelper()
                     }
                     val useVibration = sharedPreferences.getBoolean(KEY_VIBRATION_ENABLED, true)
-                    val useVoice = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, false)
+                    val useVoice = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, true)
                     
                     // Notify phase change for voice and/or vibration
                     notificationHelper?.notifyPhaseChange(phase, useVoice, useVibration)
@@ -446,18 +453,34 @@ open class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupStatsButton() {
-        binding.statsButton.setOnClickListener { view ->
+    private fun setupOverflowMenuButton() {
+        binding.overflowMenuButton.setOnClickListener { view ->
             hapticSelection(view)
-            val intent = android.content.Intent(this, StatsActivity::class.java)
-            startActivity(intent)
-        }
-    }
-    
-    private fun setupSettingsButton() {
-        binding.settingsButton.setOnClickListener { view ->
-            hapticSelection(view)
-            showSettingsDialog()
+            val popupMenu = PopupMenu(this, view)
+            popupMenu.menuInflater.inflate(R.menu.home_overflow_menu, popupMenu.menu)
+            popupMenu.setForceShowIcon(true)
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.menu_stats -> {
+                        startActivity(android.content.Intent(this, StatsActivity::class.java))
+                        true
+                    }
+                    R.id.menu_settings -> {
+                        showSettingsDialog()
+                        true
+                    }
+                    R.id.menu_help -> {
+                        showFaqDialog()
+                        true
+                    }
+                    R.id.menu_report_issue -> {
+                        openUrl("https://github.com/oceanofmaya/interval-walk-trainer-android/issues")
+                        true
+                    }
+                    else -> false
+                }
+            }
+            popupMenu.show()
         }
     }
 
@@ -873,13 +896,6 @@ open class MainActivity : AppCompatActivity() {
             versionText.text = getString(R.string.version, "Unknown")
         }
         
-        // FAQ button
-        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.faqButton).setOnClickListener { btn ->
-            hapticSelection(btn)
-            bottomSheetDialog.dismiss()
-            showFaqDialog()
-        }
-
         // Privacy Policy button
         view.findViewById<com.google.android.material.button.MaterialButton>(R.id.privacyPolicyButton).setOnClickListener { btn ->
             hapticSelection(btn)
@@ -906,6 +922,8 @@ open class MainActivity : AppCompatActivity() {
         val accentAmberButton = view.findViewById<android.widget.ImageButton>(R.id.accentAmberButton)
         val accentMagentaButton = view.findViewById<android.widget.ImageButton>(R.id.accentMagentaButton)
         var saveWorkoutsSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
+        var vibrationSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
+        var voiceNotificationsSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
         var notificationsSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
         var keepScreenAwakeSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
         var startCountdownSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
@@ -938,6 +956,10 @@ open class MainActivity : AppCompatActivity() {
             val trackTint = createSwitchTrackTint()
             saveWorkoutsSwitchRef?.thumbTintList = thumbTint
             saveWorkoutsSwitchRef?.trackTintList = trackTint
+            vibrationSwitchRef?.thumbTintList = thumbTint
+            vibrationSwitchRef?.trackTintList = trackTint
+            voiceNotificationsSwitchRef?.thumbTintList = thumbTint
+            voiceNotificationsSwitchRef?.trackTintList = trackTint
             notificationsSwitchRef?.thumbTintList = thumbTint
             notificationsSwitchRef?.trackTintList = trackTint
             keepScreenAwakeSwitchRef?.thumbTintList = thumbTint
@@ -1019,6 +1041,40 @@ open class MainActivity : AppCompatActivity() {
         clearStatsButton.setOnClickListener { btn ->
             hapticSelection(btn)
             showClearStatsConfirmationDialog(bottomSheetDialog)
+        }
+
+        // Vibration toggle switch
+        val vibrationSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.vibrationSwitch)
+        vibrationSwitchRef = vibrationSwitch
+        vibrationSwitch.isChecked = sharedPreferences.getBoolean(KEY_VIBRATION_ENABLED, true)
+        vibrationSwitch.thumbTintList = createSwitchThumbTint()
+        vibrationSwitch.trackTintList = createSwitchTrackTint()
+        vibrationSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            hapticSelection(buttonView)
+            sharedPreferences.edit { putBoolean(KEY_VIBRATION_ENABLED, isChecked) }
+        }
+
+        // Voice notifications toggle switch
+        val voiceNotificationsSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.voiceNotificationsSwitch)
+        voiceNotificationsSwitchRef = voiceNotificationsSwitch
+        voiceNotificationsSwitch.isChecked = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, true)
+        voiceNotificationsSwitch.thumbTintList = createSwitchThumbTint()
+        voiceNotificationsSwitch.trackTintList = createSwitchTrackTint()
+        voiceNotificationsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            hapticSelection(buttonView)
+            val previousEnabled = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, true)
+            if (isChecked == previousEnabled) return@setOnCheckedChangeListener
+
+            if (notificationHelper == null) {
+                notificationHelper = createNotificationHelper()
+            }
+            if (isChecked) {
+                notificationHelper?.testTts()
+            } else {
+                notificationHelper?.speak(getString(R.string.voice_notifications_disabled))
+            }
+
+            sharedPreferences.edit { putBoolean(KEY_VOICE_ENABLED, isChecked) }
         }
         
         // Save workouts toggle switch
@@ -1234,54 +1290,8 @@ open class MainActivity : AppCompatActivity() {
             resetTimer()
         }
 
-        binding.vibrationButton.setOnClickListener { view ->
-            hapticSelection(view)
-            val currentEnabled = sharedPreferences.getBoolean(KEY_VIBRATION_ENABLED, true)
-            val newEnabled = !currentEnabled
-            sharedPreferences.edit { putBoolean(KEY_VIBRATION_ENABLED, newEnabled) }
-            updateIconState(binding.vibrationButton, newEnabled)
-            pulseIcon(binding.vibrationButton)
-        }
-        
-        // Set up voice button listener
-        setupVoiceButtonListener()
-
         // Initial UI state
         updateButtonStates()
-    }
-    
-    /**
-     * Updates the icon state (active/inactive) by changing the tint color.
-     * Active icons use the selected accent color, inactive icons use text_secondary color.
-     */
-    private fun updateIconState(iconButton: android.widget.ImageButton, isActive: Boolean) {
-        val tintColor = if (isActive) {
-            getAccentColor()
-        } else {
-            getColor(R.color.text_secondary)
-        }
-        iconButton.imageTintList = android.content.res.ColorStateList.valueOf(tintColor)
-    }
-
-    private fun pulseIcon(iconButton: android.widget.ImageButton) {
-        iconButton.animate().cancel()
-        iconButton.scaleX = 1f
-        iconButton.scaleY = 1f
-        iconButton.alpha = 1f
-        iconButton.animate()
-            .scaleX(1.08f)
-            .scaleY(1.08f)
-            .alpha(0.85f)
-            .setDuration(120)
-            .withEndAction {
-                iconButton.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .alpha(1f)
-                    .setDuration(140)
-                    .start()
-            }
-            .start()
     }
 
     private fun applyThemePreference() {
@@ -1355,10 +1365,6 @@ open class MainActivity : AppCompatActivity() {
         val accentColor = getAccentColor()
         binding.startPauseButton.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
         binding.workoutProgress.progressTintList = android.content.res.ColorStateList.valueOf(accentColor)
-        val vibrationEnabled = sharedPreferences.getBoolean(KEY_VIBRATION_ENABLED, true)
-        val voiceEnabled = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, false)
-        updateIconState(binding.vibrationButton, vibrationEnabled)
-        updateIconState(binding.voiceButton, voiceEnabled)
     }
 
     private fun applyKeepScreenAwakePreference() {
@@ -1369,49 +1375,6 @@ open class MainActivity : AppCompatActivity() {
         }
     }
     
-    private fun restoreNotificationPreferences() {
-        // Restore vibration preference (default: true)
-        val vibrationEnabled = sharedPreferences.getBoolean(KEY_VIBRATION_ENABLED, true)
-        updateIconState(binding.vibrationButton, vibrationEnabled)
-        
-        // Restore voice preference (default: false)
-        val voiceEnabled = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, false)
-        updateIconState(binding.voiceButton, voiceEnabled)
-        
-        // Re-add the voice button listener after restoration
-        setupVoiceButtonListener()
-    }
-    
-    /**
-     * Sets up the voice button listener. Called during initial setup and after preference restoration.
-     */
-    private fun setupVoiceButtonListener() {
-        binding.voiceButton.setOnClickListener { view ->
-            hapticSelection(view)
-            val currentEnabled = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, false)
-            val newEnabled = !currentEnabled
-            
-            // Only speak if this is a user-initiated change (not during restoration)
-            if (!isRestoringPreferences) {
-                if (notificationHelper == null) {
-                    notificationHelper = createNotificationHelper()
-                }
-                if (newEnabled) {
-                    // Test TTS by speaking when enabled
-                    notificationHelper?.testTts()
-                } else {
-                    // Announce disabling before actually disabling
-                    notificationHelper?.speak(getString(R.string.voice_notifications_disabled))
-                }
-            }
-            
-            // Save voice preference
-            sharedPreferences.edit { putBoolean(KEY_VOICE_ENABLED, newEnabled) }
-            updateIconState(binding.voiceButton, newEnabled)
-            pulseIcon(binding.voiceButton)
-        }
-    }
-
     private fun startTimer() {
         if (intervalTimer == null) {
             intervalTimer = createIntervalTimer()
@@ -1459,7 +1422,7 @@ open class MainActivity : AppCompatActivity() {
         }
 
         val useVibration = sharedPreferences.getBoolean(KEY_VIBRATION_ENABLED, true)
-        val useVoice = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, false)
+        val useVoice = sharedPreferences.getBoolean(KEY_VOICE_ENABLED, true)
         if (useVoice && notificationHelper == null) {
             notificationHelper = createNotificationHelper()
         }
@@ -1618,7 +1581,7 @@ open class MainActivity : AppCompatActivity() {
             }
             is IntervalPhase.Completed -> {
                 binding.phaseLabel.text = getString(R.string.completed)
-                binding.phaseLabel.setTextColor(getColor(R.color.text_secondary))
+                binding.phaseLabel.setTextColor(getAccentColor())
                 binding.phaseLabel.setTypeface(null, Typeface.BOLD)
             }
         }
@@ -1744,20 +1707,13 @@ open class MainActivity : AppCompatActivity() {
         // Update styled text with colored note
         val fullText = getString(R.string.formula_summary_format, pattern, totalMin)
         val startNoteText = if (currentFormula.startsWithFast) getString(R.string.starts_fast) else getString(R.string.starts_slow)
-        val noteColor = if (currentFormula.startsWithFast) getFastColor() else getSlowColor()
         
         val combinedText = getString(R.string.formula_full_text_format, fullText, startNoteText)
         val spannable = SpannableString(combinedText)
         val noteStart = fullText.length + 1
         val noteEnd = combinedText.length
         
-        // Style the note with color and medium weight for elegance
-        spannable.setSpan(
-            ForegroundColorSpan(noteColor),
-            noteStart,
-            noteEnd,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+        // Keep the note weight for emphasis without accent-color distraction.
         spannable.setSpan(
             StyleSpan(Typeface.BOLD),
             noteStart,

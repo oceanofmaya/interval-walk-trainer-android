@@ -37,12 +37,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Run tests
-        run: ./gradlew test
+      - name: Run debug unit tests
+        run: ./gradlew testDebugUnitTest
 
       - name: Run lint checks
         run: ./gradlew lint
-        continue-on-error: true
 
       - name: Build Debug APK
         run: ./gradlew assembleDebug

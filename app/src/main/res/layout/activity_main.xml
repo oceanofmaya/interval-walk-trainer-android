@@ -18,13 +18,14 @@
     android:layout_height="wrap_content"
     android:paddingStart="24dp"
     android:paddingEnd="24dp"
-    android:paddingTop="32dp"
-    android:paddingBottom="32dp">
+    android:paddingTop="36dp"
+    android:paddingBottom="28dp">
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/formulaButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
         android:text="@string/select_formula"
         android:textSize="16sp"
         android:textColor="@color/text_primary"
@@ -107,7 +108,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="48dp"
         android:layout_marginEnd="48dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="28dp"
         android:minHeight="20dp"
         app:layout_constraintEnd_toEndOf="@id/timeDisplay"
         app:layout_constraintStart_toStartOf="@id/timeDisplay"
@@ -165,7 +166,7 @@
         android:textSize="16sp"
         android:textColor="@color/text_secondary"
         android:letterSpacing="0.02"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/workoutTimeContainer" />
@@ -175,7 +176,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="52dp"
         android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -207,66 +208,22 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/notificationOptions"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/controlButtons">
-
-        <ImageButton
-            android:id="@+id/vibrationButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_vibration"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/vibration"
-            app:tint="@color/button_primary"
-            android:padding="12dp"
-            android:layout_marginEnd="24dp" />
-
-        <ImageButton
-            android:id="@+id/voiceButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_voice"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/voice"
-            app:tint="@color/text_secondary"
-            android:padding="12dp" />
-
-        <ImageButton
-            android:id="@+id/statsButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/outline_bar_chart_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/view_stats"
-            app:tint="@color/text_secondary"
-            android:padding="12dp"
-            android:layout_marginStart="24dp" />
-
-        <ImageButton
-            android:id="@+id/settingsButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_settings"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/settings_button"
-            app:tint="@color/text_secondary"
-            android:padding="12dp"
-            android:layout_marginStart="24dp" />
-
-    </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.core.widget.NestedScrollView>
+
+<ImageButton
+    android:id="@+id/overflowMenuButton"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:layout_gravity="top|end"
+    android:layout_marginTop="8dp"
+    android:layout_marginEnd="16dp"
+    android:src="@drawable/ic_more_vert"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:contentDescription="@string/menu"
+    app:tint="@color/text_secondary"
+    android:padding="8dp" />
 
 <FrameLayout
     android:id="@+id/preStartOverlay"

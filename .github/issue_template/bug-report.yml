@@ -1,0 +1,107 @@
+name: Bug report
+description: Report a problem with Interval Walk Trainer
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug.
+        Please include as much detail as possible so we can reproduce quickly.
+
+  - type: input
+    id: app-version
+    attributes:
+      label: App version
+      description: You can find this in Settings > Version
+      placeholder: e.g. 1.0.11
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install-source
+    attributes:
+      label: Install source
+      options:
+        - Google Play Store
+        - GitHub release APK
+        - Built locally from source
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: android-version
+    attributes:
+      label: Android version
+      placeholder: e.g. Android 14
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device model
+      placeholder: e.g. Pixel 9, Samsung S23
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: How often does it happen?
+      options:
+        - Always
+        - Often
+        - Sometimes
+        - Rarely
+        - Only once
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List exact steps so we can reproduce the issue.
+      placeholder: |
+        1. Open the app
+        2. Select formula ...
+        3. Tap Start
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or stack trace (optional)
+      description: Paste crash logs if available.
+      render: shell
+
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or screen recording (optional)
+      description: Drag and drop images/video files here if helpful.
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes (optional)
+      description: Any extra context that could help debugging.
