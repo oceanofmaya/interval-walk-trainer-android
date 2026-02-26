@@ -190,6 +190,57 @@ class WorkoutRepository(
     }
     
     /**
+     * Deletes a single workout session and updates the daily aggregate record.
+     * If the date has no sessions left, the WorkoutRecord for that date is removed.
+     */
+    suspend fun deleteSession(session: WorkoutSession) {
+        if (database != null) {
+            database.withTransaction {
+                workoutSessionDao.deleteById(session.id)
+                val existingRecord = workoutDao.getRecordByDate(session.date)
+                if (existingRecord != null) {
+                    val newCount = existingRecord.completedWorkouts - 1
+                    val newMinutes = (existingRecord.totalMinutes - session.minutes).coerceAtLeast(0)
+                    if (newCount <= 0) {
+                        workoutDao.deleteByDate(session.date)
+                    } else {
+                        val latestRemainingTimestamp = workoutSessionDao.getLatestTimestampByDate(session.date)
+                            ?: existingRecord.lastWorkoutTimestamp
+                        workoutDao.insertOrUpdate(
+                            existingRecord.copy(
+                                completedWorkouts = newCount,
+                                totalMinutes = newMinutes,
+                                lastWorkoutTimestamp = latestRemainingTimestamp
+                            )
+                        )
+                    }
+                }
+            }
+        } else {
+            workoutSessionDao.deleteById(session.id)
+            val existingRecord = workoutDao.getRecordByDate(session.date)
+            if (existingRecord != null) {
+                val newCount = existingRecord.completedWorkouts - 1
+                val newMinutes = (existingRecord.totalMinutes - session.minutes).coerceAtLeast(0)
+                if (newCount <= 0) {
+                    workoutDao.deleteByDate(session.date)
+                } else {
+                    val latestRemainingTimestamp = workoutSessionDao.getLatestTimestampByDate(session.date)
+                        ?: existingRecord.lastWorkoutTimestamp
+                    workoutDao.insertOrUpdate(
+                        existingRecord.copy(
+                            completedWorkouts = newCount,
+                            totalMinutes = newMinutes,
+                            lastWorkoutTimestamp = latestRemainingTimestamp
+                        )
+                    )
+                }
+            }
+        }
+        android.util.Log.d("WorkoutRepository", "Deleted session id=${session.id} for date=${session.date}")
+    }
+
+    /**
      * Get workout sessions for a specific date.
      */
     suspend fun getSessionsByDate(date: String): List<WorkoutSession> {

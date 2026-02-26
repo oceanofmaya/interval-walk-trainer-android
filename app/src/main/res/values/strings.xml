@@ -36,6 +36,9 @@
     <string name="clear_stats_message">This will permanently delete all your workout history. This action cannot be undone.</string>
     <string name="clear">Clear</string>
     <string name="cancel">Cancel</string>
+    <string name="delete_workout_title">Delete this workout?</string>
+    <string name="delete_workout_message">This workout will be removed from your history. This cannot be undone.</string>
+    <string name="delete">Delete</string>
     <string name="completed">Complete</string>
     <string name="starts_fast">Starts Fast</string>
     <string name="starts_slow">Starts Slow</string>
