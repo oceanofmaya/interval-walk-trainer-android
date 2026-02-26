@@ -2,6 +2,19 @@
 
 ## Version 1
 
+### 1.0.12 - 2026-02-25
+
+#### UI/UX Improvements
+
+- Tightened vertical spacing between the formula selector button and the formula summary.
+- Formula summary no longer uses "~" before duration (value is exact, not approximate).
+- Formula summary layout adjusted to reduce multiline wrapping on smaller devices: slightly smaller text (12sp), reduced horizontal padding, tighter line spacing, and `breakStrategy="simple"` to prefer keeping the first line full.
+- Store screenshot and promo images updated.
+
+#### Chore
+
+- Stopped tracking `.idea/` in git and added it to `.gitignore`.
+
 ### 1.0.11 - 2026-02-26
 
 #### UI/UX Improvements
