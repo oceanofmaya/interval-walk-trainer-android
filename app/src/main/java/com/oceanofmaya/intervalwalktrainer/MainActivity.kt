@@ -479,6 +479,10 @@ open class MainActivity : AppCompatActivity() {
                         openUrl("https://github.com/oceanofmaya/interval-walk-trainer-android/issues")
                         true
                     }
+                    R.id.menu_rate_app -> {
+                        openUrl("https://play.google.com/store/apps/details?id=com.oceanofmaya.intervalwalktrainer")
+                        true
+                    }
                     else -> false
                 }
             }
@@ -1727,11 +1731,13 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun updateButtonStates() {
-        val isRunning = intervalTimer?.state?.value?.isRunning == true
-        binding.startPauseButton.text = if (isRunning) {
-            getString(R.string.pause)
-        } else {
-            getString(R.string.start)
+        val state = intervalTimer?.state?.value
+        val isRunning = state?.isRunning == true
+        binding.startPauseButton.text = when {
+            isRunning -> getString(R.string.pause)
+            state != null && state.elapsedSeconds > 0 && state.currentPhase !is IntervalPhase.Completed ->
+                getString(R.string.resume)
+            else -> getString(R.string.start)
         }
     }
 
