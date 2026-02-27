@@ -3,6 +3,7 @@
     <string name="app_name">Interval Walk Trainer</string>
     <string name="start">Start</string>
     <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
     <string name="reset">Reset</string>
     <string name="select_formula">Select Formula</string>
     <string name="slow_phase">Slow</string>
@@ -112,6 +113,7 @@
     <string name="notifications">Notifications</string>
     <string name="keep_screen_awake">Keep Screen Awake</string>
     <string name="report_issue">Report Issue</string>
+    <string name="rate_app">Rate App</string>
     <string name="help">Help</string>
     <string name="disable_save_workouts_title">Turn off workout history?</string>
     <string name="disable_save_workouts_message">New workouts will not be saved to history while this is off.</string>

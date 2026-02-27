@@ -16,4 +16,8 @@
         android:id="@+id/menu_report_issue"
         android:icon="@drawable/ic_report_issue"
         android:title="@string/report_issue" />
+    <item
+        android:id="@+id/menu_rate_app"
+        android:icon="@drawable/ic_outline_star_24"
+        android:title="@string/rate_app" />
 </menu>

@@ -2,6 +2,16 @@
 
 ## Version 1
 
+### 1.0.14 - 2026-02-27
+
+#### UI/UX Improvements
+
+- Start/Pause button now shows "Resume" when an ongoing workout is paused, clearly distinguishing between starting a new workout and continuing a paused one.
+
+#### Features
+
+- Added "Rate App" to the overflow menu; opens the app's Play Store listing for users to leave a review.
+
 ### 1.0.13 - 2026-02-26
 
 #### Fixes
