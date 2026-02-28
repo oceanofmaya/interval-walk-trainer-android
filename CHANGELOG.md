@@ -2,6 +2,30 @@
 
 ## Version 1
 
+### 1.0.15 - 2026-02-28
+
+#### Updates
+
+- Upgrade Android Gradle Plugin 8.13.1 → 9.0.1, Gradle 9.0 → 9.3.1, Kotlin 2.0.21 → 2.3.10.
+- Upgrade Room 2.7.0 → 2.8.4 and other AndroidX dependencies to latest stable versions.
+- Upgrade JUnit Jupiter 5.11.4 → 6.0.3, junit-platform-launcher 1.11.4 → 6.0.3, mockito-kotlin 5.4.0 → 6.2.3.
+- Migrate Room from kapt to KSP for faster builds.
+- Bump compileSdk and targetSdk to 36.
+- Remove `screenOrientation` from manifest and add adaptive layouts (`layout-land/`) for Android 16 compatibility.
+
+#### Chore
+
+- Add `.kotlin/` to `.gitignore` and stop tracking it.
+- Fix Kotlin lint: rename Migration parameter `database` to `db` to match supertype.
+- Remove unused drawables (`ic_info.xml`, `help.xml`) and strings (`view_stats`, `faq`, `settings_button`).
+- Add detekt static analysis with config and baseline; fix WildcardImport, MatchingDeclarationName (rename workout-foreground-service.kt → WorkoutForegroundService.kt), ReturnCount in WorkoutForegroundService; integrate detekt into CI.
+- Migrate to AGP 9 built-in Kotlin: remove org.jetbrains.kotlin.android plugin, remove android.builtInKotlin/android.newDsl opt-out; replace applicationVariants with base.archivesName for APK naming.
+
+#### UI/UX Improvements
+
+- Move Workout History and Settings out of the overflow menu into dedicated icon buttons below Reset/Start; overflow now contains Help, Rate App, Report Issue.
+- Store screenshot and promo images updated.
+
 ### 1.0.14 - 2026-02-27
 
 #### UI/UX Improvements

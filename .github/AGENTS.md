@@ -6,19 +6,19 @@ When working on this repository, please adhere to the following coding standards
 
 **CRITICAL**: All code suggestions and implementations must be compatible with the following build configuration:
 
-- **Android Gradle Plugin (AGP)**: 8.13.1s
-- **Gradle**: 9.0
+- **Android Gradle Plugin (AGP)**: 9.0.1
+- **Gradle**: 9.3.1
 - **Java**: 21 (JavaVersion.VERSION_21)
-- **Kotlin**: 2.0.21
-- **compileSdk**: 34
+- **Kotlin**: 2.3.10
+- **compileSdk**: 36
 - **minSdk**: 24 (Android 7.0)
-- **targetSdk**: 35
+- **targetSdk**: 36
 
 When making code suggestions:
 
 - Use Java 21 language features and APIs
-- Ensure Kotlin code is compatible with Kotlin 2.0.21
-- Use Android API 34 features when appropriate, but maintain minSdk 24 compatibility
+- Ensure Kotlin code is compatible with Kotlin 2.3.10
+- Use Android API 36 features when appropriate, but maintain minSdk 24 compatibility
 - For API-specific code, use proper version checks: `if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.XXX)`
 - When using newer Android APIs (API 33+), provide fallbacks for older versions
 
@@ -37,11 +37,14 @@ Workflow: Create branch from `main` → Make changes → Update version/changelo
 
 ## Commit Messages
 
-Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification as documented in [README.md#contributing](../README.md#contributing). All commit messages must use the conventional commit format with appropriate types (feat, fix, docs, chore, refactor, etc.).
+Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification. All commit messages must use the conventional commit format with appropriate types (feat, fix, docs, chore, refactor, etc.). e.g. `chore(release): add .kotlin/ to .gitignore`
 
 ## Linting
 
 All lint errors must be fixed before completing a task. Use `read_lints` to check for lint errors in files you've modified. Lint errors should be resolved immediately after making code changes.
+
+- **Android Lint:** `./gradlew lint`
+- **detekt:** `./gradlew detekt` — Kotlin static analysis. Config: `config/detekt/detekt.yml`. Baseline: `config/detekt/baseline.xml`. To add new findings to the baseline: `./gradlew detektBaseline`
 
 ## Versioning and Changelog
 

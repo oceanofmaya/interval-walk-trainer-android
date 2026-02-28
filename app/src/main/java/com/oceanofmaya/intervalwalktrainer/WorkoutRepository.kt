@@ -92,7 +92,7 @@ class WorkoutRepository(
         // Calculate average workouts per week
         val avgWorkoutsPerWeek = calculateAverageWorkoutsPerWeek(allRecords, earliestDate)
         
-        // Find best day (day with most workouts)
+        // Find the best day (day with most workouts)
         val bestDay = findBestDay(allRecords)
         
         return WorkoutStatistics(

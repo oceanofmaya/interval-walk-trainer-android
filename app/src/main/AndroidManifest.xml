@@ -20,14 +20,13 @@
         android:name=".IntervalWalkTrainerApp"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.IntervalWalkTrainer"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:screenOrientation="fullSensor"
             android:theme="@style/Theme.IntervalWalkTrainer.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,7 +37,6 @@
             android:name=".StatsActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="fullSensor"
             android:theme="@style/Theme.IntervalWalkTrainer" />
         <service
             android:name=".WorkoutForegroundService"

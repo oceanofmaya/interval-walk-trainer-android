@@ -25,7 +25,7 @@ assets/store/screenshots/
 
 - `promo/`
   - Keep only phone screenshots intended for Play Store upload.
-  - These are manually designed images, composed from the `phone/` captures.
+  - These are manually designed images, composed using the `phone/` captures.
   - This folder is the canonical upload set for phone listings.
 
 ## Naming Convention

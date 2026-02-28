@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/background"
     android:paddingTop="8dp"
     android:paddingBottom="24dp">
 
@@ -32,6 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:baselineAligned="false"
         android:gravity="center"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
@@ -60,7 +60,7 @@
                 android:id="@+id/workoutDetailCount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/zero"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
@@ -92,7 +92,7 @@
                 android:id="@+id/workoutDetailMinutes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="0 min"
+                android:text="@string/zero_min"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"

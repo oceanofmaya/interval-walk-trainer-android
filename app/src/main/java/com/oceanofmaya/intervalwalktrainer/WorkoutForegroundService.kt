@@ -22,21 +22,20 @@ class WorkoutForegroundService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
+        val result = when (intent?.action) {
             ACTION_STOP -> {
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
-                return START_NOT_STICKY
+                START_NOT_STICKY
             }
-
             ACTION_START, null -> {
                 createNotificationChannel()
                 startAsForegroundService()
-                return START_STICKY
+                START_STICKY
             }
+            else -> START_NOT_STICKY
         }
-
-        return START_NOT_STICKY
+        return result
     }
 
     private fun startAsForegroundService() {

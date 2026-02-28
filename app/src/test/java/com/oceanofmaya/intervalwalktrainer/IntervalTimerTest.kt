@@ -1,6 +1,5 @@
 package com.oceanofmaya.intervalwalktrainer
 
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -602,7 +601,7 @@ class IntervalTimerTest {
         
         timer.start()
         
-        // After starting, elapsed time should be initialized (may be 0 or small value)
+        // After starting, elapsed time should be initialized (maybe 0 or small value)
         val stateAfterStart = timer.state.value
         // Elapsed time should be non-negative and not exceed total duration
         assertTrue(stateAfterStart.elapsedSeconds >= 0, "Elapsed time should be non-negative")
