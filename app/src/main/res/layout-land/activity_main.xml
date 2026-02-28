@@ -17,14 +17,14 @@
     android:layout_height="wrap_content"
     android:paddingStart="24dp"
     android:paddingEnd="24dp"
-    android:paddingTop="16dp"
+    android:paddingTop="8dp"
     android:paddingBottom="16dp">
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/formulaButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:text="@string/select_formula"
         android:textSize="16sp"
         android:textColor="@color/text_primary"

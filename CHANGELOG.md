@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.16 - 2026-02-28
+
+#### UI/UX Improvements
+
+- Reduce top padding on main screen now that overflow menu is at the bottom.
+- Adaptive app icon: reduce foreground inset (18dp → 8dp) so the icon renders larger on the store and home screen while remaining within the adaptive safe zone.
+
 ### 1.0.15 - 2026-02-28
 
 #### Updates
