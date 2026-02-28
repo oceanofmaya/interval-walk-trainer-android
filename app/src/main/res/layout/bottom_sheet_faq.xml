@@ -82,6 +82,8 @@
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary"
                 android:lineSpacingExtra="2dp"
+                android:paddingStart="28dp"
+                android:paddingEnd="28dp"
                 android:paddingBottom="16dp" />
 
             <View
@@ -130,6 +132,8 @@
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary"
                 android:lineSpacingExtra="2dp"
+                android:paddingStart="28dp"
+                android:paddingEnd="28dp"
                 android:paddingBottom="16dp"
                 android:visibility="gone" />
 
@@ -179,6 +183,8 @@
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary"
                 android:lineSpacingExtra="2dp"
+                android:paddingStart="28dp"
+                android:paddingEnd="28dp"
                 android:paddingBottom="16dp"
                 android:visibility="gone" />
 
@@ -228,6 +234,8 @@
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary"
                 android:lineSpacingExtra="2dp"
+                android:paddingStart="28dp"
+                android:paddingEnd="28dp"
                 android:paddingBottom="24dp"
                 android:visibility="gone" />
         </LinearLayout>

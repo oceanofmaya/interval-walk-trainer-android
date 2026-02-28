@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.17 - 2026-02-28
+
+#### UI/UX Improvements
+
+- FAQ (Help): align answer text with question text so answers are no longer flush to the edge.
+- Adaptive app icon: reduce foreground inset to 4dp for larger icon on store and home screen.
+
 ### 1.0.16 - 2026-02-28
 
 #### UI/UX Improvements
