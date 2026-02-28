@@ -5,11 +5,10 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
+import androidx.core.graphics.withTranslation
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.random.Random
 
 class ConfettiView @JvmOverloads constructor(
@@ -35,8 +34,8 @@ class ConfettiView @JvmOverloads constructor(
     private var lastFrameTime = 0L
 
     fun launch() {
-        if (visibility != View.VISIBLE) {
-            visibility = View.VISIBLE
+        if (visibility != VISIBLE) {
+            visibility = VISIBLE
             alpha = 1f
         }
 
@@ -91,7 +90,7 @@ class ConfettiView @JvmOverloads constructor(
             }
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    visibility = View.GONE
+                    visibility = GONE
                 }
             })
             start()
@@ -120,12 +119,11 @@ class ConfettiView @JvmOverloads constructor(
             if (particle.y - particle.size > maxY) return@forEach
 
             paint.color = particle.color
-            canvas.save()
-            canvas.translate(particle.x, particle.y)
-            canvas.rotate(particle.rotation)
-            val half = particle.size / 2f
-            canvas.drawRect(-half, -half, half, half, paint)
-            canvas.restore()
+            canvas.withTranslation(particle.x, particle.y) {
+                rotate(particle.rotation)
+                val half = particle.size / 2f
+                drawRect(-half, -half, half, half, paint)
+            }
         }
     }
 }

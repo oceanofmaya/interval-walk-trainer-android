@@ -1,5 +1,6 @@
 package com.oceanofmaya.intervalwalktrainer
 
+import android.annotation.SuppressLint
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.Manifest
@@ -18,6 +19,8 @@ import android.text.Spanned
 import android.text.style.StyleSpan
 import android.content.Intent
 import android.net.Uri
+import androidx.core.net.toUri
+import java.util.Locale
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
@@ -34,9 +37,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.doOnLayout
-import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
-import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -154,12 +155,13 @@ open class MainActivity : AppCompatActivity() {
         val database = AppDatabase.getDatabase(this)
         workoutRepository = WorkoutRepository(database.workoutDao(), database.workoutSessionDao(), database)
 
-        setupTheme()
         restoreCustomFormula()
         setupFormulaSpinner()
         setupControls()
         applyAccentStyling()
         setupOverflowMenuButton()
+        setupWorkoutHistoryButton()
+        setupSettingsButton()
         lastKnownNotificationsEnabled = areAppNotificationsEnabled()
         
         // Restore timer state if activity was recreated (e.g., theme change)
@@ -190,13 +192,14 @@ open class MainActivity : AppCompatActivity() {
      * Sets up window insets to handle safe areas for edge-to-edge screens.
      * Applies top padding to account for status bar overlap.
      */
+    @SuppressLint("InlinedApi")
     private fun setupEdgeToEdge() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
             window.attributes = window.attributes.apply {
                 layoutInDisplayCutoutMode =
-                    android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
             }
         }
 
@@ -207,11 +210,6 @@ open class MainActivity : AppCompatActivity() {
             isAppearanceLightNavigationBars = !isDarkTheme
         }
 
-        val overflowMenuBaseTopMargin =
-            (binding.overflowMenuButton.layoutParams as android.widget.FrameLayout.LayoutParams).topMargin
-        val overflowMenuBaseEndMargin =
-            (binding.overflowMenuButton.layoutParams as android.widget.FrameLayout.LayoutParams).marginEnd
-
         ViewCompat.setOnApplyWindowInsetsListener(binding.mainScrollView) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.updatePadding(
@@ -220,10 +218,6 @@ open class MainActivity : AppCompatActivity() {
                 right = insets.right,
                 bottom = insets.bottom
             )
-            binding.overflowMenuButton.updateLayoutParams<android.widget.FrameLayout.LayoutParams> {
-                topMargin = overflowMenuBaseTopMargin + insets.top
-                marginEnd = overflowMenuBaseEndMargin + insets.right
-            }
             windowInsets
         }
     }
@@ -240,6 +234,7 @@ open class MainActivity : AppCompatActivity() {
         performHapticFeedback(view, HapticFeedbackConstants.VIRTUAL_KEY)
     }
 
+    @SuppressLint("InlinedApi")
     private fun hapticSuccess(view: View) {
         performHapticFeedback(view, HapticFeedbackConstants.CONFIRM)
     }
@@ -276,7 +271,7 @@ open class MainActivity : AppCompatActivity() {
             // Try to find the formula in predefined formulas first
             var savedFormula = IntervalFormulas.all.find { it.name == savedFormulaName }
             
-            // If not found and it's a custom formula, restore from SharedPreferences
+            // If not found, and it's a custom formula, restore from SharedPreferences
             if (savedFormula == null && savedFormulaName.startsWith("Custom:")) {
                 savedFormula = restoreCustomFormulaFromPrefs()
             }
@@ -458,35 +453,46 @@ open class MainActivity : AppCompatActivity() {
     private fun setupOverflowMenuButton() {
         binding.overflowMenuButton.setOnClickListener { view ->
             hapticSelection(view)
-            val popupMenu = PopupMenu(this, view)
-            popupMenu.menuInflater.inflate(R.menu.home_overflow_menu, popupMenu.menu)
-            popupMenu.setForceShowIcon(true)
-            popupMenu.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.menu_stats -> {
-                        startActivity(android.content.Intent(this, StatsActivity::class.java))
-                        true
-                    }
-                    R.id.menu_settings -> {
-                        showSettingsDialog()
-                        true
-                    }
-                    R.id.menu_help -> {
-                        showFaqDialog()
-                        true
-                    }
-                    R.id.menu_report_issue -> {
-                        openUrl("https://github.com/oceanofmaya/interval-walk-trainer-android/issues")
-                        true
-                    }
-                    R.id.menu_rate_app -> {
-                        openUrl("https://play.google.com/store/apps/details?id=com.oceanofmaya.intervalwalktrainer")
-                        true
-                    }
-                    else -> false
-                }
-            }
-            popupMenu.show()
+            showOverflowBottomSheet()
+        }
+    }
+
+    private fun showOverflowBottomSheet() {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_overflow_menu, android.widget.FrameLayout(this), false)
+        bottomSheetDialog.setContentView(view)
+        configureBottomSheet(bottomSheetDialog, view)
+
+        view.findViewById<View>(R.id.overflowHelp).setOnClickListener {
+            hapticSelection(it)
+            bottomSheetDialog.dismiss()
+            showFaqDialog()
+        }
+        view.findViewById<View>(R.id.overflowRateApp).setOnClickListener {
+            hapticSelection(it)
+            bottomSheetDialog.dismiss()
+            openUrl("https://play.google.com/store/apps/details?id=com.oceanofmaya.intervalwalktrainer")
+        }
+        view.findViewById<View>(R.id.overflowReportIssue).setOnClickListener {
+            hapticSelection(it)
+            bottomSheetDialog.dismiss()
+            openUrl("https://github.com/oceanofmaya/interval-walk-trainer-android/issues")
+        }
+
+        bottomSheetDialog.show()
+    }
+
+    private fun setupWorkoutHistoryButton() {
+        binding.workoutHistoryButton.setOnClickListener { view ->
+            hapticSelection(view)
+            startActivity(Intent(this, StatsActivity::class.java))
+        }
+    }
+
+    private fun setupSettingsButton() {
+        binding.settingsButton.setOnClickListener { view ->
+            hapticSelection(view)
+            showSettingsDialog()
         }
     }
 
@@ -510,7 +516,7 @@ open class MainActivity : AppCompatActivity() {
         bottomSheetDialog.setContentView(view)
         configureBottomSheet(bottomSheetDialog, view)
         
-        val recyclerView = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.formulaRecyclerView)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.formulaRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = FormulaAdapter(formulas, showCustomOption = true) { formula ->
             if (formula == null) {
@@ -555,10 +561,10 @@ open class MainActivity : AppCompatActivity() {
         val modeToggleGroup = view.findViewById<com.google.android.material.button.MaterialButtonToggleGroup>(R.id.modeToggleGroup)
         val intervalModeButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.intervalModeButton)
         val circuitModeButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.circuitModeButton)
-        val circuitPatternContainer = view.findViewById<android.view.ViewGroup>(R.id.circuitPatternContainer)
+        val circuitPatternContainer = view.findViewById<ViewGroup>(R.id.circuitPatternContainer)
         val fastSlowFastRadio = view.findViewById<android.widget.RadioButton>(R.id.fastSlowFastRadio)
         val slowFastSlowRadio = view.findViewById<android.widget.RadioButton>(R.id.slowFastSlowRadio)
-        val startWithContainer = view.findViewById<android.view.ViewGroup>(R.id.startWithContainer)
+        val startWithContainer = view.findViewById<ViewGroup>(R.id.startWithContainer)
         val slowFirstRadio = view.findViewById<android.widget.RadioButton>(R.id.slowFirstRadio)
         val fastFirstRadio = view.findViewById<android.widget.RadioButton>(R.id.fastFirstRadio)
         val resetDefaultsButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.resetDefaultsButton)
@@ -618,11 +624,11 @@ open class MainActivity : AppCompatActivity() {
         // Update UI visibility based on circuit mode
         fun updateModeVisibility() {
             if (isCircuitMode) {
-                circuitPatternContainer.visibility = android.view.View.VISIBLE
-                startWithContainer.visibility = android.view.View.GONE
+                circuitPatternContainer.visibility = View.VISIBLE
+                startWithContainer.visibility = View.GONE
             } else {
-                circuitPatternContainer.visibility = android.view.View.GONE
-                startWithContainer.visibility = android.view.View.VISIBLE
+                circuitPatternContainer.visibility = View.GONE
+                startWithContainer.visibility = View.VISIBLE
             }
         }
         
@@ -702,9 +708,9 @@ open class MainActivity : AppCompatActivity() {
         
         // Update display
         fun updateDisplay() {
-            slowValue.text = String.format(java.util.Locale.US, "%d", slowMinutes)
-            fastValue.text = String.format(java.util.Locale.US, "%d", fastMinutes)
-            roundsValue.text = String.format(java.util.Locale.US, "%d", rounds)
+            slowValue.text = String.format(Locale.US, "%d", slowMinutes)
+            fastValue.text = String.format(Locale.US, "%d", fastMinutes)
+            roundsValue.text = String.format(Locale.US, "%d", rounds)
         }
         
         // Reset to defaults function
@@ -1237,7 +1243,7 @@ open class MainActivity : AppCompatActivity() {
             answers.forEachIndexed { i, answer ->
                 val isExpanded = i == expandedIndex
                 answer.visibility = if (isExpanded) View.VISIBLE else View.GONE
-                chevrons[i].animate().rotation(if (answer.visibility == View.VISIBLE) 90f else 0f).setDuration(150).start()
+                chevrons[i].animate().rotation(if (isExpanded) 90f else 0f).setDuration(150).start()
             }
         }
 
@@ -1262,13 +1268,12 @@ open class MainActivity : AppCompatActivity() {
         sharedPreferences.edit { putInt(KEY_THEME_MODE, mode) }
         Handler(Looper.getMainLooper()).postDelayed({
             AppCompatDelegate.setDefaultNightMode(mode)
-            setupTheme()
         }, 150)
     }
     
     private fun openUrl(url: String) {
         try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             startActivity(intent)
         } catch (e: Exception) {
             // If no browser is available, show error (unlikely on Android)
@@ -1306,11 +1311,6 @@ open class MainActivity : AppCompatActivity() {
         AppCompatDelegate.setDefaultNightMode(savedThemeMode)
     }
 
-    private fun setupTheme() {
-        // Theme is now managed entirely through settings
-        // This method is kept for potential future use
-    }
-
     private fun getAccentStyle(): String {
         return sharedPreferences.getString(KEY_ACCENT_STYLE, ACCENT_BLUE) ?: ACCENT_BLUE
     }
@@ -1345,11 +1345,11 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun createSwitchTrackTint(): android.content.res.ColorStateList {
-        val accentWithAlpha = android.graphics.Color.argb(
+        val accentWithAlpha = Color.argb(
             (255 * 0.5f).toInt(),
-            android.graphics.Color.red(getAccentColor()),
-            android.graphics.Color.green(getAccentColor()),
-            android.graphics.Color.blue(getAccentColor())
+            Color.red(getAccentColor()),
+            Color.green(getAccentColor()),
+            Color.blue(getAccentColor())
         )
         val unchecked = if ((resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
             android.content.res.Configuration.UI_MODE_NIGHT_YES
@@ -1421,7 +1421,7 @@ open class MainActivity : AppCompatActivity() {
         isPreStartCountdownActive = true
         preStartCountdownTimer?.cancel()
         val countdownSeconds = getStartCountdownSeconds()
-        binding.preStartCountdown.text = countdownSeconds.toString()
+        binding.preStartCountdown.text = String.format(Locale.getDefault(), "%d", countdownSeconds)
         binding.preStartOverlay.visibility = View.VISIBLE
         binding.preStartOverlay.setOnClickListener {
             cancelPreStartCountdown(startImmediately = true)
@@ -1436,7 +1436,7 @@ open class MainActivity : AppCompatActivity() {
         preStartCountdownTimer = object : CountDownTimer(countdownSeconds * 1000L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsLeft = ((millisUntilFinished + 999) / 1000).toInt()
-                binding.preStartCountdown.text = secondsLeft.toString()
+                binding.preStartCountdown.text = String.format(Locale.getDefault(), "%d", secondsLeft)
                 if (useVibration) {
                     hapticSelection(binding.root)
                 }
@@ -1576,12 +1576,12 @@ open class MainActivity : AppCompatActivity() {
 
         when (phase) {
             is IntervalPhase.Slow -> {
-                binding.phaseLabel.text = "> ${getString(R.string.slow_phase)}"
+                binding.phaseLabel.text = getString(R.string.phase_slow_format, getString(R.string.slow_phase))
                 binding.phaseLabel.setTextColor(getSlowColor())
                 binding.phaseLabel.setTypeface(null, Typeface.BOLD)
             }
             is IntervalPhase.Fast -> {
-                binding.phaseLabel.text = ">> ${getString(R.string.fast_phase)}"
+                binding.phaseLabel.text = getString(R.string.phase_fast_format, getString(R.string.fast_phase))
                 binding.phaseLabel.setTextColor(getFastColor())
                 binding.phaseLabel.setTypeface(null, Typeface.BOLD)
             }
@@ -1879,9 +1879,9 @@ open class MainActivity : AppCompatActivity() {
         val secs = seconds % 60
         
         return if (hours > 0) {
-            String.format(java.util.Locale.US, "%d:%02d:%02d", hours, minutes, secs)
+            String.format(Locale.US, "%d:%02d:%02d", hours, minutes, secs)
         } else {
-            String.format(java.util.Locale.US, "%02d:%02d", minutes, secs)
+            String.format(Locale.US, "%02d:%02d", minutes, secs)
         }
     }
 
@@ -2041,6 +2041,7 @@ open class MainActivity : AppCompatActivity() {
         openAppNotificationSettings()
     }
 
+    @SuppressLint("InlinedApi")
     private fun openAppNotificationSettings() {
         try {
             val intent = Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {

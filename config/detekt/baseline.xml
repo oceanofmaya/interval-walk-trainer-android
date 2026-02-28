@@ -1,0 +1,95 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:MainActivity.kt:MainActivity$startCountdownEnabled &amp;&amp; state != null &amp;&amp; state.elapsedSeconds == 0 &amp;&amp; !state.isRunning &amp;&amp; !isPreStartCountdownActive</ID>
+    <ID>CyclomaticComplexMethod:MainActivity.kt:MainActivity$private fun showCustomFormulaDialog</ID>
+    <ID>CyclomaticComplexMethod:MainActivity.kt:MainActivity$private fun showSettingsDialog</ID>
+    <ID>CyclomaticComplexMethod:MainActivity.kt:MainActivity$private fun updateFormulaDetails</ID>
+    <ID>CyclomaticComplexMethod:NotificationHelper.kt:NotificationHelper$private fun initializeTts</ID>
+    <ID>LargeClass:MainActivity.kt:MainActivity : AppCompatActivity</ID>
+    <ID>LongMethod:MainActivity.kt:MainActivity$private fun showCustomFormulaDialog</ID>
+    <ID>LongMethod:MainActivity.kt:MainActivity$private fun showSettingsDialog</ID>
+    <ID>LongMethod:StatsActivity.kt:StatsActivity$private fun setupCalendarGrid</ID>
+    <ID>MagicNumber:ConfettiView.kt:ConfettiView$0.2f</ID>
+    <ID>MagicNumber:ConfettiView.kt:ConfettiView$0.5f</ID>
+    <ID>MagicNumber:ConfettiView.kt:ConfettiView$1700L</ID>
+    <ID>MagicNumber:ConfettiView.kt:ConfettiView$220f</ID>
+    <ID>MagicNumber:ConfettiView.kt:ConfettiView$620f</ID>
+    <ID>MagicNumber:IntervalTimer.kt:IntervalTimer$500L</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$0.40f</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$0.4f</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$0.5f</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$0.7f</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$0.80f</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$0.96f</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$0.97f</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$0.98f</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$1.05f</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$140</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$180</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity$90f</ID>
+    <ID>MagicNumber:MainActivity.kt:MainActivity.&lt;no name provided&gt;$800</ID>
+    <ID>MagicNumber:NotificationHelper.kt:NotificationHelper$400</ID>
+    <ID>MagicNumber:NotificationHelper.kt:NotificationHelper$75</ID>
+    <ID>MagicNumber:StatsActivity.kt:StatsActivity$0.40f</ID>
+    <ID>MagicNumber:StatsActivity.kt:StatsActivity$0.80f</ID>
+    <ID>MagicNumber:StatsActivity.kt:StatsActivity$2.5f</ID>
+    <ID>MagicNumber:StatsActivity.kt:StatsActivity$31f</ID>
+    <ID>MagicNumber:StatsActivity.kt:StatsActivity$32f</ID>
+    <ID>MagicNumber:StatsActivity.kt:StatsActivity$34f</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$// Release wake lock and record workout when timer completes (skip record when restoring state to avoid duplicates)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$if</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$if (fastSec &gt; 0) getString(R.string.time_format_m_s, fastMin, fastSec) else getString(R.string.time_format_m, fastMin)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$if (slowSec &gt; 0) getString(R.string.time_format_m_s, slowMin, slowSec) else getString(R.string.time_format_m, slowMin)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$private</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$updateStartCountdownControlsState(view, startCountdownEnabled, startCountdownDecrease, startCountdownIncrease, startCountdownValue)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val circuitModeButton = view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.circuitModeButton)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val circuitPattern = sharedPreferences.getString(KEY_CUSTOM_CIRCUIT_PATTERN, "fast_slow_fast") ?: "fast_slow_fast"</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val clearStatsButton = view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.clearStatsButton)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val fastDecrementButton = view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.fastDecrementButton)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val fastIncrementButton = view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.fastIncrementButton)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val initialTime = if (currentFormula.startsWithFast) currentFormula.fastDurationSeconds else currentFormula.slowDurationSeconds</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val intervalModeButton = view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.intervalModeButton)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val keepScreenAwakeSwitch = view.findViewById&lt;com.google.android.material.switchmaterial.SwitchMaterial&gt;(R.id.keepScreenAwakeSwitch)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val modeToggleGroup = view.findViewById&lt;com.google.android.material.button.MaterialButtonToggleGroup&gt;(R.id.modeToggleGroup)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val notificationsSwitch = view.findViewById&lt;com.google.android.material.switchmaterial.SwitchMaterial&gt;(R.id.notificationsSwitch)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val resetDefaultsButton = view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.resetDefaultsButton)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val roundsDecrementButton = view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.roundsDecrementButton)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val roundsIncrementButton = view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.roundsIncrementButton)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val saveWorkoutsSwitch = view.findViewById&lt;com.google.android.material.switchmaterial.SwitchMaterial&gt;(R.id.saveWorkoutsSwitch)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val slowDecrementButton = view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.slowDecrementButton)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val slowIncrementButton = view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.slowIncrementButton)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val startCountdownSwitch = view.findViewById&lt;com.google.android.material.switchmaterial.SwitchMaterial&gt;(R.id.startCountdownSwitch)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val startNoteText = if (currentFormula.startsWithFast) getString(R.string.starts_fast) else getString(R.string.starts_slow)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val vibrationSwitch = view.findViewById&lt;com.google.android.material.switchmaterial.SwitchMaterial&gt;(R.id.vibrationSwitch)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_custom_formula, android.widget.FrameLayout(this), false)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_formula_selector, android.widget.FrameLayout(this), false)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_overflow_menu, android.widget.FrameLayout(this), false)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_settings, android.widget.FrameLayout(this), false)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$val voiceNotificationsSwitch = view.findViewById&lt;com.google.android.material.switchmaterial.SwitchMaterial&gt;(R.id.voiceNotificationsSwitch)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$var circuitPattern = sharedPreferences.getString(KEY_CUSTOM_CIRCUIT_PATTERN, "fast_slow_fast") ?: "fast_slow_fast"</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.privacyPolicyButton)</ID>
+    <ID>MaxLineLength:MainActivity.kt:MainActivity$view.findViewById&lt;com.google.android.material.button.MaterialButton&gt;(R.id.termsButton)</ID>
+    <ID>MaxLineLength:StatsActivity.kt:StatsActivity$android.util.Log.d("StatsActivity", "Found ${records.size} workout records for $displayedYear-$displayedMonth")</ID>
+    <ID>MaxLineLength:StatsActivity.kt:StatsActivity$binding.monthComparisonMinutesValue.text = getString(R.string.month_comparison_minutes_value, formatMinutes(comparison.currentMonthMinutes))</ID>
+    <ID>MaxLineLength:StatsActivity.kt:StatsActivity$val itemView = LayoutInflater.from(this).inflate(R.layout.item_workout_type, binding.workoutTypesContainer, false)</ID>
+    <ID>MaxLineLength:StatsActivity.kt:StatsActivity$val widthSpec = View.MeasureSpec.makeMeasureSpec(resources.displayMetrics.widthPixels, View.MeasureSpec.AT_MOST)</ID>
+    <ID>MaxLineLength:WorkoutSessionDao.kt:WorkoutSessionDao$@Query("SELECT * FROM workout_sessions WHERE date BETWEEN :startDate AND :endDate ORDER BY date DESC, timestamp DESC")</ID>
+    <ID>ReturnCount:MainActivity.kt:MainActivity$override fun onRequestPermissionsResult</ID>
+    <ID>ReturnCount:MainActivity.kt:MainActivity$private fun areAppNotificationsEnabled: Boolean</ID>
+    <ID>ReturnCount:MainActivity.kt:MainActivity$private fun maybeAutoResetCompletedTimer</ID>
+    <ID>ReturnCount:WorkoutRepository.kt:WorkoutRepository$private fun calculateAverageWorkoutsPerWeek: Double</ID>
+    <ID>ReturnCount:WorkoutRepository.kt:WorkoutRepository$private fun calculateLongestStreak: Int</ID>
+    <ID>SwallowedException:MainActivity.kt:MainActivity$e: Exception</ID>
+    <ID>SwallowedException:StatsActivity.kt:StatsActivity$e: Exception</ID>
+    <ID>SwallowedException:WorkoutListAdapter.kt:WorkoutListAdapter$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MainActivity.kt:MainActivity$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:NotificationHelper.kt:NotificationHelper$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:StatsActivity.kt:StatsActivity$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:WorkoutListAdapter.kt:WorkoutListAdapter$e: Exception</ID>
+    <ID>TooManyFunctions:MainActivity.kt:MainActivity : AppCompatActivity</ID>
+    <ID>TooManyFunctions:StatsActivity.kt:StatsActivity : AppCompatActivity</ID>
+  </CurrentIssues>
+</SmellBaseline>

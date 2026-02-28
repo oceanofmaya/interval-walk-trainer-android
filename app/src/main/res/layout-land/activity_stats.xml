@@ -20,7 +20,7 @@
             app:navigationIcon="@drawable/ic_back"
             app:titleTextColor="@color/text_primary"
             app:popupTheme="@style/Theme.IntervalWalkTrainer">
-            
+
             <TextView
                 android:id="@+id/toolbarTitle"
                 android:layout_width="wrap_content"
@@ -45,7 +45,7 @@
                     android:src="@drawable/ic_save"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/save_workouts" />
-                
+
                 <ImageButton
                     android:id="@+id/clearStatsButton"
                     android:layout_width="40dp"
@@ -55,7 +55,7 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/clear_stats" />
             </LinearLayout>
-                
+
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -86,12 +86,12 @@
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Statistics Cards -->
+            <!-- Statistics Cards - 4 columns in landscape -->
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:columnCount="2"
-                android:rowCount="3"
+                android:columnCount="4"
+                android:rowCount="2"
                 android:layout_marginBottom="16dp">
 
                 <!-- Total Workouts -->
@@ -99,7 +99,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     android:layout_marginBottom="16dp"
                     android:orientation="vertical"
                     android:padding="16dp"
@@ -126,7 +126,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp"
                     android:layout_marginBottom="16dp"
                     android:orientation="vertical"
                     android:padding="16dp"
@@ -153,7 +154,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginEnd="6dp"
                     android:layout_marginBottom="16dp"
                     android:orientation="vertical"
                     android:padding="16dp"
@@ -173,7 +175,6 @@
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary" />
-                    <!-- Spacer to match current streak card height -->
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="4dp"
@@ -190,7 +191,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:layout_marginBottom="16dp"
                     android:orientation="vertical"
                     android:padding="16dp"
@@ -210,7 +211,6 @@
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary" />
-                    <!-- Streak Progress Indicator -->
                     <ProgressBar
                         android:id="@+id/streakProgressBar"
                         style="?android:attr/progressBarStyleHorizontal"
@@ -234,7 +234,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
-                    android:layout_columnSpan="2"
+                    android:layout_columnSpan="4"
                     android:orientation="vertical"
                     android:padding="16dp"
                     android:background="@drawable/formula_details_background">
@@ -256,7 +256,7 @@
                 </LinearLayout>
 
             </GridLayout>
-            
+
             <!-- Best Day -->
             <LinearLayout
                 android:id="@+id/bestDayCard"
@@ -299,7 +299,7 @@
                     android:textColor="@color/text_secondary"
                     android:visibility="gone" />
             </LinearLayout>
-            
+
             <!-- Monthly Trend Section Header -->
             <TextView
                 android:id="@+id/monthlyTrendHeader"
@@ -312,8 +312,8 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone" />
-            
-            <!-- Month Comparison - Two Cards Side by Side -->
+
+            <!-- Month Comparison -->
             <LinearLayout
                 android:id="@+id/monthComparisonContainer"
                 android:layout_width="match_parent"
@@ -322,8 +322,7 @@
                 android:baselineAligned="false"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone">
-                
-                <!-- Workouts Trend Card -->
+
                 <LinearLayout
                     android:id="@+id/monthComparisonWorkoutsCard"
                     android:layout_width="0dp"
@@ -381,8 +380,7 @@
                         android:textColor="@color/text_secondary"
                         android:visibility="gone" />
                 </LinearLayout>
-                
-                <!-- Minutes Trend Card -->
+
                 <LinearLayout
                     android:id="@+id/monthComparisonMinutesCard"
                     android:layout_width="0dp"
@@ -441,7 +439,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Empty State (shown when no workouts exist) -->
+            <!-- Empty State -->
             <LinearLayout
                 android:id="@+id/emptyStateContainer"
                 android:layout_width="match_parent"
@@ -450,7 +448,7 @@
                 android:gravity="center"
                 android:padding="48dp"
                 android:visibility="gone">
-                
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -459,7 +457,7 @@
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"
                     android:layout_marginBottom="8dp" />
-                
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -487,14 +485,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-                
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:layout_marginBottom="16dp">
-                    
+
                     <ImageButton
                         android:id="@+id/prevMonthButton"
                         android:layout_width="40dp"
@@ -502,7 +500,7 @@
                         android:src="@drawable/ic_chevron_left"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/previous_month" />
-                    
+
                     <TextView
                         android:id="@+id/calendarMonthTitle"
                         android:layout_width="0dp"
@@ -513,7 +511,7 @@
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
                         android:gravity="center" />
-                    
+
                     <ImageButton
                         android:id="@+id/nextMonthButton"
                         android:layout_width="40dp"
@@ -521,7 +519,7 @@
                         android:src="@drawable/ic_chevron_right"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/next_month" />
-                    
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/todayButton"
                         android:layout_width="wrap_content"
@@ -536,7 +534,7 @@
                         style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:minWidth="0dp"
                         android:minHeight="0dp" />
-                        
+
                 </LinearLayout>
 
                 <GridLayout
@@ -545,7 +543,7 @@
                     android:layout_height="wrap_content"
                     android:columnCount="7"
                     android:layout_marginBottom="32dp" />
-                    
+
             </LinearLayout>
 
             <!-- Workout Type Distribution Section -->
@@ -580,7 +578,6 @@
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Empty workout list message -->
             <TextView
                 android:id="@+id/emptyWorkoutListMessage"
                 android:layout_width="match_parent"
@@ -604,4 +601,3 @@
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-

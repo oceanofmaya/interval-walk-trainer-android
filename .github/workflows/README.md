@@ -15,6 +15,7 @@ This directory contains automated workflows for building, testing, and releasing
 
 - Runs unit tests to verify code quality
 - Runs lint checks (non-blocking)
+- Runs detekt static analysis
 - Builds debug APK to verify compilation
 - **On `main` branch only:** If version files changed and tests passed:
   - Automatically creates and pushes version tag
@@ -27,9 +28,9 @@ This directory contains automated workflows for building, testing, and releasing
 
 ## Workflow Summary
 
-| Workflow | Trigger | Tests | Lint | Builds | Output |
-|----------|---------|-------|------|--------|--------|
-| Build and Test | Push/PR | ✅ | ⚠️ | Debug APK + Release (on main) | Logs + Tag + GitHub Release (on main) |
+| Workflow       | Trigger | Tests | Lint | Detekt | Builds                        | Output                                |
+|----------------|---------|-------|------|--------|-------------------------------|---------------------------------------|
+| Build and Test | Push/PR | ✅     | ⚠️   | ✅      | Debug APK + Release (on main) | Logs + Tag + GitHub Release (on main) |
 
 ## Typical Workflow
 
@@ -61,7 +62,7 @@ git push origin main
      - Builds signed release APK and AAB
      - Creates GitHub Release with artifacts
 
-3. **Manual Play Store Publishing:**
+2. **Manual Play Store Publishing:**
 
    - Go to the GitHub Release page
    - Download the `app-release.aab` file
@@ -72,7 +73,7 @@ git push origin main
 
 - **Automated Testing:** Tests run on every push and PR
 - **Version Validation:** Build workflow ensures tag version matches build configuration
-- **Quality Checks:** Lint checks catch potential issues before release
+- **Quality Checks:** Lint and detekt catch potential issues before release
 - **Artifact Verification:** Build workflow verifies artifacts exist before creating release
 - **Gradle Caching:** Dependencies are cached for faster builds
 - **Comprehensive Logging:** Clear error messages help debug issues

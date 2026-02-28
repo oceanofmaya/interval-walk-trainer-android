@@ -3,21 +3,21 @@ import java.io.FileInputStream
 
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("jacoco")
+    id("dev.detekt")
 }
 
 android {
     namespace = "com.oceanofmaya.intervalwalktrainer"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.oceanofmaya.intervalwalktrainer"
         minSdk = 24
-        targetSdk = 35
-        versionCode = 37
-        versionName = "1.0.14"
+        targetSdk = 36
+        versionCode = 38
+        versionName = "1.0.15"
     }
 
     signingConfigs {
@@ -46,16 +46,6 @@ android {
         }
     }
 
-    applicationVariants.all {
-        val variant = this
-        outputs.all {
-            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            val appName = "intervalwalktrainer"
-            val extension = output.outputFileName.substringAfterLast('.')
-            output.outputFileName = "$appName-${variant.versionName}.$extension"
-        }
-    }
-
     // Rename AAB files after bundle task completes
     tasks.whenTaskAdded {
         if (name.startsWith("bundle") && name.endsWith("Release")) {
@@ -75,12 +65,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-    }
-
-    kotlin {
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-        }
     }
 
     buildFeatures {
@@ -154,33 +138,37 @@ android {
     }
 }
 
+base {
+    archivesName.set("intervalwalktrainer-${android.defaultConfig.versionName}")
+}
+
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("com.google.android.material:material:1.13.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("androidx.core:core-splashscreen:1.0.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0")
+    implementation("androidx.core:core-splashscreen:1.2.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
     // Room database
-    implementation("androidx.room:room-runtime:2.7.0")
-    implementation("androidx.room:room-ktx:2.7.0")
-    kapt("androidx.room:room-compiler:2.7.0")
+    implementation("androidx.room:room-runtime:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
+    ksp("androidx.room:room-compiler:2.8.4")
     
     // Test dependencies
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-    testImplementation("org.mockito:mockito-core:5.11.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
-    testImplementation("app.cash.turbine:turbine:1.0.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.3")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+    testImplementation("org.mockito:mockito-core:5.22.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.22.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.2.3")
+    testImplementation("app.cash.turbine:turbine:1.2.1")
     
-    // JUnit 5 test engine and platform launcher for running tests
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.1")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.1")
+    // JUnit 6 test engine and platform launcher for running tests
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.3")
 }
 
 // Configure JaCoCo test report task
@@ -220,5 +208,16 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     executionData.setFrom(fileTree(buildDir) {
         include("jacoco/testDebugUnitTest.exec")
     })
+}
+
+// detekt static analysis
+detekt {
+    config.setFrom(files("${rootProject.projectDir}/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+    baseline.set(file("${rootProject.projectDir}/config/detekt/baseline.xml"))
+    source.setFrom(
+        "src/main/java",
+        "src/test/java"
+    )
 }
 
