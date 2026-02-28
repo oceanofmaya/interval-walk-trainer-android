@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Inset keeps foreground within adaptive safe zone; 8dp for stronger store presence -->
+<!-- Inset keeps foreground within adaptive safe zone; 4dp for stronger store presence -->
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:insetLeft="8dp"
-    android:insetTop="8dp"
-    android:insetRight="8dp"
-    android:insetBottom="8dp"
+    android:insetLeft="4dp"
+    android:insetTop="4dp"
+    android:insetRight="4dp"
+    android:insetBottom="4dp"
     android:drawable="@drawable/ic_launcher_foreground" />
