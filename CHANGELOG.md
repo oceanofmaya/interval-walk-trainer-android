@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.0.18 - 2026-03-01
+
+#### Features
+
+- FAQ (Help): expanded with 12 new Q&A entries to improve user experience and answer common questions.
+- FAQ is now a scrollable list (RecyclerView) so future entries can be added easily.
+
 ### 1.0.17 - 2026-02-28
 
 #### UI/UX Improvements

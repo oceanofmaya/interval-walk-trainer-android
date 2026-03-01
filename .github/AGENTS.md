@@ -59,3 +59,10 @@ All changes merged into this repository must include:
 2. **Version Update**: Update the version in all locations to match the version in `CHANGELOG.md` following [semantic versioning](https://semver.org/):
    - Update `versionName` in `app/build.gradle.kts` to match the semantic version (e.g., `1.0.0`, `1.1.0`, `2.0.0`)
    - **Increment `versionCode`** in `app/build.gradle.kts` - this integer must be incremented for each release, regardless of the semantic version change. The `versionCode` is used by the Google Play Store to determine which version is newer and must always increase with each release.
+
+## Documentation and user-facing copy
+
+When the app’s behavior changes, update the following so they stay accurate:
+
+- **README.md**: Adjust the Features, Usage, Training Formulas, and any other sections that describe how the app works or how to use it.
+- **In-app FAQ (Help)**: The FAQ is built from strings in `app/src/main/res/values/strings.xml` (e.g. `faq_question_*`, `faq_answer_*`) and the list in `MainActivity.kt` (`faqEntries`). Add, remove, or edit Q&A entries so the Help bottom sheet reflects current behavior.
