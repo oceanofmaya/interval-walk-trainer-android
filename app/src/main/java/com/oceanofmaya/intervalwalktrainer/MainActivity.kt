@@ -87,6 +87,32 @@ open class MainActivity : AppCompatActivity() {
     private var completionAutoResetRunnable: Runnable? = null
 
     companion object {
+        // FAQ order: basics → how to use → workout flow → data & history → technical & permissions → safety
+        private val faqEntries = listOf(
+            FaqEntry(R.string.faq_question_interval_walking, R.string.faq_answer_interval_walking),
+            FaqEntry(R.string.faq_question_why_interval_walking, R.string.faq_answer_why_interval_walking),
+            FaqEntry(R.string.faq_question_slow_fast_mean, R.string.faq_answer_slow_fast_mean),
+            FaqEntry(R.string.faq_question_choose_formula, R.string.faq_answer_choose_formula),
+            FaqEntry(R.string.faq_question_interval_vs_circuit, R.string.faq_answer_interval_vs_circuit),
+            FaqEntry(R.string.faq_question_custom_formula_saved, R.string.faq_answer_custom_formula_saved),
+            FaqEntry(R.string.faq_question_countdown, R.string.faq_answer_countdown),
+            FaqEntry(R.string.faq_question_pause_reset, R.string.faq_answer_pause_reset),
+            FaqEntry(R.string.faq_question_workout_history, R.string.faq_answer_workout_history),
+            FaqEntry(R.string.faq_question_data_shared, R.string.faq_answer_data_shared),
+            FaqEntry(R.string.faq_question_notifications, R.string.faq_answer_notifications),
+            FaqEntry(R.string.faq_question_background, R.string.faq_answer_background),
+            FaqEntry(
+                R.string.faq_question_physical_activity_permission,
+                R.string.faq_answer_physical_activity_permission
+            ),
+            FaqEntry(
+                R.string.faq_question_workout_stops_background,
+                R.string.faq_answer_workout_stops_background
+            ),
+            FaqEntry(R.string.faq_question_keep_screen_awake, R.string.faq_answer_keep_screen_awake),
+            FaqEntry(R.string.faq_question_safe, R.string.faq_answer_safe)
+        )
+
         // SharedPreferences keys
         private const val PREFS_NAME = "interval_walk_trainer_prefs"
         private const val KEY_THEME_MODE = "theme_mode"
@@ -1190,7 +1216,7 @@ open class MainActivity : AppCompatActivity() {
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_faq, android.widget.FrameLayout(this), false)
         view.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.MATCH_PARENT
         )
         bottomSheetDialog.setContentView(view)
         bottomSheetDialog.setOnShowListener {
@@ -1203,65 +1229,22 @@ open class MainActivity : AppCompatActivity() {
 
         bottomSheetDialog.window?.let { window ->
             WindowCompat.setDecorFitsSystemWindows(window, false)
-
-            val scrollView = view.findViewById<androidx.core.widget.NestedScrollView>(R.id.faqScroll)
-            val basePaddingBottom = scrollView.paddingBottom
-            ViewCompat.setOnApplyWindowInsetsListener(scrollView) { v, windowInsets ->
+            val recyclerView = view.findViewById<RecyclerView>(R.id.faqRecyclerView)
+            val basePaddingBottom = recyclerView.paddingBottom
+            ViewCompat.setOnApplyWindowInsetsListener(view) { _, windowInsets ->
                 val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                v.updatePadding(bottom = basePaddingBottom + insets.bottom)
+                recyclerView.updatePadding(bottom = basePaddingBottom + insets.bottom)
                 windowInsets
             }
         }
 
-        setupFaqAccordion(view)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.faqRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = FaqAdapter(faqEntries)
+        recyclerView.setHasFixedSize(false)
+
         configureBottomSheet(bottomSheetDialog, view)
         bottomSheetDialog.show()
-    }
-
-    private fun setupFaqAccordion(view: View) {
-        val header1 = view.findViewById<View>(R.id.faqQuestion1Header)
-        val header2 = view.findViewById<View>(R.id.faqQuestion2Header)
-        val header3 = view.findViewById<View>(R.id.faqQuestion3Header)
-        val header4 = view.findViewById<View>(R.id.faqQuestion4Header)
-
-        val answer1 = view.findViewById<View>(R.id.faqAnswer1)
-        val answer2 = view.findViewById<View>(R.id.faqAnswer2)
-        val answer3 = view.findViewById<View>(R.id.faqAnswer3)
-        val answer4 = view.findViewById<View>(R.id.faqAnswer4)
-
-        val chevron1 = view.findViewById<View>(R.id.faqQuestion1Chevron)
-        val chevron2 = view.findViewById<View>(R.id.faqQuestion2Chevron)
-        val chevron3 = view.findViewById<View>(R.id.faqQuestion3Chevron)
-        val chevron4 = view.findViewById<View>(R.id.faqQuestion4Chevron)
-
-        val headers = listOf(header1, header2, header3, header4)
-        val answers = listOf(answer1, answer2, answer3, answer4)
-        val chevrons = listOf(chevron1, chevron2, chevron3, chevron4)
-        var expandedIndex = 0
-
-        fun renderExpandedState() {
-            answers.forEachIndexed { i, answer ->
-                val isExpanded = i == expandedIndex
-                answer.visibility = if (isExpanded) View.VISIBLE else View.GONE
-                chevrons[i].animate().rotation(if (isExpanded) 90f else 0f).setDuration(150).start()
-            }
-        }
-
-        fun expandAt(index: Int) {
-            if (expandedIndex == index) {
-                return
-            }
-            expandedIndex = index
-            renderExpandedState()
-            headers[index].performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-        }
-
-        header1.setOnClickListener { expandAt(0) }
-        header2.setOnClickListener { expandAt(1) }
-        header3.setOnClickListener { expandAt(2) }
-        header4.setOnClickListener { expandAt(3) }
-
-        renderExpandedState()
     }
     
     private fun setThemeMode(mode: Int) {
