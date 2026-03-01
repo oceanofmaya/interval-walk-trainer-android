@@ -389,7 +389,8 @@ open class MainActivity : AppCompatActivity() {
                     slowDurationSeconds = slowMinutes * 60,
                     fastDurationSeconds = fastMinutes * 60,
                     totalIntervals = rounds * 2, // Each circuit = 2 intervals
-                    startsWithFast = circuitPattern == "fast_slow_fast"
+                    startsWithFast = circuitPattern == "fast_slow_fast",
+                    isCircuit = true
                 )
             } else {
                 IntervalFormula(
@@ -623,8 +624,7 @@ open class MainActivity : AppCompatActivity() {
             slowMinutes = currentFormula.slowDurationSeconds / 60
             fastMinutes = currentFormula.fastDurationSeconds / 60
             
-            // Check if it's a circuit (name contains "Circuit" or totalIntervals is even and > 1)
-            val isCircuit = currentFormula.name.contains("Circuit", ignoreCase = true)
+            val isCircuit = currentFormula.isCircuit
             if (isCircuit) {
                 isCircuitMode = true
                 rounds = currentFormula.totalIntervals / 2 // Convert intervals to circuits
@@ -835,7 +835,8 @@ open class MainActivity : AppCompatActivity() {
                     slowDurationSeconds = slowMinutes * 60,
                     fastDurationSeconds = fastMinutes * 60,
                     totalIntervals = rounds * 2, // Each circuit = 2 intervals
-                    startsWithFast = startsWithFast
+                    startsWithFast = startsWithFast,
+                    isCircuit = true
                 )
             } else {
                 // Regular interval
@@ -1652,7 +1653,7 @@ open class MainActivity : AppCompatActivity() {
         }
         
         // Build pattern description showing execution pattern
-        val isCircuit = currentFormula.name.contains("Circuit", ignoreCase = true)
+        val isCircuit = currentFormula.isCircuit
         val isHighIntensity = currentFormula.name.contains("5-2", ignoreCase = true)
         val isCustom = currentFormula.name.startsWith("Custom:")
         
@@ -1878,20 +1879,11 @@ open class MainActivity : AppCompatActivity() {
      * @return Formatted string like "1 / 2" for rounds or "1 / 5" for intervals
      */
     private fun formatIntervalCounter(currentInterval: Int, totalIntervals: Int): String {
-        val isCircuit = currentFormula.name.contains("Circuit", ignoreCase = true)
+        val isCircuit = currentFormula.isCircuit
         return if (isCircuit) {
-            // For 5-4-5 pattern, each round = 2 intervals
-            // Convert intervals to rounds: round = ceil(interval / 2.0)
-            // For even intervals, we've completed a round: round = interval / 2 + 1
-            // For odd intervals, we're in the middle: round = (interval + 1) / 2
             val totalRounds = totalIntervals / 2
-            val currentRound = if (currentInterval == 0) {
-                0
-            } else {
-                // Convert interval to round: round = (interval + 2 - (interval % 2)) / 2
-                // This handles both odd and even intervals in one formula
-                minOf((currentInterval + 2 - (currentInterval % 2)) / 2, totalRounds)
-            }
+            val currentRound = if (currentInterval <= 0) 1
+            else minOf(((currentInterval - 1) / 2) + 1, totalRounds).coerceAtLeast(1)
             "$currentRound / $totalRounds"
         } else {
             "$currentInterval / $totalIntervals"

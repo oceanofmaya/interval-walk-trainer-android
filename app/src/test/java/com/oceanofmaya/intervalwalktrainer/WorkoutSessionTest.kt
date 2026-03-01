@@ -55,13 +55,13 @@ class WorkoutSessionTest {
         )
         
         val updated = original.copy(
-            workoutType = "5-4-5 Circuit - 2 Rounds (36 min)",
+            workoutType = "5-4-5 Circuit - 2 Rounds (28 min)",
             minutes = 36
         )
         
         assertEquals(original.id, updated.id)
         assertEquals(original.date, updated.date)
-        assertEquals("5-4-5 Circuit - 2 Rounds (36 min)", updated.workoutType)
+        assertEquals("5-4-5 Circuit - 2 Rounds (28 min)", updated.workoutType)
         assertEquals(36, updated.minutes)
         assertEquals(original.timestamp, updated.timestamp)
     }

@@ -35,7 +35,7 @@ class WorkoutDetailAdapterTest {
             ),
             WorkoutSession(
                 date = "2024-01-15",
-                workoutType = "5-4-5 Circuit - 2 Rounds (36 min)",
+                workoutType = "5-4-5 Circuit - 2 Rounds (28 min)",
                 minutes = 36,
                 timestamp = System.currentTimeMillis() - 2000
             )

@@ -73,22 +73,28 @@ class IntervalTimer(
     private var phaseStartTime = 0
 
     /**
-     * For fast-start formulas, the workout ends on a final slow phase.
-     * This is true after all configured rounds have had their fast phase completed.
+     * For fast-start formulas (interval mode only), the workout ends on a final slow phase.
+     * Circuits end after the last fast phase, so this is false when isCircuit.
      */
     private fun isFinalSlowPhaseForFastStart(): Boolean {
+        if (formula.isCircuit) return false
         return formula.startsWithFast && isSlowPhase && currentIntervalIndex >= formula.totalIntervals
     }
 
     /**
      * Determines the phase that should follow when the current fast phase finishes.
-     * For fast-start formulas, the last fast transitions to a trailing slow phase.
+     * For circuit: complete after last fast; at end of a round (even currentIntervalIndex) start next round with Fast.
+     * For interval fast-start: last fast transitions to trailing slow; otherwise to Slow.
      */
     private fun nextPhaseAfterFastCompletes(): IntervalPhase {
-        return if (formula.startsWithFast && currentIntervalIndex + 1 >= formula.totalIntervals) {
-            IntervalPhase.Slow
-        } else if (currentIntervalIndex + 1 >= formula.totalIntervals) {
-            IntervalPhase.Completed
+        val nextIndex = currentIntervalIndex + 1
+        if (nextIndex >= formula.totalIntervals) {
+            // Last fast: circuit or slow-start interval completes here; fast-start interval goes to trailing slow
+            return if (formula.isCircuit || !formula.startsWithFast) IntervalPhase.Completed else IntervalPhase.Slow
+        }
+        return if (formula.isCircuit && nextIndex % 2 == 0) {
+            // Just finished second fast of a round → start next round with Fast
+            IntervalPhase.Fast
         } else {
             IntervalPhase.Slow
         }
@@ -237,13 +243,14 @@ class IntervalTimer(
                         )
                     }
                 } else {
-                    // Fast phase completed - this completes one full interval
+                    // Fast phase completed
                     currentIntervalIndex++
                     onIntervalComplete()
 
-                    if (!formula.startsWithFast && currentIntervalIndex >= formula.totalIntervals) {
-                        // All intervals completed - workout is finished
-                        // Note: Completion notification was already sent early (in onTick)
+                    val isLastFastComplete = currentIntervalIndex >= formula.totalIntervals &&
+                        (formula.isCircuit || !formula.startsWithFast)
+                    if (isLastFastComplete) {
+                        // Circuit or slow-start: complete after last fast. Fast-start continues to trailing slow.
                         _state.value = _state.value.copy(
                             currentPhase = IntervalPhase.Completed,
                             isRunning = false,
@@ -251,11 +258,22 @@ class IntervalTimer(
                             elapsedSeconds = formula.totalDurationSeconds
                         )
                         countDownTimer?.cancel()
+                    } else if (formula.isCircuit && currentIntervalIndex % 2 == 0) {
+                        // Circuit: just finished second fast of a round → start next round with Fast
+                        isSlowPhase = false
+                        phaseStartTime = formula.fastDurationSeconds
+                        startTimer(formula.fastDurationSeconds)
+                        val displayInterval = (currentIntervalIndex + 1).coerceAtMost(formula.totalIntervals)
+                        _state.value = _state.value.copy(
+                            currentPhase = IntervalPhase.Fast,
+                            timeRemainingSeconds = formula.fastDurationSeconds,
+                            currentInterval = displayInterval,
+                            elapsedSeconds = totalElapsedSeconds
+                        )
                     } else {
-                        // Start next interval (begins with slow phase)
+                        // Start next phase (slow): within-round or interval mode
                         isSlowPhase = true
                         phaseStartTime = formula.slowDurationSeconds
-                        // Note: Phase change notification was already sent early (in onTick)
                         startTimer(formula.slowDurationSeconds)
                         val displayInterval = (currentIntervalIndex + 1).coerceAtMost(formula.totalIntervals)
                         _state.value = _state.value.copy(
@@ -304,17 +322,18 @@ class IntervalTimer(
         currentIntervalIndex = currentInterval - 1
         isSlowPhase = currentPhase is IntervalPhase.Slow
         phaseStartTime = if (isSlowPhase) formula.slowDurationSeconds else formula.fastDurationSeconds
-        
-        // Calculate elapsed time based on completed intervals and current phase
-        val completedIntervals = if (currentInterval > 0) {
-            if (isSlowPhase) currentInterval - 1 else currentInterval
-        } else 0
-        
-        // Calculate elapsed time: completed intervals + elapsed in current phase
-        val completedPhasesTime = completedIntervals * (formula.slowDurationSeconds + formula.fastDurationSeconds)
-        val currentPhaseElapsed = phaseStartTime - timeRemainingSeconds
-        totalElapsedSeconds = completedPhasesTime + currentPhaseElapsed
-        
+
+        totalElapsedSeconds = if (formula.isCircuit) {
+            circuitElapsedSeconds(currentInterval, isSlowPhase, timeRemainingSeconds)
+        } else {
+            val completedIntervals = if (currentInterval > 0) {
+                if (isSlowPhase) currentInterval - 1 else currentInterval
+            } else 0
+            val completedPhasesTime = completedIntervals * (formula.slowDurationSeconds + formula.fastDurationSeconds)
+            val currentPhaseElapsed = phaseStartTime - timeRemainingSeconds
+            completedPhasesTime + currentPhaseElapsed
+        }
+
         _state.value = TimerState(
             currentPhase = currentPhase,
             timeRemainingSeconds = timeRemainingSeconds,
@@ -323,12 +342,54 @@ class IntervalTimer(
             isRunning = false,
             elapsedSeconds = totalElapsedSeconds.coerceAtMost(formula.totalDurationSeconds)
         )
-        
+
         onPhaseChange(currentPhase)
-        
+
         // Resume timer if it was running
         if (isRunning && timeRemainingSeconds > 0) {
             resume(timeRemainingSeconds)
+        }
+    }
+
+    /**
+     * Elapsed seconds for circuit mode from (currentInterval, isSlowPhase, timeRemainingSeconds).
+     * Each round has three phases (e.g. fast-slow-fast); currentInterval is 1-based, advances after each fast.
+     */
+    @Suppress("CyclomaticComplexMethod")
+    private fun circuitElapsedSeconds(currentInterval: Int, isSlowPhase: Boolean, timeRemainingSeconds: Int): Int {
+        val roundDuration = if (formula.startsWithFast) {
+            2 * formula.fastDurationSeconds + formula.slowDurationSeconds
+        } else {
+            2 * formula.slowDurationSeconds + formula.fastDurationSeconds
+        }
+        val completedRounds = if (formula.startsWithFast) {
+            (currentInterval - 1) / 2
+        } else {
+            if (currentInterval >= 2 && !isSlowPhase) (currentInterval / 2) - 1 else (currentInterval - 1) / 2
+        }
+        val elapsedInRound = if (currentInterval <= 0) 0
+        else elapsedInCircuitRound(currentInterval, isSlowPhase, timeRemainingSeconds)
+        return completedRounds * roundDuration + elapsedInRound.coerceIn(0, roundDuration)
+    }
+
+    private fun elapsedInCircuitRound(currentInterval: Int, isSlowPhase: Boolean, timeRemainingSeconds: Int): Int {
+        val fast = formula.fastDurationSeconds
+        val slow = formula.slowDurationSeconds
+        return if (formula.startsWithFast) {
+            when {
+                currentInterval % 2 == 1 && !isSlowPhase -> fast - timeRemainingSeconds
+                isSlowPhase -> fast + (slow - timeRemainingSeconds)
+                else -> fast + slow + (fast - timeRemainingSeconds)
+            }
+        } else {
+            when {
+                currentInterval % 2 == 1 && isSlowPhase -> slow - timeRemainingSeconds
+                currentInterval % 2 == 1 && !isSlowPhase -> slow + (fast - timeRemainingSeconds)
+                currentInterval % 2 == 0 && isSlowPhase ->
+                    slow + fast + (slow - timeRemainingSeconds)
+                else -> if (currentInterval == 2) fast - timeRemainingSeconds
+                else slow + fast + (slow - timeRemainingSeconds)
+            }
         }
     }
 
