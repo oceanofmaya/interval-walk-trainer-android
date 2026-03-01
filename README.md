@@ -5,7 +5,7 @@ A minimalist Android app for interval walking training with customizable formula
 ## Project Structure
 
 ```text
-interval-walk-trainer/
+interval-walk-trainer-android/
 ├── app/                                    # Android app module
 │   └── src/
 │       ├── main/                           # Main source code
@@ -21,6 +21,7 @@ interval-walk-trainer/
 │   └── store/                              # Play Store publishing assets
 │       └── screenshots/                     # Store listing screenshots
 ├── scripts/                                # Utility scripts for asset generation
+├── config/                                 # Detekt and other tool config
 ├── gradle/                                 # Gradle wrapper files
 └── .github/                                # GitHub workflows and templates
 ```
@@ -59,14 +60,14 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - Progress tracking: current interval and total intervals
 - Visual progress bar showing overall workout completion
 - Elapsed and remaining time displays for clear progress feedback
-- Icon-based controls for vibration, voice, stats, and settings
+- Icon buttons for Workout History and Settings; overflow menu (⋮) for Help, Rate App, and Report Issue; vibration and voice toggles in Settings
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
-- **Settings screen**: Access app version, FAQ, Privacy Policy, Terms of Service, theme swatches, accent swatches, and toggles for notifications, keep-screen-awake, countdown, and workout saving
+- **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, countdown, and workout saving; links to FAQ (Help), Privacy Policy, and Terms of Service
 - **Workout statistics and history**
   - Calendar view showing workout days with a high-contrast today indicator
   - Total workouts, minutes, and streaks
   - Monthly navigation to view past workouts
-  - Clear all stats option
+  - Per-day workout detail with completion time; delete individual workouts or clear all history
 
 ## Training Formulas
 
@@ -107,21 +108,21 @@ Three pre-configured formulas covering the main training patterns. Additional va
 1. Tap the formula button to open the selector and choose a training formula
    - Select from three pre-configured formulas, or
    - Choose "Design Your Own" to create a custom interval or circuit formula
-2. Tap the vibration or voice icons to toggle in-workout cues (active icons use your selected accent color)
-3. Tap the **Settings** icon to manage app options:
+2. Tap the **Settings** icon to manage app options:
+   - Vibration and voice toggles for in-workout cues
    - Notifications permission and app notification state
    - Keep Screen Awake (foreground-only behavior)
    - Countdown on/off and countdown seconds (1-10)
    - Save Workouts toggle and theme selection (System, Light, Dark) with compact swatches
    - Accent selection (Blue, Teal, Purple, Amber, Magenta) for interactive UI highlights
-   - FAQ, Privacy Policy, and Terms of Service
+   - Links to Privacy Policy, and Terms of Service
+3. Use the overflow menu (⋮) for **Help**, **Rate App**, and **Report Issue**
 4. Tap **Start** to begin (a short countdown appears if enabled)
 5. Monitor progress using the progress bar and elapsed/remaining time displays
-6. Use **Pause** or **Reset** as needed
+6. Use **Pause** (button shows **Resume** when paused) or **Reset** as needed
 7. The timer continues running even when the phone is locked
-8. View your workout history and statistics by tapping the **Stats** icon
-9. Navigate between months to see past workout history
-10. Clear all stats anytime using the delete icon in the Stats screen
+8. View workout history and statistics by tapping the **Workout History** (stats) icon
+9. Tap a day in the calendar to see workout details; delete individual workouts from the detail sheet or clear all history from the Stats screen
 
 ### Creating Custom Formulas
 
@@ -148,10 +149,10 @@ Your custom formula is automatically saved and will be restored when you restart
 **Development Requirements:**
 
 - JDK 21
-- Android Gradle Plugin 8.13.1
-- Kotlin 2.0.21
-- Android SDK (API 34)
-- Gradle 9.0
+- Android Gradle Plugin 9.0.1
+- Kotlin 2.3.10
+- Android SDK (API 36)
+- Gradle 9.3.1
 
 To build:
 
@@ -192,6 +193,9 @@ The project includes unit tests for core business logic. Tests are located in `a
 - **IntervalTimer**: State management, phase transitions, start/pause/reset functionality
 - **WorkoutRepository**: Workout recording, statistics calculation, data clearing
 - **WorkoutRecord**: Data class properties and defaults
+- **WorkoutSession**: Session state and timing
+- **FormulaAdapter**, **WorkoutListAdapter**, **WorkoutDetailAdapter**: UI adapters
+- **NotificationHelper**: Notification behavior
 
 See [BUILD.md](BUILD.md) for detailed testing instructions.
 
