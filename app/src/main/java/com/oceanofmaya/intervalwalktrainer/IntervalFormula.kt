@@ -2,26 +2,38 @@ package com.oceanofmaya.intervalwalktrainer
 
 /**
  * Represents an interval training formula.
- * 
+ *
  * @param name Display name of the formula
  * @param slowDurationSeconds Duration of slow/recovery phase in seconds
  * @param fastDurationSeconds Duration of fast/high-intensity phase in seconds
- * @param totalIntervals Number of complete intervals (each interval = slow + fast)
+ * @param totalIntervals Intervals: for interval mode (slow+fast) count; for circuit, rounds * 2
  * @param startsWithFast Whether the workout starts with fast phase (default: false, starts with slow)
+ * @param isCircuit True for circuit (three phases per round, e.g. fast-slow-fast); false for interval (slow-fast pairs)
  */
 data class IntervalFormula(
     val name: String,
     val slowDurationSeconds: Int,
     val fastDurationSeconds: Int,
     val totalIntervals: Int,
-    val startsWithFast: Boolean = false
+    val startsWithFast: Boolean = false,
+    val isCircuit: Boolean = false
 ) {
     /**
      * Total duration of the workout in seconds.
-     * Calculated as (slow + fast) * totalIntervals.
+     * For interval mode: (slow + fast) * totalIntervals.
+     * For circuit mode: rounds * (2*fast + slow) or rounds * (2*slow + fast) depending on pattern.
      */
     val totalDurationSeconds: Int
-        get() = (slowDurationSeconds + fastDurationSeconds) * totalIntervals
+        get() = if (isCircuit) {
+            val rounds = totalIntervals / 2
+            if (startsWithFast) {
+                rounds * (2 * fastDurationSeconds + slowDurationSeconds)
+            } else {
+                rounds * (2 * slowDurationSeconds + fastDurationSeconds)
+            }
+        } else {
+            (slowDurationSeconds + fastDurationSeconds) * totalIntervals
+        }
 }
 
 /**
@@ -58,14 +70,15 @@ object IntervalFormulas {
 
     /**
      * Circuit training: 5 min brisk, 4 min slow, 5 min brisk sequence.
-     * 5-4-5 pattern repeated 2 times (36 minutes total).
+     * 5-4-5 pattern repeated 2 times (28 minutes total).
      */
     val formula4 = IntervalFormula(
-        name = "5-4-5 Circuit - 2 Rounds (36 min)",
+        name = "5-4-5 Circuit - 2 Rounds (28 min)",
         slowDurationSeconds = 4 * 60, // 4 minutes slow recovery
         fastDurationSeconds = 5 * 60, // 5 minutes brisk
         totalIntervals = 4, // 2 circuits (5-4-5 pattern repeated twice)
-        startsWithFast = true // Pattern: Fast(5) → Slow(4) → Fast(5)
+        startsWithFast = true, // Pattern: Fast(5) → Slow(4) → Fast(5)
+        isCircuit = true
     )
 
     /** All available training formulas. */

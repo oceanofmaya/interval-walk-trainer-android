@@ -83,7 +83,7 @@ Three pre-configured formulas covering the main training patterns. Additional va
    - Pattern: Fast(5m) → Slow(2m) × 4
    - Starts Fast
 
-3. **5-4-5 Circuit - 2 Rounds (36 min)**
+3. **5-4-5 Circuit - 2 Rounds (28 min)**
    - Pattern: Fast(5m) → Slow(4m) → Fast(5m) × 2
    - Starts Fast
 

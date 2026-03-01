@@ -71,11 +71,11 @@ class IntervalFormulaTest {
 
     @Test
     fun `formula4 has correct total duration`() {
-        // 5-4-5 Circuit - 2 Rounds: (240 + 300) * 4 = 2160 seconds
-        // Note: totalIntervals is 4 because each circuit has 2 intervals (fast-slow-fast)
-        assertEquals(2160, IntervalFormulas.formula4.totalDurationSeconds)
+        // 5-4-5 Circuit - 2 Rounds: 2 * (2*300 + 240) = 1680 seconds (28 min)
+        assertEquals(1680, IntervalFormulas.formula4.totalDurationSeconds)
         assertEquals(4, IntervalFormulas.formula4.totalIntervals)
         assertEquals(true, IntervalFormulas.formula4.startsWithFast)
+        assertEquals(true, IntervalFormulas.formula4.isCircuit)
     }
 
     @Test
@@ -136,59 +136,61 @@ class IntervalFormulaTest {
 
     @Test
     fun `custom circuit formula with fast-slow-fast pattern calculates correctly`() {
-        // Circuit: Fast(5) → Slow(4) → Fast(5) × 2 rounds
-        // Each circuit = 2 intervals, so totalIntervals = rounds * 2
+        // Circuit: Fast(5) → Slow(4) → Fast(5) × 2 rounds; 2 * (2*300 + 240) = 1680 seconds (28 min)
         val circuitFormula = IntervalFormula(
             name = "Custom Circuit: 5-4-5 - 2 Rounds",
             slowDurationSeconds = 4 * 60, // 4 minutes
             fastDurationSeconds = 5 * 60, // 5 minutes
             totalIntervals = 4, // 2 circuits × 2 intervals per circuit
-            startsWithFast = true // Fast-Slow-Fast pattern
+            startsWithFast = true, // Fast-Slow-Fast pattern
+            isCircuit = true
         )
-        
-        // Expected: (240 + 300) * 4 = 2160 seconds = 36 minutes
-        assertEquals(2160, circuitFormula.totalDurationSeconds)
+        assertEquals(1680, circuitFormula.totalDurationSeconds)
         assertEquals(4, circuitFormula.totalIntervals)
         assertEquals(true, circuitFormula.startsWithFast)
+        assertEquals(true, circuitFormula.isCircuit)
     }
 
     @Test
     fun `custom circuit formula with slow-fast-slow pattern calculates correctly`() {
-        // Circuit: Slow(3) → Fast(2) → Slow(3) × 3 rounds
+        // Circuit: Slow(3) → Fast(2) → Slow(3) × 3 rounds; 3 * (2*180 + 120) = 1440 seconds (24 min)
         val circuitFormula = IntervalFormula(
             name = "Custom Circuit: 3-2-3 - 3 Rounds",
             slowDurationSeconds = 3 * 60, // 3 minutes
             fastDurationSeconds = 2 * 60, // 2 minutes
             totalIntervals = 6, // 3 circuits × 2 intervals per circuit
-            startsWithFast = false // Slow-Fast-Slow pattern
+            startsWithFast = false, // Slow-Fast-Slow pattern
+            isCircuit = true
         )
-        
-        // Expected: (180 + 120) * 6 = 1800 seconds = 30 minutes
-        assertEquals(1800, circuitFormula.totalDurationSeconds)
+        assertEquals(1440, circuitFormula.totalDurationSeconds)
         assertEquals(6, circuitFormula.totalIntervals)
         assertEquals(false, circuitFormula.startsWithFast)
+        assertEquals(true, circuitFormula.isCircuit)
     }
 
     @Test
     fun `circuit formula rounds calculation is correct`() {
-        // Verify that rounds = totalIntervals / 2 for circuits
         val circuit2Rounds = IntervalFormula(
             name = "Circuit - 2 Rounds",
             slowDurationSeconds = 4 * 60,
             fastDurationSeconds = 5 * 60,
-            totalIntervals = 4, // 2 rounds × 2 intervals
-            startsWithFast = true
+            totalIntervals = 4,
+            startsWithFast = true,
+            isCircuit = true
         )
         assertEquals(2, circuit2Rounds.totalIntervals / 2)
-        
+        assertEquals(1680, circuit2Rounds.totalDurationSeconds) // 2 * (5+4+5)*60
+
         val circuit5Rounds = IntervalFormula(
             name = "Circuit - 5 Rounds",
             slowDurationSeconds = 3 * 60,
             fastDurationSeconds = 3 * 60,
-            totalIntervals = 10, // 5 rounds × 2 intervals
-            startsWithFast = false
+            totalIntervals = 10,
+            startsWithFast = false,
+            isCircuit = true
         )
         assertEquals(5, circuit5Rounds.totalIntervals / 2)
+        assertEquals(5 * (2 * 180 + 180), circuit5Rounds.totalDurationSeconds) // 5 * (3+3+3)*60 = 2700
     }
 }
 

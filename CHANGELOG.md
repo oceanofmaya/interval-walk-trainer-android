@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.0.19 - 2026-03-01
+
+#### Fixes
+
+- **Circuit workouts**: Corrected duration (5-4-5 × 2 now 28 min), round counter (1/2 vs 2/2), phase transition between rounds (round 2 starts with fast), completion (no trailing slow), and elapsed time on state restore.
+
 ### 1.0.18 - 2026-03-01
 
 #### Features
@@ -389,7 +395,7 @@
 - **Three pre-configured training formulas**
   - 3-3 Japanese - 5 Rounds (30 min) - Default
   - 5-2 High Intensity - 4 Rounds (28 min)
-  - 5-4-5 Circuit - 2 Rounds (36 min)
+  - 5-4-5 Circuit - 2 Rounds (28 min)
 
 - **Design Your Own**: Create custom interval or circuit training formulas
   - Adjustable slow and fast durations (1-60 minutes)
