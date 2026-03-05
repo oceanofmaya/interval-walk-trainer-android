@@ -669,8 +669,18 @@ class StatsActivity : AppCompatActivity() {
                 arrowView.visibility = View.VISIBLE
                 percentView.visibility = View.GONE
             }
+            changePercent == 0.0 && previousValue > 0 -> {
+                // No change - show neutral indicator so both cards keep same badge row
+                val neutralColor = ContextCompat.getColor(this, R.color.text_secondary)
+                arrowView.text = "\u2212" // Unicode minus
+                arrowView.setTextColor(neutralColor)
+                arrowView.visibility = View.VISIBLE
+                percentView.text = getString(R.string.month_comparison_change, 0)
+                percentView.setTextColor(neutralColor)
+                percentView.visibility = View.VISIBLE
+            }
             else -> {
-                // No change or no data - hide badge
+                // No data - hide badge
                 arrowView.visibility = View.GONE
                 percentView.visibility = View.GONE
             }

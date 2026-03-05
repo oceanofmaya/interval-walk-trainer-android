@@ -2,6 +2,14 @@
 
 ## Version 1
 
+### 1.0.20 - 2026-03-04
+
+#### UI/UX Improvements
+
+- **Workout History (Monthly Trend):** When a stat has no change vs previous month, show a neutral "−" and "0%" in secondary color so both trend cards keep a consistent badge row and the layout stays balanced.
+- **Timer phase labels:** Replaced "> Slow" / ">> Fast" with plain "Slow" and "Fast" for a minimal, balanced look.
+- Store screenshots and promo images updated.
+
 ### 1.0.19 - 2026-03-01
 
 #### Fixes
