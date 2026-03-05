@@ -154,8 +154,8 @@
     <string name="workout_in_progress_notification_body">Workout running in background</string>
     <string name="activity_recognition_permission_needed">Allow Physical activity to keep workouts running in background.</string>
     <string name="activity_recognition_permission_denied">Background workouts need Physical activity permission.</string>
-    <string name="phase_slow_format">> %1$s</string>
-    <string name="phase_fast_format">>> %1$s</string>
+    <string name="phase_slow_format">%1$s</string>
+    <string name="phase_fast_format">%1$s</string>
     <string name="new_label">New</string>
     <string name="workout_type_count_format">%1$d (%2$d%%)</string>
     <string name="longest_streak">Longest Streak</string>
