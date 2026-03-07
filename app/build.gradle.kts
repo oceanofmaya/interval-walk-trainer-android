@@ -16,8 +16,8 @@ android {
         applicationId = "com.oceanofmaya.intervalwalktrainer"
         minSdk = 24
         targetSdk = 36
-        versionCode = 46
-        versionName = "1.1.2"
+        versionCode = 47
+        versionName = "1.1.3"
     }
 
     signingConfigs {
@@ -43,6 +43,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+
+    bundle {
+        language {
+            enableSplit = false
         }
     }
 
