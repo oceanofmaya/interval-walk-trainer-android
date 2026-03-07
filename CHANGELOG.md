@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.1.3 - 2026-03-07
+
+#### Fixes
+
+- **TTS locale resources from Play installs:** Disabled App Bundle language splits so all supported locale string resources are packaged on device, preventing fallback-to-English for selected notification languages that don't match the device language.
+
 ### 1.1.2 - 2026-03-07
 
 #### Fixes
