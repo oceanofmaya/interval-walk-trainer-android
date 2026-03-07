@@ -5,6 +5,6 @@
     <string name="tts_fast_walk">مشي سريع</string>
     <string name="tts_workout_complete">تم التمرين</string>
     <string name="tts_voice_notifications_enabled">إشعارات الصوت مفعلة</string>
-    <string name="go">ابدأ</string>
+    <string name="go">ابدؤوا</string>
     <string name="voice_notifications_disabled">إشعارات الصوت معطلة</string>
 </resources>

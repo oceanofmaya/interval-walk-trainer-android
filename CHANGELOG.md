@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.1.5 - 2026-03-07
+
+#### UI/UX Improvements
+
+- **Countdown cue tone:** Refined pre-start "Start" translations in politeness-sensitive languages to use polite/honorific forms for a more respectful voice guidance style.
+
 ### 1.1.4 - 2026-03-07
 
 #### UI/UX Improvements

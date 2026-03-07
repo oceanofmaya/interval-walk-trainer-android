@@ -5,6 +5,6 @@
     <string name="tts_fast_walk">Hızlı yürüyüş</string>
     <string name="tts_workout_complete">Antrenman tamamlandı</string>
     <string name="tts_voice_notifications_enabled">Ses bildirimleri açıldı</string>
-    <string name="go">Başla</string>
+    <string name="go">Başlayın</string>
     <string name="voice_notifications_disabled">Ses bildirimleri kapatıldı</string>
 </resources>

@@ -16,8 +16,8 @@ android {
         applicationId = "com.oceanofmaya.intervalwalktrainer"
         minSdk = 24
         targetSdk = 36
-        versionCode = 48
-        versionName = "1.1.4"
+        versionCode = 49
+        versionName = "1.1.5"
     }
 
     signingConfigs {

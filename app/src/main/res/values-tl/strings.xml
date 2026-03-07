@@ -5,6 +5,6 @@
     <string name="tts_fast_walk">Mabilis na lakad</string>
     <string name="tts_workout_complete">Tapos na ang workout</string>
     <string name="tts_voice_notifications_enabled">Naka-enable ang voice notifications</string>
-    <string name="go">Magsimula</string>
+    <string name="go">Magsimula po</string>
     <string name="voice_notifications_disabled">Naka-disable ang voice notifications</string>
 </resources>
