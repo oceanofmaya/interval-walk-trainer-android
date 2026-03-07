@@ -5,6 +5,6 @@
     <string name="tts_fast_walk">تیز چلنا</string>
     <string name="tts_workout_complete">ورزش مکمل</string>
     <string name="tts_voice_notifications_enabled">آواز کی اطلاعیں آن ہیں</string>
-    <string name="go">شروع کریں</string>
+    <string name="go">شروع کرو</string>
     <string name="voice_notifications_disabled">آواز کی اطلاعیں بند ہیں</string>
 </resources>
