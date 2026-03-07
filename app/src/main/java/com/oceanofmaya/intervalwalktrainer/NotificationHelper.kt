@@ -167,13 +167,19 @@ open class NotificationHelper(
 
     /**
      * Returns the string for the given resource ID in the given locale.
+     *
+     * Uses applicationContext to avoid AppCompat resource-wrapping in AppCompatActivity,
+     * which can cause createConfigurationContext to return default-locale strings on
+     * some physical devices / OEM Android builds.
+     *
      * Falls back to default-locale string if the locale override fails (e.g. in tests).
      */
     @Suppress("TooGenericExceptionCaught", "SwallowedException")
     private fun getStringForLocale(locale: Locale, @StringRes id: Int): String {
         return try {
-            val config = Configuration(context.resources.configuration).apply { setLocale(locale) }
-            context.createConfigurationContext(config).resources.getString(id)
+            val appContext = context.applicationContext ?: context
+            val config = Configuration(appContext.resources.configuration).apply { setLocale(locale) }
+            appContext.createConfigurationContext(config).resources.getString(id)
         } catch (e: Exception) {
             Log.w(TAG, "Could not resolve string for locale $locale, using default", e)
             try {
@@ -206,8 +212,11 @@ open class NotificationHelper(
             Log.e(TAG, "speakStringRes: could not resolve string $id", e)
             return
         }
-        val locale = resolveSpeechLocale(textToSpeech?.voice?.locale)
-        val text = getStringForLocale(locale, id).takeIf { it.isNotBlank() } ?: defaultText
+        val activeVoiceLocale = textToSpeech?.voice?.locale
+        val locale = resolveSpeechLocale(activeVoiceLocale)
+        val localizedText = getStringForLocale(locale, id)
+        val text = localizedText.takeIf { it.isNotBlank() } ?: defaultText
+        Log.d(TAG, "speakStringRes: voiceLocale=$activeVoiceLocale resolved=$locale text=\"$text\"")
         speak(text)
     }
 

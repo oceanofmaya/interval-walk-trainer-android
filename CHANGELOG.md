@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.1.2 - 2026-03-07
+
+#### Fixes
+
+- **TTS locale on physical devices:** Fixed locale-specific string resolution returning English text on some OEM devices by using the application context instead of the AppCompat-wrapped Activity context for `createConfigurationContext`.
+
 ### 1.1.1 - 2026-03-07
 
 #### Fixes
