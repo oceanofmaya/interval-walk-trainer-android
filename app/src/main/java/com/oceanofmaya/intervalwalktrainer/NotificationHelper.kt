@@ -1,6 +1,8 @@
 package com.oceanofmaya.intervalwalktrainer
 
 import android.content.Context
+import android.content.res.Configuration
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -9,7 +11,9 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.speech.tts.Voice
 import android.util.Log
+import androidx.annotation.StringRes
 import java.util.Locale
 
 import android.media.AudioAttributes
@@ -26,8 +30,14 @@ import android.media.AudioAttributes
  * Messages are queued if TTS is not yet ready and will be spoken when initialization completes.
  * 
  * @param context Android context for accessing system services
+ * @param sharedPreferences Optional preferences to read preferred TTS voice (KEY_TTS_VOICE); null to use engine default
+ * @param ttsVoicePreferenceKey Key for the preferred voice name; ignored if sharedPreferences is null
  */
-open class NotificationHelper(private val context: Context) {
+open class NotificationHelper(
+    private val context: Context,
+    private val sharedPreferences: SharedPreferences? = null,
+    private val ttsVoicePreferenceKey: String? = null,
+) {
     private val vibrator: Vibrator? by lazy {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -42,9 +52,78 @@ open class NotificationHelper(private val context: Context) {
     private var isTtsReady = false
     private var isInitializing = false
     private val pendingSpeech = mutableListOf<String>()
+    private val pendingSpeechRes = mutableListOf<Int>()
     
     companion object {
         private const val TAG = "NotificationHelper"
+    }
+
+    /**
+     * Applies the user's preferred TTS voice from preferences if set.
+     * No-op if prefs/key are null or stored name is empty; leaves engine default otherwise.
+     */
+    private fun applyPreferredVoice(tts: TextToSpeech) {
+        if (sharedPreferences == null || ttsVoicePreferenceKey == null) return
+        val voiceName = sharedPreferences.getString(ttsVoicePreferenceKey, null).orEmpty()
+        if (voiceName.isEmpty()) return
+        val voices = tts.voices
+        val voice = voices?.find { it.name == voiceName }
+        if (voice != null) {
+            val result = tts.setVoice(voice)
+            if (result == TextToSpeech.SUCCESS) {
+                Log.d(TAG, "Applied preferred voice: $voiceName")
+            } else {
+                Log.w(TAG, "setVoice failed for: $voiceName")
+            }
+        } else {
+            Log.w(TAG, "Preferred voice not found: $voiceName")
+        }
+    }
+
+    /**
+     * Returns the string for the given resource ID in the given locale.
+     * Falls back to default-locale string if the locale override fails (e.g. in tests).
+     */
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
+    private fun getStringForLocale(locale: Locale, @StringRes id: Int): String {
+        return try {
+            val config = Configuration(context.resources.configuration).apply { setLocale(locale) }
+            context.createConfigurationContext(config).resources.getString(id)
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not resolve string for locale $locale, using default", e)
+            try {
+                context.resources.getString(id)
+            } catch (e2: Exception) {
+                Log.w(TAG, "Fallback getString also failed", e2)
+                ""
+            }
+        }
+    }
+
+    /**
+     * Speaks the string for the given resource ID in the current TTS voice's locale when
+     * possible; always falls back to default context string so TTS never receives empty text.
+     */
+    open fun speakStringRes(@StringRes id: Int) {
+        if (!isTtsReady || textToSpeech == null) {
+            // Defer resource resolution until TTS + preferred voice are fully ready.
+            if (!pendingSpeechRes.contains(id)) {
+                pendingSpeechRes.add(id)
+            }
+            if (textToSpeech == null) {
+                initializeTts()
+            }
+            return
+        }
+        val defaultText = try {
+            context.resources.getString(id)
+        } catch (e: Exception) {
+            Log.e(TAG, "speakStringRes: could not resolve string $id", e)
+            return
+        }
+        val locale = textToSpeech?.voice?.locale ?: Locale.getDefault()
+        val text = getStringForLocale(locale, id).takeIf { it.isNotBlank() } ?: defaultText
+        speak(text)
     }
 
     init {
@@ -95,6 +174,7 @@ open class NotificationHelper(private val context: Context) {
                                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                                 .build()
                             tts.setAudioAttributes(attributes)
+                            applyPreferredVoice(tts)
                             
                             // Set up listener for debugging
                             tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
@@ -120,8 +200,18 @@ open class NotificationHelper(private val context: Context) {
                             
                             isTtsReady = true
                             Log.d(TAG, "TTS initialized successfully")
-                            
-                            // Speak any pending messages
+
+                            // Speak any pending resource messages after voice selection is applied.
+                            if (pendingSpeechRes.isNotEmpty()) {
+                                Log.d(TAG, "Speaking ${pendingSpeechRes.size} pending string resources")
+                                val pendingResCopy = pendingSpeechRes.toList()
+                                pendingSpeechRes.clear()
+                                pendingResCopy.forEach { resId ->
+                                    speakStringRes(resId)
+                                }
+                            }
+
+                            // Speak any pending plain-text messages.
                             if (pendingSpeech.isNotEmpty()) {
                                 Log.d(TAG, "Speaking ${pendingSpeech.size} pending messages")
                                 pendingSpeech.forEach { text ->
@@ -171,14 +261,14 @@ open class NotificationHelper(private val context: Context) {
 
     open fun notifyPhaseChange(phase: IntervalPhase, useVoice: Boolean, useVibration: Boolean) {
         
-        // 1. Queue voice message IMMEDIATELY
+        // 1. Queue voice message IMMEDIATELY (in voice's locale when possible)
         if (useVoice) {
-            val message = when (phase) {
-                is IntervalPhase.Slow -> "Slow walk"
-                is IntervalPhase.Fast -> "Fast walk"
-                is IntervalPhase.Completed -> "Workout complete"
+            val resId = when (phase) {
+                is IntervalPhase.Slow -> R.string.tts_slow_walk
+                is IntervalPhase.Fast -> R.string.tts_fast_walk
+                is IntervalPhase.Completed -> R.string.tts_workout_complete
             }
-            speak(message)
+            speakStringRes(resId)
         }
         
         // 2. Handle vibration
@@ -254,6 +344,7 @@ open class NotificationHelper(private val context: Context) {
      * Public method accessible from MainActivity for feedback messages.
      */
     open fun speak(text: String) {
+        if (text.isBlank()) return
         if (isTtsReady && textToSpeech != null) {
             speakNow(text)
         } else {
@@ -317,23 +408,11 @@ open class NotificationHelper(private val context: Context) {
     }
 
     /**
-     * Announces the start of the workout with the initial phase.
-     */
-    open fun announceStart(startingPhase: IntervalPhase) {
-        val message = when (startingPhase) {
-            is IntervalPhase.Slow -> "Starting workout. Slow walk"
-            is IntervalPhase.Fast -> "Starting workout. Fast walk"
-            is IntervalPhase.Completed -> "Workout complete"
-        }
-        speak(message)
-    }
-    
-    /**
      * Tests TTS by speaking a sample message.
      * Useful for verifying TTS is working when user enables voice notifications.
      */
     open fun testTts() {
-        speak("Voice notifications enabled")
+        speakStringRes(R.string.tts_voice_notifications_enabled)
     }
     
     /**
@@ -351,6 +430,7 @@ open class NotificationHelper(private val context: Context) {
         textToSpeech = null
         isTtsReady = false
         pendingSpeech.clear()
+        pendingSpeechRes.clear()
     }
 }
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for French (Algeria and others) -->
+    <string name="tts_slow_walk">Marche lente</string>
+    <string name="tts_fast_walk">Marche rapide</string>
+    <string name="tts_workout_complete">Entraînement terminé</string>
+    <string name="tts_voice_notifications_enabled">Notifications vocales activées</string>
+    <string name="go">Partez</string>
+    <string name="voice_notifications_disabled">Notifications vocales désactivées</string>
+</resources>

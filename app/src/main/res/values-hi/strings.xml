@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for Hindi (India) -->
+    <string name="tts_slow_walk">धीमी चाल</string>
+    <string name="tts_fast_walk">तेज़ चाल</string>
+    <string name="tts_workout_complete">कसरत पूरी</string>
+    <string name="tts_voice_notifications_enabled">आवाज़ सूचनाएं चालू</string>
+    <string name="go">चलो</string>
+    <string name="voice_notifications_disabled">आवाज़ सूचनाएं बंद</string>
+</resources>

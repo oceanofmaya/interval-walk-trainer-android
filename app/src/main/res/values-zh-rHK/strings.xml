@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for Traditional Chinese (Hong Kong) -->
+    <string name="tts_slow_walk">慢行</string>
+    <string name="tts_fast_walk">快行</string>
+    <string name="tts_workout_complete">訓練完成</string>
+    <string name="tts_voice_notifications_enabled">已開啟語音通知</string>
+    <string name="go">開始</string>
+    <string name="voice_notifications_disabled">已關閉語音通知</string>
+</resources>

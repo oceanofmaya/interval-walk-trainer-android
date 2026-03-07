@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for Korean -->
+    <string name="tts_slow_walk">천천히 걷기</string>
+    <string name="tts_fast_walk">빠르게 걷기</string>
+    <string name="tts_workout_complete">운동 완료</string>
+    <string name="tts_voice_notifications_enabled">음성 알림이 켜졌습니다</string>
+    <string name="go">시작</string>
+    <string name="voice_notifications_disabled">음성 알림이 꺼졌습니다</string>
+</resources>

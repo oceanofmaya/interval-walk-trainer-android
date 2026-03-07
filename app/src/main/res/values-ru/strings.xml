@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for Russian -->
+    <string name="tts_slow_walk">Медленная ходьба</string>
+    <string name="tts_fast_walk">Быстрая ходьба</string>
+    <string name="tts_workout_complete">Тренировка завершена</string>
+    <string name="tts_voice_notifications_enabled">Голосовые уведомления включены</string>
+    <string name="go">Начали</string>
+    <string name="voice_notifications_disabled">Голосовые уведомления отключены</string>
+</resources>

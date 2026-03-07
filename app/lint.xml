@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- We intentionally ship partial locale resources for TTS-only strings. -->
+    <issue id="MissingTranslation">
+        <ignore path="src/main/res/values/strings.xml" />
+    </issue>
+</lint>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for German -->
+    <string name="tts_slow_walk">Langsames Gehen</string>
+    <string name="tts_fast_walk">Schnelles Gehen</string>
+    <string name="tts_workout_complete">Training beendet</string>
+    <string name="tts_voice_notifications_enabled">Sprachbenachrichtigungen aktiviert</string>
+    <string name="go">Los</string>
+    <string name="voice_notifications_disabled">Sprachbenachrichtigungen deaktiviert</string>
+</resources>

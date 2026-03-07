@@ -14,6 +14,8 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.speech.tts.TextToSpeech
+import android.speech.tts.Voice
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
@@ -100,6 +102,8 @@ open class MainActivity : AppCompatActivity() {
             FaqEntry(R.string.faq_question_workout_history, R.string.faq_answer_workout_history),
             FaqEntry(R.string.faq_question_data_shared, R.string.faq_answer_data_shared),
             FaqEntry(R.string.faq_question_notifications, R.string.faq_answer_notifications),
+            FaqEntry(R.string.faq_question_voice, R.string.faq_answer_voice),
+            FaqEntry(R.string.faq_question_voice_languages, R.string.faq_answer_voice_languages),
             FaqEntry(R.string.faq_question_background, R.string.faq_answer_background),
             FaqEntry(
                 R.string.faq_question_physical_activity_permission,
@@ -119,6 +123,8 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_ACCENT_STYLE = "accent_style"
         private const val KEY_VIBRATION_ENABLED = "vibration_enabled"
         private const val KEY_VOICE_ENABLED = "voice_enabled"
+        private const val KEY_TTS_VOICE = "tts_voice"
+        private const val KEY_TTS_VOICE_DISPLAY = "tts_voice_display"
         private const val KEY_SAVE_WORKOUTS = "save_workouts"
         private const val KEY_KEEP_SCREEN_AWAKE = "keep_screen_awake"
         private const val KEY_START_COUNTDOWN = "start_countdown"
@@ -1110,12 +1116,21 @@ open class MainActivity : AppCompatActivity() {
             if (isChecked) {
                 notificationHelper?.testTts()
             } else {
-                notificationHelper?.speak(getString(R.string.voice_notifications_disabled))
+                notificationHelper?.speakStringRes(R.string.voice_notifications_disabled)
             }
 
             sharedPreferences.edit { putBoolean(KEY_VOICE_ENABLED, isChecked) }
         }
-        
+
+        // Voice row: tap to pick notification voice
+        val voiceRow = view.findViewById<View>(R.id.voiceRow)
+        val voiceValue = view.findViewById<android.widget.TextView>(R.id.voiceValue)
+        voiceValue.text = getTtsVoiceDisplayLabel()
+        voiceRow.setOnClickListener {
+            hapticSelection(it)
+            showVoicePickerDialog(voiceValue)
+        }
+
         // Save workouts toggle switch
         val saveWorkoutsSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.saveWorkoutsSwitch)
         saveWorkoutsSwitchRef = saveWorkoutsSwitch
@@ -1435,7 +1450,7 @@ open class MainActivity : AppCompatActivity() {
                     hapticSuccess(binding.root)
                 }
                 if (useVoice) {
-                    notificationHelper?.speak(getString(R.string.go))
+                    notificationHelper?.speakStringRes(R.string.go)
                 }
                 Handler(Looper.getMainLooper()).postDelayed({
                     cancelPreStartCountdown(startImmediately = true)
@@ -1762,6 +1777,82 @@ open class MainActivity : AppCompatActivity() {
         }
     }
     
+    private fun getTtsVoiceDisplayLabel(): String {
+        val name = sharedPreferences.getString(KEY_TTS_VOICE, null).orEmpty()
+        if (name.isEmpty()) return getString(R.string.voice_default)
+        return sharedPreferences.getString(KEY_TTS_VOICE_DISPLAY, null)?.takeIf { it.isNotBlank() } ?: name
+    }
+
+    /**
+     * Builds user-friendly display labels for TTS voices using locale (e.g. "English (United States)").
+     * When multiple voices share the same locale, appends (2), (3), etc. to distinguish them.
+     */
+    private fun voiceDisplayLabels(voices: List<Voice>): List<String> {
+        val localeTotals = voices.groupingBy { it.locale.getDisplayName() }.eachCount()
+        val localeIndices = mutableMapOf<String, Int>()
+        return voices.map { voice ->
+            val localeLabel = voice.locale.getDisplayName()
+            val index = (localeIndices[localeLabel] ?: 0) + 1
+            localeIndices[localeLabel] = index
+            val total = localeTotals[localeLabel] ?: 1
+            if (total > 1) "$localeLabel ($index)" else localeLabel
+        }
+    }
+
+    private fun showVoicePickerDialog(voiceValueView: android.widget.TextView) {
+        var tempTts: TextToSpeech? = null
+        tempTts = TextToSpeech(this) { status ->
+            runOnUiThread {
+                if (status != TextToSpeech.SUCCESS) {
+                    tempTts?.shutdown()
+                    val msg = getString(R.string.no_voices_available)
+                    android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
+                    return@runOnUiThread
+                }
+                val tts = tempTts ?: return@runOnUiThread
+                val voices = (tts.voices?.toList() ?: emptyList())
+                    .sortedWith(
+                        compareBy<Voice>({ it.locale.getDisplayName() }, { it.name.lowercase(Locale.ROOT) })
+                    )
+                if (voices.isEmpty()) {
+                    tts.shutdown()
+                    val msg = getString(R.string.no_voices_available)
+                    android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
+                    return@runOnUiThread
+                }
+                val displayNames = listOf(getString(R.string.voice_default)) + voiceDisplayLabels(voices)
+                val voiceNames = listOf("") + voices.map { it.name }
+                val currentName = sharedPreferences.getString(KEY_TTS_VOICE, null).orEmpty()
+                val selectedIndex = voiceNames.indexOf(currentName).takeIf { it >= 0 } ?: 0
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle(R.string.voice_picker_title)
+                    .setSingleChoiceItems(displayNames.toTypedArray(), selectedIndex) { dialog, which ->
+                        val name = voiceNames[which]
+                        val displayName = displayNames[which]
+                        sharedPreferences.edit {
+                            putString(KEY_TTS_VOICE, name)
+                            putString(KEY_TTS_VOICE_DISPLAY, if (name.isEmpty()) "" else displayName)
+                        }
+                        voiceValueView.text = getTtsVoiceDisplayLabel()
+                        notificationHelper?.release()
+                        notificationHelper = null
+                        tempTts?.shutdown()
+                        tempTts = null
+                        dialog.dismiss()
+                        if (sharedPreferences.getBoolean(KEY_VOICE_ENABLED, true)) {
+                            notificationHelper = createNotificationHelper()
+                            notificationHelper?.testTts()
+                        }
+                    }
+                    .setOnCancelListener {
+                        tempTts?.shutdown()
+                        tempTts = null
+                    }
+                    .show()
+            }
+        }
+    }
+
     private fun showClearStatsConfirmationDialog(parentDialog: BottomSheetDialog) {
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle(R.string.clear_stats_title)
@@ -2067,7 +2158,7 @@ open class MainActivity : AppCompatActivity() {
      * Factory method for creating NotificationHelper. Can be overridden in tests.
      */
     protected open fun createNotificationHelper(): NotificationHelper {
-        return NotificationHelper(this)
+        return NotificationHelper(this, sharedPreferences, KEY_TTS_VOICE)
     }
 
     override fun onDestroy() {
