@@ -2,6 +2,16 @@
 
 ## Version 1
 
+### 1.1.1 - 2026-03-07
+
+#### Fixes
+
+- **Localized TTS prompts:** Improved locale resolution for voice phrases so announcements like "Go", "Slow walk", "Fast walk", and "Workout complete" correctly use supported language resources on real devices.
+
+#### UI/UX Improvements
+
+- **Voice picker simplification:** The Voice setting now shows a concise, language-level list (one option per supported language) instead of a long raw voice list, while still using an installed device voice behind the scenes.
+
 ### 1.1.0 - 2026-03-07
 
 #### Features
