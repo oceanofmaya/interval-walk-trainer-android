@@ -2,7 +2,7 @@
   "platform": "android-play-store",
   "device": "phone",
   "manual_composition": true,
-  "last_updated": "2026-02-22",
+  "last_updated": "2026-03-07",
   "items": [
     {
       "position": 1,
@@ -63,11 +63,11 @@
       "position": 6,
       "source": "phone/settings-theme-accent-light.png",
       "promo": "promo/06-settings-theme-accent-light-promo.png",
-      "feature_message": "Personalize theme, accent, and which voice speaks your cues",
+      "feature_message": "Personalize theme, accent, and which language voice cues are spoken in",
       "caption": {
         "headline": "Make It Yours",
         "supporting_text": "Personalize your experience with theme, accent, and voice settings",
-        "callouts": ["System/Light/Dark\nBlue/Teal/Purple/Amber/Magenta", "Pick notification voice"]
+        "callouts": ["System/Light/Dark\nBlue/Teal/Purple/Amber/Magenta", "Pick notification language"]
       }
     },
     {
