@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for Danish (Denmark) -->
+    <string name="tts_slow_walk">Langsom gang</string>
+    <string name="tts_fast_walk">Hurtig gang</string>
+    <string name="tts_workout_complete">Træning afsluttet</string>
+    <string name="tts_voice_notifications_enabled">Stemmeunderretninger aktiveret</string>
+    <string name="go">Start</string>
+    <string name="voice_notifications_disabled">Stemmeunderretninger deaktiveret</string>
+</resources>

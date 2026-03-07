@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for Italian -->
+    <string name="tts_slow_walk">Camminata lenta</string>
+    <string name="tts_fast_walk">Camminata veloce</string>
+    <string name="tts_workout_complete">Allenamento completato</string>
+    <string name="tts_voice_notifications_enabled">Notifiche vocali attivate</string>
+    <string name="go">Via</string>
+    <string name="voice_notifications_disabled">Notifiche vocali disattivate</string>
+</resources>

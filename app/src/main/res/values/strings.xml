@@ -42,6 +42,11 @@
     <string name="starts_fast">Starts Fast</string>
     <string name="starts_slow">Starts Slow</string>
     <string name="voice_notifications_disabled">Voice notifications disabled</string>
+    <!-- TTS announcements: resolved in the selected voice's locale when available -->
+    <string name="tts_slow_walk">Slow walk</string>
+    <string name="tts_fast_walk">Fast walk</string>
+    <string name="tts_workout_complete">Workout complete</string>
+    <string name="tts_voice_notifications_enabled">Voice notifications enabled</string>
     <string name="formula_summary_format">%1$s  •  %2$dmin</string>
     <string name="custom_circuit_name_format">Custom Circuit: %1$s - %2$d Rounds</string>
     <string name="custom_circuit_name_format_singular">Custom Circuit: %1$s - 1 Round</string>
@@ -103,9 +108,16 @@
     <string name="accent_amber">Amber accent</string>
     <string name="accent_magenta">Magenta accent</string>
     <string name="workout_settings">Workout</string>
+    <string name="settings_group_sounds_haptics">Sounds &amp; haptics</string>
+    <string name="settings_group_during_workout">During Workout</string>
+    <string name="settings_group_history">History</string>
     <string name="countdown_seconds_format">%1$ds</string>
     <string name="save_workouts">Save Workouts</string>
     <string name="voice_notifications">Voice Notifications</string>
+    <string name="voice">Voice</string>
+    <string name="voice_default">Default</string>
+    <string name="voice_picker_title">Notification voice</string>
+    <string name="no_voices_available">No voices available</string>
     <string name="notifications">Notifications</string>
     <string name="keep_screen_awake">Keep Screen Awake</string>
     <string name="report_issue">Report Issue</string>
@@ -122,6 +134,10 @@
     <string name="faq_answer_why_interval_walking">Mixing easier and harder efforts can help improve fitness without feeling like you have to push the whole time. It’s also gentler on the joints than running for many people. Research suggests that when you burn similar energy, walking and running can offer comparable heart and metabolic benefits, so you’re not missing out by walking.</string>
     <string name="faq_question_notifications">How do notifications work in this app?</string>
     <string name="faq_answer_notifications">You’ll get a gentle vibration (and optional voice) when it’s time to switch phases. While a workout is running, we also show a small notification so Android keeps the session going in the background. That way you can switch apps or lock the phone and jump back in whenever you’re ready.</string>
+    <string name="faq_question_voice">Can I change the voice used for announcements?</string>
+    <string name="faq_answer_voice">Yes. In Settings under Workout, turn on Voice Notifications if needed, then tap \"Voice\" to pick from the voices available on your device. Choose \"Default\" to use the system default voice. Voice and language options depend on what your device’s TTS engine has installed and supports.</string>
+    <string name="faq_question_voice_languages">Which languages are supported for voice announcements?</string>
+    <string name="faq_answer_voice_languages">We support localized announcements for Arabic, Danish, Dutch, Filipino, French, German, Hindi, Indonesian, Italian, Japanese, Kannada, Korean, Malayalam, Polish, Portuguese (Brazil and Portugal), Russian, Simplified Chinese (China), Spanish, Swedish, Tagalog, Tamil, Telugu, Thai, Traditional Chinese (Hong Kong), Turkish, Urdu, and Vietnamese, with English as the default. These translations were AI-generated and may contain mistakes. Actual availability depends on your device’s TTS engine and installed voices.</string>
     <string name="faq_question_background">Can workouts run in the background?</string>
     <string name="faq_answer_background">Yes. On supported Android versions, your workout keeps going when you switch away or lock the phone. We use a small notification so the system doesn’t stop us. If you have an older device or strict battery saver on, excluding this app from battery optimization in system settings often helps everything run smoothly.</string>
     <string name="faq_question_choose_formula">How do I choose a formula?</string>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for Thai -->
+    <string name="tts_slow_walk">เดินช้า</string>
+    <string name="tts_fast_walk">เดินเร็ว</string>
+    <string name="tts_workout_complete">ออกกำลังกายเสร็จแล้ว</string>
+    <string name="tts_voice_notifications_enabled">เปิดการแจ้งเตือนด้วยเสียงแล้ว</string>
+    <string name="go">เริ่ม</string>
+    <string name="voice_notifications_disabled">ปิดการแจ้งเตือนด้วยเสียงแล้ว</string>
+</resources>

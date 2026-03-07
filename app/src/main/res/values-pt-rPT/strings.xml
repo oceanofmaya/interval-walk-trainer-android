@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for European Portuguese (Portugal) -->
+    <string name="tts_slow_walk">Marcha lenta</string>
+    <string name="tts_fast_walk">Marcha rápida</string>
+    <string name="tts_workout_complete">Treino concluído</string>
+    <string name="tts_voice_notifications_enabled">Notificações por voz ativadas</string>
+    <string name="go">Vai</string>
+    <string name="voice_notifications_disabled">Notificações por voz desativadas</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for Dutch -->
+    <string name="tts_slow_walk">Langzaam lopen</string>
+    <string name="tts_fast_walk">Snel lopen</string>
+    <string name="tts_workout_complete">Training voltooid</string>
+    <string name="tts_voice_notifications_enabled">Spraakmeldingen ingeschakeld</string>
+    <string name="go">Start</string>
+    <string name="voice_notifications_disabled">Spraakmeldingen uitgeschakeld</string>
+</resources>

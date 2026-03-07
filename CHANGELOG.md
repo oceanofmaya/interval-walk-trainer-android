@@ -2,6 +2,18 @@
 
 ## Version 1
 
+### 1.1.0 - 2026-03-07
+
+#### Features
+
+- **Voice picker:** You can choose which TTS voice is used for voice notifications. In Settings, tap "Voice" under Workout to pick from available device voices or use the default.
+- **TTS in your language:** Voice announcements (slow/fast walk, workout complete, etc.) are spoken in the selected voice’s language when a matching locale is available (e.g. Spanish, French, German, Hindi, Japanese, and many others).
+- Store screenshots and promo images updated.
+
+#### UI/UX Improvements
+
+- **Settings grouping:** Workout options are now grouped under "Sounds & haptics," "During Workout," and "History" for a clearer, less cluttered layout.
+
 ### 1.0.20 - 2026-03-04
 
 #### UI/UX Improvements

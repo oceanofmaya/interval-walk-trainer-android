@@ -61,6 +61,20 @@
         android:singleLine="true"
         android:ellipsize="none" />
 
+    <!-- Sounds & haptics -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/settings_group_sounds_haptics"
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="start|center_vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="2dp"
+        android:letterSpacing="0.05" />
+
     <FrameLayout
         android:id="@+id/vibrationRow"
         android:layout_width="match_parent"
@@ -140,6 +154,64 @@
             app:thumbTint="@color/switch_thumb_color"
             app:trackTint="@color/switch_track_color" />
     </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/voiceRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="52dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/voiceLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/voice"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            android:gravity="start|center_vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="80dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:minHeight="52dp"
+            android:clickable="false"
+            android:focusable="false"
+            app:icon="@drawable/ic_voice"
+            app:iconGravity="start"
+            app:iconTint="@color/text_secondary"
+            app:iconPadding="12dp"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@android:color/transparent"
+            app:strokeWidth="0dp"
+            style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+        <TextView
+            android:id="@+id/voiceValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="16dp"
+            android:text="@string/voice_default"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary" />
+    </FrameLayout>
+
+    <!-- During workout -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/settings_group_during_workout"
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="start|center_vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="2dp"
+        android:letterSpacing="0.05" />
 
     <FrameLayout
         android:id="@+id/notificationsRow"
@@ -305,6 +377,20 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone" />
+
+    <!-- History -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/settings_group_history"
+        android:textSize="12sp"
+        android:textColor="@color/text_secondary"
+        android:gravity="start|center_vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="2dp"
+        android:letterSpacing="0.05" />
 
     <!-- Save Workouts toggle row -->
     <FrameLayout

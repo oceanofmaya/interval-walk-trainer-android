@@ -63,11 +63,11 @@
       "position": 6,
       "source": "phone/settings-theme-accent-light.png",
       "promo": "promo/06-settings-theme-accent-light-promo.png",
-      "feature_message": "Personalize theme and accent styles for your preferred look",
+      "feature_message": "Personalize theme, accent, and which voice speaks your cues",
       "caption": {
         "headline": "Make It Yours",
-        "supporting_text": "Theme + Accent Customization",
-        "callouts": ["System/Light/Dark\nBlue/Teal/Purple/Amber/Magenta"]
+        "supporting_text": "Personalize your experience with theme, accent, and voice settings",
+        "callouts": ["System/Light/Dark\nBlue/Teal/Purple/Amber/Magenta", "Pick notification voice"]
       }
     },
     {

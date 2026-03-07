@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for Turkish (Turkey) -->
+    <string name="tts_slow_walk">Yavaş yürüyüş</string>
+    <string name="tts_fast_walk">Hızlı yürüyüş</string>
+    <string name="tts_workout_complete">Antrenman tamamlandı</string>
+    <string name="tts_voice_notifications_enabled">Ses bildirimleri açıldı</string>
+    <string name="go">Başla</string>
+    <string name="voice_notifications_disabled">Ses bildirimleri kapatıldı</string>
+</resources>

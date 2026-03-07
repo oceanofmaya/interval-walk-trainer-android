@@ -1,6 +1,7 @@
 package com.oceanofmaya.intervalwalktrainer
 
 import android.content.Context
+import android.content.SharedPreferences
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
@@ -51,19 +52,6 @@ class NotificationHelperTest {
     }
 
     @Test
-    fun `announceStart can be called for all phases`() {
-        val context = mock(Context::class.java)
-        val helper = NotificationHelper(context)
-        
-        // Should not throw for any phase
-        helper.announceStart(IntervalPhase.Slow)
-        helper.announceStart(IntervalPhase.Fast)
-        helper.announceStart(IntervalPhase.Completed)
-        
-        helper.release()
-    }
-
-    @Test
     fun `notifyPhaseChange can be called for all phases`() {
         val context = mock(Context::class.java)
         val helper = NotificationHelper(context)
@@ -107,6 +95,15 @@ class NotificationHelperTest {
         
         helper.testTts()
         
+        helper.release()
+    }
+
+    @Test
+    fun `constructor with prefs and voice key does not throw`() {
+        val context = mock(Context::class.java)
+        val prefs = mock(SharedPreferences::class.java)
+        val helper = NotificationHelper(context, prefs, "tts_voice")
+        assertFalse(helper.isTtsReady())
         helper.release()
     }
 }

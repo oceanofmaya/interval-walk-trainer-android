@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for Indonesian (Indonesia) -->
+    <string name="tts_slow_walk">Jalan pelan</string>
+    <string name="tts_fast_walk">Jalan cepat</string>
+    <string name="tts_workout_complete">Latihan selesai</string>
+    <string name="tts_voice_notifications_enabled">Notifikasi suara diaktifkan</string>
+    <string name="go">Mulai</string>
+    <string name="voice_notifications_disabled">Notifikasi suara dinonaktifkan</string>
+</resources>

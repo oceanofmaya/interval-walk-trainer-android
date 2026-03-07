@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TTS announcements for Urdu (Pakistan) -->
+    <string name="tts_slow_walk">آہستہ چلنا</string>
+    <string name="tts_fast_walk">تیز چلنا</string>
+    <string name="tts_workout_complete">ورزش مکمل</string>
+    <string name="tts_voice_notifications_enabled">آواز کی اطلاعیں آن ہیں</string>
+    <string name="go">شروع کریں</string>
+    <string name="voice_notifications_disabled">آواز کی اطلاعیں بند ہیں</string>
+</resources>
