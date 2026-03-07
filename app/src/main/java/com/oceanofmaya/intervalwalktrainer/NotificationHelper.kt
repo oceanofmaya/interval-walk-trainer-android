@@ -11,7 +11,6 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.speech.tts.Voice
 import android.util.Log
 import androidx.annotation.StringRes
 import java.util.Locale
@@ -32,11 +31,13 @@ import android.media.AudioAttributes
  * @param context Android context for accessing system services
  * @param sharedPreferences Optional preferences to read preferred TTS voice (KEY_TTS_VOICE); null to use engine default
  * @param ttsVoicePreferenceKey Key for the preferred voice name; ignored if sharedPreferences is null
+ * @param ttsVoiceLocalePreferenceKey Key for the preferred voice locale tag; ignored if sharedPreferences is null
  */
 open class NotificationHelper(
     private val context: Context,
     private val sharedPreferences: SharedPreferences? = null,
     private val ttsVoicePreferenceKey: String? = null,
+    private val ttsVoiceLocalePreferenceKey: String? = null,
 ) {
     private val vibrator: Vibrator? by lazy {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
@@ -56,6 +57,37 @@ open class NotificationHelper(
     
     companion object {
         private const val TAG = "NotificationHelper"
+        private val SUPPORTED_TTS_LOCALE_TAGS = setOf(
+            "ar",
+            "da",
+            "de",
+            "en",
+            "es",
+            "fil",
+            "fr",
+            "hi",
+            "id",
+            "it",
+            "ja",
+            "kn",
+            "ko",
+            "ml",
+            "nl",
+            "pl",
+            "pt",
+            "pt-PT",
+            "ru",
+            "sv",
+            "ta",
+            "te",
+            "th",
+            "tl",
+            "tr",
+            "ur",
+            "vi",
+            "zh-CN",
+            "zh-HK"
+        )
     }
 
     /**
@@ -78,6 +110,59 @@ open class NotificationHelper(
         } else {
             Log.w(TAG, "Preferred voice not found: $voiceName")
         }
+    }
+
+    private fun preferredVoiceLocaleFromPrefs(): Locale? {
+        val tag = if (sharedPreferences == null || ttsVoiceLocalePreferenceKey == null) {
+            ""
+        } else {
+            sharedPreferences.getString(ttsVoiceLocalePreferenceKey, null).orEmpty()
+        }
+        return tag.takeIf { it.isNotBlank() }?.let(Locale::forLanguageTag)
+    }
+
+    internal fun normalizeLocaleToSupported(locale: Locale): Locale? {
+        val language = locale.language.lowercase(Locale.ROOT)
+        val supportedTag = if (language.isBlank()) {
+            null
+        } else {
+            val country = locale.country.uppercase(Locale.ROOT)
+            val candidates = mutableListOf<String>()
+
+            if (country.isNotBlank()) {
+                // Normalize script/country-specific variants to locales we actually ship.
+                when {
+                    language == "pt" && country == "PT" -> candidates.add("pt-PT")
+                    language == "zh" && country == "HK" -> candidates.add("zh-HK")
+                    language == "zh" && country == "CN" -> candidates.add("zh-CN")
+                    else -> candidates.add("$language-$country")
+                }
+            }
+            candidates.add(language)
+            candidates.firstOrNull { tag ->
+                SUPPORTED_TTS_LOCALE_TAGS.contains(tag)
+            }
+        }
+        return supportedTag?.let(Locale::forLanguageTag)
+    }
+
+    internal fun resolveSpeechLocale(activeVoiceLocale: Locale?): Locale {
+        val candidates = listOf(
+            preferredVoiceLocaleFromPrefs(),
+            activeVoiceLocale,
+            Locale.getDefault(),
+            Locale.ENGLISH
+        )
+
+        candidates.forEach { candidate ->
+            if (candidate != null) {
+                val normalized = normalizeLocaleToSupported(candidate)
+                if (normalized != null) {
+                    return normalized
+                }
+            }
+        }
+        return Locale.ENGLISH
     }
 
     /**
@@ -121,7 +206,7 @@ open class NotificationHelper(
             Log.e(TAG, "speakStringRes: could not resolve string $id", e)
             return
         }
-        val locale = textToSpeech?.voice?.locale ?: Locale.getDefault()
+        val locale = resolveSpeechLocale(textToSpeech?.voice?.locale)
         val text = getStringForLocale(locale, id).takeIf { it.isNotBlank() } ?: defaultText
         speak(text)
     }

@@ -60,10 +60,10 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - Progress tracking: current interval and total intervals
 - Visual progress bar showing overall workout completion
 - Elapsed and remaining time displays for clear progress feedback
-- Icon buttons for Workout History and Settings; overflow menu (⋮) for Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional voice picker for notification TTS
+- Icon buttons for Workout History and Settings; overflow menu (⋮) for Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional language-based picker for notification TTS
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
-- **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, countdown, and workout saving; pick the TTS voice for notifications; links to FAQ (Help), Privacy Policy, and Terms of Service
-- **TTS languages:** Voice announcements (e.g. “Slow walk”, “Fast walk”, “Workout complete”) are spoken in the selected voice’s language when supported. Supported locales:
+- **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
+- **TTS languages:** Voice announcements (e.g. “Slow walk”, “Fast walk”, “Workout complete”) are spoken in the selected notification language when supported. Supported locales:
   - Arabic, Danish, Dutch, Filipino, French, German, Hindi, Indonesian, Italian, Japanese, Kannada, Korean, Malayalam, Polish, Portuguese (Brazil and Portugal), Russian, Simplified Chinese (China), Spanish, Swedish, Tagalog, Tamil, Telugu, Thai, Traditional Chinese (Hong Kong), Turkish, Urdu, Vietnamese
   - English is the default. Translations were AI-generated and may contain mistakes. Availability depends on installed voices and your device's TTS engine support.
 - **Workout statistics and history**

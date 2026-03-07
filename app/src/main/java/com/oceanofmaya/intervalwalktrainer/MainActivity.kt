@@ -124,6 +124,7 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_VIBRATION_ENABLED = "vibration_enabled"
         private const val KEY_VOICE_ENABLED = "voice_enabled"
         private const val KEY_TTS_VOICE = "tts_voice"
+        private const val KEY_TTS_VOICE_LOCALE = "tts_voice_locale"
         private const val KEY_TTS_VOICE_DISPLAY = "tts_voice_display"
         private const val KEY_SAVE_WORKOUTS = "save_workouts"
         private const val KEY_KEEP_SCREEN_AWAKE = "keep_screen_awake"
@@ -161,6 +162,37 @@ open class MainActivity : AppCompatActivity() {
         private const val ACCENT_MAGENTA = "magenta"
         private const val REQUEST_CODE_ACTIVITY_RECOGNITION = 1001
         private const val REQUEST_CODE_POST_NOTIFICATIONS = 1002
+        private val SUPPORTED_TTS_LOCALE_TAGS = setOf(
+            "ar",
+            "da",
+            "de",
+            "en",
+            "es",
+            "fil",
+            "fr",
+            "hi",
+            "id",
+            "it",
+            "ja",
+            "kn",
+            "ko",
+            "ml",
+            "nl",
+            "pl",
+            "pt",
+            "pt-PT",
+            "ru",
+            "sv",
+            "ta",
+            "te",
+            "th",
+            "tl",
+            "tr",
+            "ur",
+            "vi",
+            "zh-CN",
+            "zh-HK"
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -1778,25 +1810,61 @@ open class MainActivity : AppCompatActivity() {
     }
     
     private fun getTtsVoiceDisplayLabel(): String {
+        val localeTag = sharedPreferences.getString(KEY_TTS_VOICE_LOCALE, null).orEmpty()
         val name = sharedPreferences.getString(KEY_TTS_VOICE, null).orEmpty()
-        if (name.isEmpty()) return getString(R.string.voice_default)
-        return sharedPreferences.getString(KEY_TTS_VOICE_DISPLAY, null)?.takeIf { it.isNotBlank() } ?: name
+        val display = sharedPreferences.getString(KEY_TTS_VOICE_DISPLAY, null).orEmpty()
+        return when {
+            name.isEmpty() && localeTag.isEmpty() -> getString(R.string.voice_default)
+            display.isNotBlank() -> display
+            localeTag.isNotBlank() -> Locale.forLanguageTag(localeTag).getDisplayName()
+            else -> name
+        }
     }
 
-    /**
-     * Builds user-friendly display labels for TTS voices using locale (e.g. "English (United States)").
-     * When multiple voices share the same locale, appends (2), (3), etc. to distinguish them.
-     */
-    private fun voiceDisplayLabels(voices: List<Voice>): List<String> {
-        val localeTotals = voices.groupingBy { it.locale.getDisplayName() }.eachCount()
-        val localeIndices = mutableMapOf<String, Int>()
-        return voices.map { voice ->
-            val localeLabel = voice.locale.getDisplayName()
-            val index = (localeIndices[localeLabel] ?: 0) + 1
-            localeIndices[localeLabel] = index
-            val total = localeTotals[localeLabel] ?: 1
-            if (total > 1) "$localeLabel ($index)" else localeLabel
+    private data class VoiceLanguageOption(
+        val localeTag: String,
+        val displayName: String,
+        val voiceName: String
+    )
+
+    private fun normalizeToSupportedLocaleTag(locale: Locale): String? {
+        val language = locale.language.lowercase(Locale.ROOT)
+        if (language.isBlank()) return null
+        val country = locale.country.uppercase(Locale.ROOT)
+        val candidates = mutableListOf<String>()
+        if (country.isNotBlank()) {
+            when {
+                language == "pt" && country == "PT" -> candidates.add("pt-PT")
+                language == "zh" && country == "HK" -> candidates.add("zh-HK")
+                language == "zh" && country == "CN" -> candidates.add("zh-CN")
+                else -> candidates.add("$language-$country")
+            }
         }
+        candidates.add(language)
+        return candidates.firstOrNull { tag -> SUPPORTED_TTS_LOCALE_TAGS.contains(tag) }
+    }
+
+    private fun buildVoiceLanguageOptions(voices: List<Voice>): List<VoiceLanguageOption> {
+        val sortedVoices = voices.sortedWith(
+            compareBy<Voice>(
+                { it.locale.getDisplayName() },
+                { it.name.lowercase(Locale.ROOT) }
+            )
+        )
+
+        val options = linkedMapOf<String, VoiceLanguageOption>()
+        sortedVoices.forEach { voice ->
+            val localeTag = normalizeToSupportedLocaleTag(voice.locale) ?: return@forEach
+            if (!options.containsKey(localeTag)) {
+                options[localeTag] = VoiceLanguageOption(
+                    localeTag = localeTag,
+                    displayName = Locale.forLanguageTag(localeTag).getDisplayName(),
+                    voiceName = voice.name
+                )
+            }
+        }
+
+        return options.values.sortedBy { it.displayName.lowercase(Locale.ROOT) }
     }
 
     private fun showVoicePickerDialog(voiceValueView: android.widget.TextView) {
@@ -1810,27 +1878,37 @@ open class MainActivity : AppCompatActivity() {
                     return@runOnUiThread
                 }
                 val tts = tempTts ?: return@runOnUiThread
-                val voices = (tts.voices?.toList() ?: emptyList())
-                    .sortedWith(
-                        compareBy<Voice>({ it.locale.getDisplayName() }, { it.name.lowercase(Locale.ROOT) })
-                    )
-                if (voices.isEmpty()) {
+                val voices = tts.voices?.toList() ?: emptyList()
+                val voiceOptions = buildVoiceLanguageOptions(voices)
+                if (voiceOptions.isEmpty()) {
                     tts.shutdown()
                     val msg = getString(R.string.no_voices_available)
                     android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
                     return@runOnUiThread
                 }
-                val displayNames = listOf(getString(R.string.voice_default)) + voiceDisplayLabels(voices)
-                val voiceNames = listOf("") + voices.map { it.name }
+                val displayNames = listOf(getString(R.string.voice_default)) + voiceOptions.map { it.displayName }
+                val voiceNames = listOf("") + voiceOptions.map { it.voiceName }
+                val voiceLocaleTags = listOf("") + voiceOptions.map { it.localeTag }
                 val currentName = sharedPreferences.getString(KEY_TTS_VOICE, null).orEmpty()
-                val selectedIndex = voiceNames.indexOf(currentName).takeIf { it >= 0 } ?: 0
+                val currentLocaleTag = sharedPreferences.getString(KEY_TTS_VOICE_LOCALE, null).orEmpty()
+                var selectedIndex = if (currentLocaleTag.isNotBlank()) {
+                    voiceLocaleTags.indexOf(currentLocaleTag)
+                } else {
+                    -1
+                }
+                if (selectedIndex < 0 && currentName.isNotBlank()) {
+                    selectedIndex = voiceNames.indexOf(currentName)
+                }
+                if (selectedIndex < 0) selectedIndex = 0
                 androidx.appcompat.app.AlertDialog.Builder(this)
                     .setTitle(R.string.voice_picker_title)
                     .setSingleChoiceItems(displayNames.toTypedArray(), selectedIndex) { dialog, which ->
                         val name = voiceNames[which]
+                        val localeTag = voiceLocaleTags[which]
                         val displayName = displayNames[which]
                         sharedPreferences.edit {
                             putString(KEY_TTS_VOICE, name)
+                            putString(KEY_TTS_VOICE_LOCALE, localeTag)
                             putString(KEY_TTS_VOICE_DISPLAY, if (name.isEmpty()) "" else displayName)
                         }
                         voiceValueView.text = getTtsVoiceDisplayLabel()
@@ -2158,7 +2236,7 @@ open class MainActivity : AppCompatActivity() {
      * Factory method for creating NotificationHelper. Can be overridden in tests.
      */
     protected open fun createNotificationHelper(): NotificationHelper {
-        return NotificationHelper(this, sharedPreferences, KEY_TTS_VOICE)
+        return NotificationHelper(this, sharedPreferences, KEY_TTS_VOICE, KEY_TTS_VOICE_LOCALE)
     }
 
     override fun onDestroy() {
