@@ -5,6 +5,6 @@
     <string name="tts_fast_walk">Schnelles Gehen</string>
     <string name="tts_workout_complete">Training beendet</string>
     <string name="tts_voice_notifications_enabled">Sprachbenachrichtigungen aktiviert</string>
-    <string name="go">Los</string>
+    <string name="go">Start</string>
     <string name="voice_notifications_disabled">Sprachbenachrichtigungen deaktiviert</string>
 </resources>

@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.1.4 - 2026-03-07
+
+#### UI/UX Improvements
+
+- **Countdown cue copy:** Updated the pre-start cue from a "Go" style to an informal "Start" style across supported locales for a clearer "3, 2, 1, Start" experience in both on-screen text and TTS.
+
 ### 1.1.3 - 2026-03-07
 
 #### Chore
