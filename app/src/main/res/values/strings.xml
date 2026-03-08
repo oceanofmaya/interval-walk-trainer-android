@@ -108,7 +108,7 @@
     <string name="accent_amber">Amber accent</string>
     <string name="accent_magenta">Magenta accent</string>
     <string name="workout_settings">Workout</string>
-    <string name="settings_group_sounds_haptics">Sounds &amp; haptics</string>
+    <string name="settings_group_sounds_haptics">Sounds &amp; Haptics</string>
     <string name="settings_group_during_workout">During Workout</string>
     <string name="settings_group_history">History</string>
     <string name="countdown_seconds_format">%1$ds</string>
@@ -127,6 +127,7 @@
     <string name="disable_save_workouts_message">New workouts will not be saved to history while this is off.</string>
     <string name="turn_off">Turn Off</string>
     <string name="keep_on">Keep On</string>
+    <string name="apply">Apply</string>
     <string name="go">Start</string>
     <string name="faq_question_interval_walking">What is interval walking?</string>
     <string name="faq_answer_interval_walking">Interval walking simply means alternating between slower and faster walking for set amounts of time. It gives your walk a bit of structure and keeps things interesting. You don’t need to sprint; just pick up the pace when it’s “fast” and ease off when it’s “slow.” We’ll guide you through each phase so you can focus on the walk.</string>

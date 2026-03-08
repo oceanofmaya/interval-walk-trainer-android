@@ -1900,34 +1900,98 @@ open class MainActivity : AppCompatActivity() {
                     selectedIndex = voiceNames.indexOf(currentName)
                 }
                 if (selectedIndex < 0) selectedIndex = 0
-                androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle(R.string.voice_picker_title)
-                    .setSingleChoiceItems(displayNames.toTypedArray(), selectedIndex) { dialog, which ->
-                        val name = voiceNames[which]
-                        val localeTag = voiceLocaleTags[which]
-                        val displayName = displayNames[which]
-                        sharedPreferences.edit {
-                            putString(KEY_TTS_VOICE, name)
-                            putString(KEY_TTS_VOICE_LOCALE, localeTag)
-                            putString(KEY_TTS_VOICE_DISPLAY, if (name.isEmpty()) "" else displayName)
-                        }
-                        voiceValueView.text = getTtsVoiceDisplayLabel()
-                        notificationHelper?.release()
-                        notificationHelper = null
-                        tempTts?.shutdown()
-                        tempTts = null
-                        dialog.dismiss()
-                        if (sharedPreferences.getBoolean(KEY_VOICE_ENABLED, true)) {
-                            notificationHelper = createNotificationHelper()
-                            notificationHelper?.testTts()
-                        }
-                    }
-                    .setOnCancelListener {
-                        tempTts?.shutdown()
-                        tempTts = null
-                    }
-                    .show()
+                showVoicePickerBottomSheet(
+                    voiceValueView = voiceValueView,
+                    displayNames = displayNames,
+                    voiceNames = voiceNames,
+                    voiceLocaleTags = voiceLocaleTags,
+                    selectedIndex = selectedIndex,
+                    tempTts = tts
+                )
             }
+        }
+    }
+
+    private fun showVoicePickerBottomSheet(
+        voiceValueView: android.widget.TextView,
+        displayNames: List<String>,
+        voiceNames: List<String>,
+        voiceLocaleTags: List<String>,
+        selectedIndex: Int,
+        tempTts: TextToSpeech
+    ) {
+        var pendingSelectionIndex = selectedIndex
+        val bottomSheetDialog = BottomSheetDialog(this)
+        val contentView = LayoutInflater.from(this).inflate(
+            R.layout.bottom_sheet_voice_picker,
+            android.widget.FrameLayout(this),
+            false
+        )
+        bottomSheetDialog.setContentView(contentView)
+        configureVoicePickerBottomSheet(bottomSheetDialog)
+
+        val voicePickerList = contentView.findViewById<android.widget.ListView>(R.id.voicePickerList)
+        val cancelButton = contentView.findViewById<com.google.android.material.button.MaterialButton>(
+            R.id.cancelVoiceSelectionButton
+        )
+        val applyButton = contentView.findViewById<com.google.android.material.button.MaterialButton>(
+            R.id.applyVoiceSelectionButton
+        )
+
+        val adapter = android.widget.ArrayAdapter(
+            this,
+            android.R.layout.simple_list_item_single_choice,
+            displayNames
+        )
+        voicePickerList.adapter = adapter
+        voicePickerList.choiceMode = android.widget.ListView.CHOICE_MODE_SINGLE
+        voicePickerList.setItemChecked(selectedIndex, true)
+        voicePickerList.setOnItemClickListener { _, _, which, _ ->
+            pendingSelectionIndex = which
+        }
+
+        cancelButton.setOnClickListener { bottomSheetDialog.dismiss() }
+        applyButton.setOnClickListener {
+            applyVoicePickerSelection(
+                voiceValueView = voiceValueView,
+                name = voiceNames[pendingSelectionIndex],
+                localeTag = voiceLocaleTags[pendingSelectionIndex],
+                displayName = displayNames[pendingSelectionIndex]
+            )
+            bottomSheetDialog.dismiss()
+        }
+
+        bottomSheetDialog.setOnDismissListener {
+            tempTts.shutdown()
+        }
+        bottomSheetDialog.show()
+    }
+
+    private fun configureVoicePickerBottomSheet(dialog: BottomSheetDialog) {
+        val behavior = dialog.behavior
+        behavior.isFitToContents = true
+        behavior.isDraggable = true
+        behavior.skipCollapsed = true
+        behavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    private fun applyVoicePickerSelection(
+        voiceValueView: android.widget.TextView,
+        name: String,
+        localeTag: String,
+        displayName: String
+    ) {
+        sharedPreferences.edit {
+            putString(KEY_TTS_VOICE, name)
+            putString(KEY_TTS_VOICE_LOCALE, localeTag)
+            putString(KEY_TTS_VOICE_DISPLAY, if (name.isEmpty()) "" else displayName)
+        }
+        voiceValueView.text = getTtsVoiceDisplayLabel()
+        notificationHelper?.release()
+        notificationHelper = null
+        if (sharedPreferences.getBoolean(KEY_VOICE_ENABLED, true)) {
+            notificationHelper = createNotificationHelper()
+            notificationHelper?.testTts()
         }
     }
 
