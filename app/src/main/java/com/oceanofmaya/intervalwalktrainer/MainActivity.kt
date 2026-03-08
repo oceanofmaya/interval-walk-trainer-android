@@ -1928,7 +1928,7 @@ open class MainActivity : AppCompatActivity() {
             false
         )
         bottomSheetDialog.setContentView(contentView)
-        configureVoicePickerBottomSheet(bottomSheetDialog)
+        configureVoicePickerBottomSheet(bottomSheetDialog, contentView)
 
         val voicePickerList = contentView.findViewById<android.widget.ListView>(R.id.voicePickerList)
         val cancelButton = contentView.findViewById<com.google.android.material.button.MaterialButton>(
@@ -1967,12 +1967,13 @@ open class MainActivity : AppCompatActivity() {
         bottomSheetDialog.show()
     }
 
-    private fun configureVoicePickerBottomSheet(dialog: BottomSheetDialog) {
+    private fun configureVoicePickerBottomSheet(dialog: BottomSheetDialog, contentView: View) {
         val behavior = dialog.behavior
         behavior.isFitToContents = true
-        behavior.isDraggable = true
+        behavior.isDraggable = false
         behavior.skipCollapsed = true
         behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        contentView.findViewById<View>(R.id.voice_picker_drag_handle)?.visibility = View.GONE
     }
 
     private fun applyVoicePickerSelection(

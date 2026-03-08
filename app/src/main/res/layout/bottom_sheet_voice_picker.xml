@@ -7,6 +7,7 @@
     android:paddingTop="6dp">
 
     <View
+        android:id="@+id/voice_picker_drag_handle"
         android:layout_width="36dp"
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"

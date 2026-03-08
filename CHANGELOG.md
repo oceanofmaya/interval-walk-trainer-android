@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.1.7 - 2026-03-07
+
+#### UI/UX Improvements
+
+- **Voice picker bottom sheet:** Disabled dragging so scrolling the language list no longer collapses the sheet; dismiss via Apply or Cancel.
+
 ### 1.1.6 - 2026-03-07
 
 #### UI/UX Improvements
