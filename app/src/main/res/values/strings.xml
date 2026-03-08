@@ -114,7 +114,7 @@
     <string name="countdown_seconds_format">%1$ds</string>
     <string name="save_workouts">Save Workouts</string>
     <string name="voice_notifications">Voice Notifications</string>
-    <string name="voice">Voice</string>
+    <string name="voice">Language</string>
     <string name="voice_default">Default</string>
     <string name="voice_picker_title">Notification language</string>
     <string name="no_voices_available">No supported voices available</string>
@@ -135,8 +135,8 @@
     <string name="faq_answer_why_interval_walking">Mixing easier and harder efforts can help improve fitness without feeling like you have to push the whole time. It’s also gentler on the joints than running for many people. Research suggests that when you burn similar energy, walking and running can offer comparable heart and metabolic benefits, so you’re not missing out by walking.</string>
     <string name="faq_question_notifications">How do notifications work in this app?</string>
     <string name="faq_answer_notifications">You’ll get a gentle vibration (and optional voice) when it’s time to switch phases. While a workout is running, we also show a small notification so Android keeps the session going in the background. That way you can switch apps or lock the phone and jump back in whenever you’re ready.</string>
-    <string name="faq_question_voice">Can I change the voice used for announcements?</string>
-    <string name="faq_answer_voice">Yes. In Settings under Workout, turn on Voice Notifications if needed, then tap \"Voice\" to pick a language from supported options. Choose \"Default\" to use the system default voice. Availability depends on your device’s TTS engine and installed voices for each language.</string>
+    <string name="faq_question_voice">Can I change the voice or language used for announcements?</string>
+    <string name="faq_answer_voice">Yes. In Settings under Workout, turn on Voice Notifications if needed, then tap \"Language\" to pick a language from supported options. Choose \"Default\" to use the system default voice. Availability depends on your device’s TTS engine and installed voices for each language.</string>
     <string name="faq_question_voice_languages">Which languages are supported for voice announcements?</string>
     <string name="faq_answer_voice_languages">We support localized announcements for Arabic, Danish, Dutch, Filipino, French, German, Hindi, Indonesian, Italian, Japanese, Kannada, Korean, Malayalam, Polish, Portuguese (Brazil and Portugal), Russian, Simplified Chinese (China), Spanish, Swedish, Tagalog, Tamil, Telugu, Thai, Traditional Chinese (Hong Kong), Turkish, Urdu, and Vietnamese, with English as the default. These translations were AI-generated and may contain mistakes. Actual availability depends on your device’s TTS engine and installed voices.</string>
     <string name="faq_question_background">Can workouts run in the background?</string>
