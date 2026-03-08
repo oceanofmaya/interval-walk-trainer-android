@@ -2,6 +2,14 @@
 
 ## Version 1
 
+### 1.1.8 - 2026-03-08
+
+#### UI/UX Improvements
+
+- **Settings labels:** Renamed the voice language picker label from "Voice" to "Language" so it’s clear you’re choosing the language for spoken announcements.
+- **Keep Screen Awake icon:** Replaced the timer icon with a sun (light mode) icon to better convey “keep screen on / awake”.
+- Store screenshots and promo images updated.
+
 ### 1.1.7 - 2026-03-07
 
 #### UI/UX Improvements

@@ -274,7 +274,7 @@
             android:minHeight="52dp"
             android:clickable="false"
             android:focusable="false"
-            app:icon="@drawable/ic_timer"
+            app:icon="@drawable/ic_screen_awake"
             app:iconGravity="start"
             app:iconTint="@color/text_secondary"
             app:iconPadding="12dp"
