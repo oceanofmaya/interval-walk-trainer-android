@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.1.6 - 2026-03-07
+
+#### UI/UX Improvements
+
+- **Settings label polish:** Updated "Sounds & haptics" to "Sounds & Haptics" for consistent title casing.
+- **Voice picker flow:** Replaced the voice picker with a bottom sheet that has a single-choice list and sticky Apply/Cancel actions, opens expanded so actions are immediately visible, and lets users dismiss without applying a selection.
+
 ### 1.1.5 - 2026-03-07
 
 #### UI/UX Improvements
