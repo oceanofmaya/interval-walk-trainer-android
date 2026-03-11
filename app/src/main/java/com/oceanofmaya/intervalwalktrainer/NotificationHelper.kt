@@ -14,8 +14,12 @@ import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import androidx.annotation.StringRes
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.atomic.AtomicReference
 
 import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 
 /**
  * Handles notification mechanisms for phase changes: vibration patterns and text-to-speech.
@@ -49,6 +53,42 @@ open class NotificationHelper(
         }
     }
 
+    private val audioManager: AudioManager? by lazy {
+        context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+    }
+
+    /**
+     * TTS AudioAttributes used for both TTS and (on API 26+) audio focus request.
+     * Null in environments where Builder fails (e.g. unit tests).
+     */
+    private val ttsAudioAttributes: AudioAttributes? by lazy {
+        try {
+            AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .build()
+        } catch (e: Exception) {
+            Log.w(TAG, "Could not build TTS AudioAttributes", e)
+            null
+        }
+    }
+
+    /**
+     * Current audio focus request (API 26+) or listener (API 24–25).
+     * Abandoned when utterance completes. Atomic to avoid races.
+     */
+    private val currentAudioFocusRequest = AtomicReference<Any?>(null)
+
+    /**
+     * Utterance id for which we currently hold audio focus.
+     * Only abandon when this utterance completes to avoid stale callback races.
+     */
+    private val currentUtteranceIdForFocus = AtomicReference<String?>(null)
+    private val utteranceIdCounter = AtomicLong(0L)
+
+    /** Listener used for request/abandon on API 24–25. */
+    private val legacyAudioFocusListener = android.media.AudioManager.OnAudioFocusChangeListener { }
+
     private var textToSpeech: TextToSpeech? = null
     private var isTtsReady = false
     private var isInitializing = false
@@ -57,6 +97,7 @@ open class NotificationHelper(
     
     companion object {
         private const val TAG = "NotificationHelper"
+        private const val SLOW_PHASE_VIBRATION_AMPLITUDE = 140
         private val SUPPORTED_TTS_LOCALE_TAGS = setOf(
             "ar",
             "da",
@@ -166,6 +207,78 @@ open class NotificationHelper(
     }
 
     /**
+     * Requests transient audio focus so other apps (music, podcasts) pause while we speak.
+     * Call before TTS speak; abandon in utterance onDone/onError.
+     * On API 26+ requires ttsAudioAttributes; on API 24-25 uses legacy API and does not.
+     * @return true if focus was granted; we still speak when denied so the user hears the announcement.
+     */
+    private fun requestAudioFocusForTts(): Boolean {
+        val am = audioManager
+        if (am == null) {
+            return false
+        }
+        val isGranted = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val attrs = ttsAudioAttributes
+            if (attrs == null) {
+                false
+            } else {
+                val request = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                    .setAudioAttributes(attrs)
+                    .build()
+                val granted = am.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+                if (granted) {
+                    currentAudioFocusRequest.set(request)
+                }
+                granted
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            val granted = am.requestAudioFocus(
+                legacyAudioFocusListener,
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT
+            ) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            if (granted) {
+                currentAudioFocusRequest.set(legacyAudioFocusListener)
+            }
+            granted
+        }
+        return isGranted
+    }
+
+    /**
+     * Abandons audio focus when the current utterance finishes so media can resume.
+     */
+    private fun abandonAudioFocusIfHeld() {
+        val request = currentAudioFocusRequest.getAndSet(null) ?: return
+        val am = audioManager ?: return
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val focusRequest = request as? AudioFocusRequest
+            if (focusRequest != null) {
+                am.abandonAudioFocusRequest(focusRequest)
+            } else {
+                Log.w(
+                    TAG,
+                    "abandonAudioFocusIfHeld: expected AudioFocusRequest, got " +
+                        "${request::class.java.name}; focus may not have been abandoned"
+                )
+            }
+        } else {
+            val listener = request as? android.media.AudioManager.OnAudioFocusChangeListener
+            if (listener != null) {
+                @Suppress("DEPRECATION")
+                am.abandonAudioFocus(listener)
+            } else {
+                Log.w(
+                    TAG,
+                    "abandonAudioFocusIfHeld: expected OnAudioFocusChangeListener, got " +
+                        "${request::class.java.name}; focus may not have been abandoned"
+                )
+            }
+        }
+    }
+
+    /**
      * Returns the string for the given resource ID in the given locale.
      *
      * Uses applicationContext to avoid AppCompat resource-wrapping in AppCompatActivity,
@@ -263,14 +376,10 @@ open class NotificationHelper(
                             // Set AudioAttributes for spoken guidance during workouts
                             // USAGE_ASSISTANCE_NAVIGATION_GUIDANCE ensures announcements are heard
                             // similar to navigation apps giving turn-by-turn directions
-                            val attributes = AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                                .build()
-                            tts.setAudioAttributes(attributes)
+                            ttsAudioAttributes?.let { tts.setAudioAttributes(it) }
                             applyPreferredVoice(tts)
                             
-                            // Set up listener for debugging
+                            // Set up listener for debugging and to abandon audio focus when done
                             tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                                 override fun onStart(utteranceId: String?) {
                                     Log.d(TAG, "TTS started: $utteranceId")
@@ -278,6 +387,10 @@ open class NotificationHelper(
                                 
                                 override fun onDone(utteranceId: String?) {
                                     Log.d(TAG, "TTS completed: $utteranceId")
+                                    if (utteranceId != null && utteranceId == currentUtteranceIdForFocus.get()) {
+                                        abandonAudioFocusIfHeld()
+                                        currentUtteranceIdForFocus.set(null)
+                                    }
                                 }
                                 
                                 // Required by base class - delegates to new API
@@ -289,6 +402,10 @@ open class NotificationHelper(
                                 
                                 override fun onError(utteranceId: String?, errorCode: Int) {
                                     Log.e(TAG, "TTS error: $utteranceId, errorCode: $errorCode")
+                                    if (utteranceId != null && utteranceId == currentUtteranceIdForFocus.get()) {
+                                        abandonAudioFocusIfHeld()
+                                        currentUtteranceIdForFocus.set(null)
+                                    }
                                 }
                             })
                             
@@ -395,8 +512,8 @@ open class NotificationHelper(
             is IntervalPhase.Slow -> {
                 // Gentle single vibration for slow phase
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    // Use moderate amplitude (about 30% of max 255)
-                    vibrate(150, 75)
+                    // Use moderate amplitude (about 55% of max 255) so it's clearly felt
+                    vibrate(150, SLOW_PHASE_VIBRATION_AMPLITUDE)
                 } else {
                     @Suppress("DEPRECATION")
                     vibrate(150)
@@ -406,8 +523,8 @@ open class NotificationHelper(
                 // Strong double-pulse vibration for fast phase
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                     val pattern = longArrayOf(0, 200, 100, 200)
-                    // Use strong amplitude (about 80% of max 255)
-                    val strongAmp = 200
+                    // Use full amplitude so the fast-phase cue is clearly felt
+                    val strongAmp = 255
                     val amplitudes = intArrayOf(0, strongAmp, 0, strongAmp)
                     vibrator?.vibrate(VibrationEffect.createWaveform(pattern, amplitudes, -1))
                 } else {
@@ -460,11 +577,21 @@ open class NotificationHelper(
     private fun speakNow(text: String) {
         try {
             textToSpeech?.let { tts ->
-                // Stop any ongoing speech for immediate response
+                // Prepare and publish the new utterance id first so late callbacks from an older
+                // utterance cannot match and accidentally abandon this utterance's focus.
+                val utteranceId = "phase_change_${utteranceIdCounter.incrementAndGet()}"
+                currentUtteranceIdForFocus.set(utteranceId)
+
+                // Stop any ongoing speech for immediate response. Some engines may report a late
+                // callback for the interrupted utterance; the id check in the listener handles that.
                 tts.stop()
-                
+
+                // Reset and request focus for the new utterance after stopping the previous one.
+                abandonAudioFocusIfHeld()
+                requestAudioFocusForTts()
+                // Speak even if focus was not granted so the user still hears the announcement.
+
                 // Use the modern API with Bundle instead of deprecated HashMap
-                val utteranceId = "phase_change_${System.currentTimeMillis()}"
                 val params = Bundle().apply {
                     putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
                 }
@@ -474,6 +601,8 @@ open class NotificationHelper(
                 
                 if (result == TextToSpeech.ERROR) {
                     Log.e(TAG, "TTS speak() returned ERROR")
+                    abandonAudioFocusIfHeld()
+                    currentUtteranceIdForFocus.set(null)
                     // Try to recover by reinitializing
                     isTtsReady = false
                     tts.shutdown()
@@ -490,6 +619,8 @@ open class NotificationHelper(
             }
         } catch (e: Exception) {
             Log.e(TAG, "Exception while speaking", e)
+            abandonAudioFocusIfHeld()
+            currentUtteranceIdForFocus.set(null)
             // Try to recover
             isTtsReady = false
             textToSpeech?.shutdown()
@@ -519,6 +650,7 @@ open class NotificationHelper(
      */
     open fun release() {
         isInitializing = false
+        abandonAudioFocusIfHeld()
         textToSpeech?.stop()
         textToSpeech?.shutdown()
         textToSpeech = null

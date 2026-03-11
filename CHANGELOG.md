@@ -2,6 +2,16 @@
 
 ## Version 1
 
+### 1.1.9 - 2026-03-08
+
+#### Features
+
+- **Voice notifications and media:** Voice announcements (e.g. "Slow walk", "Fast walk", "Workout complete") now request transient audio focus. Music and podcast apps that respect audio focus will pause while the announcement plays and resume when it finishes, so the notification is easier to hear.
+
+#### UI/UX Improvements
+
+- **Vibration cues:** Increased phase-change vibration strength so cues are easier to feel: slow phase uses a stronger moderate pulse, and fast phase uses full amplitude for a clearer “fast walk” cue.
+
 ### 1.1.8 - 2026-03-08
 
 #### UI/UX Improvements

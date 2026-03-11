@@ -2,8 +2,10 @@ package com.oceanofmaya.intervalwalktrainer
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.media.AudioManager
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
@@ -21,9 +23,17 @@ import java.util.Locale
  */
 class NotificationHelperTest {
 
+    private lateinit var context: Context
+
+    @BeforeEach
+    fun setUp() {
+        context = mock(Context::class.java)
+        `when`(context.applicationContext).thenReturn(context)
+        `when`(context.getSystemService(Context.AUDIO_SERVICE)).thenReturn(mock(AudioManager::class.java))
+    }
+
     @Test
     fun `isTtsReady returns false initially`() {
-        val context = mock(Context::class.java)
         val helper = NotificationHelper(context)
         
         // TTS initialization is asynchronous, so it should be false initially
@@ -34,7 +44,6 @@ class NotificationHelperTest {
 
     @Test
     fun `release can be called multiple times safely`() {
-        val context = mock(Context::class.java)
         val helper = NotificationHelper(context)
         
         // Should not throw
@@ -45,7 +54,6 @@ class NotificationHelperTest {
 
     @Test
     fun `speak can be called without throwing`() {
-        val context = mock(Context::class.java)
         val helper = NotificationHelper(context)
         
         // Should queue the message if TTS is not ready
@@ -56,7 +64,6 @@ class NotificationHelperTest {
 
     @Test
     fun `notifyPhaseChange can be called for all phases`() {
-        val context = mock(Context::class.java)
         val helper = NotificationHelper(context)
         
         // Should not throw for any phase combination
@@ -69,7 +76,6 @@ class NotificationHelperTest {
 
     @Test
     fun `notifyPhaseChange supports vibration when enabled`() {
-        val context = mock(Context::class.java)
         val helper = NotificationHelper(context)
 
         // Should not throw when vibration is enabled
@@ -82,7 +88,6 @@ class NotificationHelperTest {
 
     @Test
     fun `notifyPhaseChange supports voice and vibration together`() {
-        val context = mock(Context::class.java)
         val helper = NotificationHelper(context)
 
         // Should not throw when both voice and vibration are enabled
@@ -93,7 +98,6 @@ class NotificationHelperTest {
 
     @Test
     fun `testTts can be called without throwing`() {
-        val context = mock(Context::class.java)
         val helper = NotificationHelper(context)
         
         helper.testTts()
@@ -103,7 +107,6 @@ class NotificationHelperTest {
 
     @Test
     fun `constructor with prefs and voice key does not throw`() {
-        val context = mock(Context::class.java)
         val prefs = mock(SharedPreferences::class.java)
         val helper = NotificationHelper(context, prefs, "tts_voice")
         assertFalse(helper.isTtsReady())
@@ -112,7 +115,6 @@ class NotificationHelperTest {
 
     @Test
     fun `normalizeLocaleToSupported maps region variant to supported language`() {
-        val context = mock(Context::class.java)
         val helper = NotificationHelper(context)
 
         val normalized = helper.normalizeLocaleToSupported(Locale.forLanguageTag("es-MX"))
@@ -123,7 +125,6 @@ class NotificationHelperTest {
 
     @Test
     fun `resolveSpeechLocale prefers stored locale over active voice locale`() {
-        val context = mock(Context::class.java)
         val prefs = mock(SharedPreferences::class.java)
         `when`(prefs.getString("tts_voice_locale", null)).thenReturn("fr-CA")
         val helper = NotificationHelper(context, prefs, "tts_voice", "tts_voice_locale")
@@ -136,7 +137,6 @@ class NotificationHelperTest {
 
     @Test
     fun `resolveSpeechLocale falls back to english when unsupported`() {
-        val context = mock(Context::class.java)
         val helper = NotificationHelper(context)
 
         val resolved = helper.resolveSpeechLocale(Locale.forLanguageTag("zz-ZZ"))
