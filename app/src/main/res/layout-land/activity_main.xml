@@ -20,11 +20,33 @@
     android:paddingTop="8dp"
     android:paddingBottom="16dp">
 
+    <LinearLayout
+        android:id="@+id/appBrandingContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/appBranding"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary"
+            android:letterSpacing="0.02"
+            android:gravity="center" />
+    </LinearLayout>
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/formulaButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:text="@string/select_formula"
         android:textSize="16sp"
         android:textColor="@color/text_primary"
@@ -51,7 +73,7 @@
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/appBrandingContainer" />
 
     <TextView
         android:id="@+id/formulaDetails"
