@@ -2,6 +2,15 @@
 
 ## Version 1
 
+### 1.1.10 - 2026-03-11
+
+#### UI/UX Improvements
+
+- **App naming split:** Shortened the launcher label to "Interval Walk" to avoid truncation in app drawers while keeping the full in-app brand name "Interval Walk Trainer".
+- **In-app brand visibility:** Settings now shows a subtle top brand row (`Interval Walk Trainer`) with the app version on the next line.
+- **Main screen branding:** Added a subtle top brand row on the main screen (`Interval Walk Trainer`) in portrait and landscape layouts.
+- Store screenshots and promo images updated.
+
 ### 1.1.9 - 2026-03-08
 
 #### Features
