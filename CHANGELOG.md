@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.1.11 - 2026-03-12
+
+#### UI/UX Improvements
+
+- **Settings version text:** Set version font size in Settings to match the app title (13sp) so they read as one brand block.
+
 ### 1.1.10 - 2026-03-11
 
 #### UI/UX Improvements
