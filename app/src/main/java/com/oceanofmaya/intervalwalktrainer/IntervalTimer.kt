@@ -316,23 +316,20 @@ class IntervalTimer(
         timeRemainingSeconds: Int,
         currentInterval: Int,
         currentPhase: IntervalPhase,
-        isRunning: Boolean
+        isRunning: Boolean,
+        savedElapsedSeconds: Int? = null
     ) {
         countDownTimer?.cancel()
         currentIntervalIndex = currentInterval - 1
         isSlowPhase = currentPhase is IntervalPhase.Slow
         phaseStartTime = if (isSlowPhase) formula.slowDurationSeconds else formula.fastDurationSeconds
 
-        totalElapsedSeconds = if (formula.isCircuit) {
+        val computedElapsed = if (formula.isCircuit) {
             circuitElapsedSeconds(currentInterval, isSlowPhase, timeRemainingSeconds)
         } else {
-            val completedIntervals = if (currentInterval > 0) {
-                if (isSlowPhase) currentInterval - 1 else currentInterval
-            } else 0
-            val completedPhasesTime = completedIntervals * (formula.slowDurationSeconds + formula.fastDurationSeconds)
-            val currentPhaseElapsed = phaseStartTime - timeRemainingSeconds
-            completedPhasesTime + currentPhaseElapsed
+            intervalModeElapsedSeconds(currentInterval, currentPhase, timeRemainingSeconds)
         }
+        totalElapsedSeconds = (savedElapsedSeconds ?: computedElapsed).coerceIn(0, formula.totalDurationSeconds)
 
         _state.value = TimerState(
             currentPhase = currentPhase,
@@ -370,6 +367,53 @@ class IntervalTimer(
         val elapsedInRound = if (currentInterval <= 0) 0
         else elapsedInCircuitRound(currentInterval, isSlowPhase, timeRemainingSeconds)
         return completedRounds * roundDuration + elapsedInRound.coerceIn(0, roundDuration)
+    }
+
+    /**
+     * Elapsed seconds for interval mode from restored state.
+     * For slow-start formulas, currentInterval is the active/display interval.
+     */
+    private fun intervalModeElapsedSeconds(
+        currentInterval: Int,
+        currentPhase: IntervalPhase,
+        timeRemainingSeconds: Int
+    ): Int {
+        val slow = formula.slowDurationSeconds
+        val fast = formula.fastDurationSeconds
+        val cycleDuration = slow + fast
+
+        val elapsed = when {
+            currentPhase is IntervalPhase.Completed -> formula.totalDurationSeconds
+            currentInterval <= 0 -> 0
+            !formula.startsWithFast -> {
+                when (currentPhase) {
+                    is IntervalPhase.Slow ->
+                        ((currentInterval - 1) * cycleDuration) + (slow - timeRemainingSeconds)
+                    is IntervalPhase.Fast ->
+                        ((currentInterval - 1) * cycleDuration) + slow + (fast - timeRemainingSeconds)
+                    is IntervalPhase.Completed -> formula.totalDurationSeconds
+                }
+            }
+            else -> {
+                // Fast-start interval mode sequence: Fast(1), Slow(2), Fast(2), Slow(3), ... Fast(N), Slow(N trailing).
+                when (currentPhase) {
+                    is IntervalPhase.Fast -> ((currentInterval - 1) * cycleDuration) + (fast - timeRemainingSeconds)
+                    is IntervalPhase.Slow -> {
+                        if (currentInterval >= formula.totalIntervals) {
+                            // Final trailing slow occurs after an additional fast phase.
+                            ((currentInterval - 1).coerceAtLeast(0) * cycleDuration) +
+                                fast + (slow - timeRemainingSeconds)
+                        } else {
+                            ((currentInterval - 2).coerceAtLeast(0) * cycleDuration) +
+                                fast + (slow - timeRemainingSeconds)
+                        }
+                    }
+                    is IntervalPhase.Completed -> formula.totalDurationSeconds
+                }
+            }
+        }
+
+        return elapsed.coerceIn(0, formula.totalDurationSeconds)
     }
 
     private fun elapsedInCircuitRound(currentInterval: Int, isSlowPhase: Boolean, timeRemainingSeconds: Int): Int {

@@ -2,6 +2,17 @@
 
 ## Version 1
 
+### 1.1.12 - 2026-03-18
+
+#### Fixes
+
+- Fixed elapsed/remaining time drift after restoring interval workouts for both starts-slow and starts-fast formulas.
+
+#### UI/UX Improvements
+
+- Moved the main workout hint to sit below the formula selector in both portrait and landscape.
+- Store screenshots and promo images updated.
+
 ### 1.1.11 - 2026-03-12
 
 #### UI/UX Improvements

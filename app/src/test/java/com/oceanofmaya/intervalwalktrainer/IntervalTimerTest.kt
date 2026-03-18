@@ -192,11 +192,10 @@ class IntervalTimerTest {
         assertEquals(2, state.timeRemainingSeconds)
         assertEquals(1, state.currentInterval)
         // Elapsed calculation: 
-        // - completedIntervals = 1 (fast phase means interval 1 is complete)
-        // - completedPhasesTime = 1 * (3+2) = 5 seconds
-        // - currentPhaseElapsed = 2 - 2 = 0 (fast phase just started)
-        // - totalElapsedSeconds = 5 + 0 = 5
-        assertEquals(5, state.elapsedSeconds)
+        // - interval 1 slow is complete: 3 seconds
+        // - fast phase just started: +0 seconds
+        // - totalElapsedSeconds = 3
+        assertEquals(3, state.elapsedSeconds)
         assertFalse(state.isRunning)
     }
 
@@ -586,11 +585,132 @@ class IntervalTimerTest {
         
         val state = timer.state.value
         // Elapsed calculation:
-        // - completedIntervals = 1 (fast phase means interval 1 is complete)
-        // - completedPhasesTime = 1 * (3+2) = 5
+        // - interval 1 slow is complete: 3
         // - currentPhaseElapsed = 2 - 1 = 1 (1 second elapsed in fast phase)
-        // - totalElapsedSeconds = 5 + 1 = 6
-        assertEquals(6, state.elapsedSeconds)
+        // - totalElapsedSeconds = 3 + 1 = 4
+        assertEquals(4, state.elapsedSeconds)
+    }
+
+    @Test
+    fun `restoreState keeps elapsed and remaining aligned for 3-3x5 fast phase`() {
+        val japaneseFormula = IntervalFormula(
+            name = "3-3 x 5",
+            slowDurationSeconds = 180,
+            fastDurationSeconds = 180,
+            totalIntervals = 5,
+            startsWithFast = false
+        )
+        val timer = createTimer(japaneseFormula)
+
+        // Round 4 fast just started: completed = 3 full rounds + slow of round 4 = 21 minutes.
+        timer.restoreState(
+            timeRemainingSeconds = 180,
+            currentInterval = 4,
+            currentPhase = IntervalPhase.Fast,
+            isRunning = false
+        )
+
+        val state = timer.state.value
+        val expectedElapsed = 21 * 60
+        val expectedRemaining = japaneseFormula.totalDurationSeconds - expectedElapsed
+
+        assertEquals(IntervalPhase.Fast, state.currentPhase)
+        assertEquals(expectedElapsed, state.elapsedSeconds)
+        assertEquals(expectedRemaining, japaneseFormula.totalDurationSeconds - state.elapsedSeconds)
+    }
+
+    @Test
+    fun `restoreState calculates elapsed time for fast-start fast phase`() {
+        val fastStartFormula = IntervalFormula(
+            name = "Fast Start Elapsed",
+            slowDurationSeconds = 2,
+            fastDurationSeconds = 5,
+            totalIntervals = 4,
+            startsWithFast = true
+        )
+        val timer = createTimer(fastStartFormula)
+
+        timer.restoreState(
+            timeRemainingSeconds = 4,
+            currentInterval = 3,
+            currentPhase = IntervalPhase.Fast,
+            isRunning = false
+        )
+
+        val state = timer.state.value
+        // Fast-start, interval 3 fast with 1 second elapsed:
+        // (3 - 1) * (5 + 2) + 1 = 15
+        assertEquals(15, state.elapsedSeconds)
+    }
+
+    @Test
+    fun `restoreState calculates elapsed time for fast-start slow phase`() {
+        val fastStartFormula = IntervalFormula(
+            name = "Fast Start Slow Elapsed",
+            slowDurationSeconds = 2,
+            fastDurationSeconds = 5,
+            totalIntervals = 4,
+            startsWithFast = true
+        )
+        val timer = createTimer(fastStartFormula)
+
+        timer.restoreState(
+            timeRemainingSeconds = 1,
+            currentInterval = 3,
+            currentPhase = IntervalPhase.Slow,
+            isRunning = false
+        )
+
+        val state = timer.state.value
+        // Fast-start, display interval 3 slow with 1 second elapsed:
+        // (3 - 2) * (5 + 2) + 5 + 1 = 13
+        assertEquals(13, state.elapsedSeconds)
+    }
+
+    @Test
+    fun `restoreState uses saved elapsed seconds for fast-start trailing slow`() {
+        val fastStartFormula = IntervalFormula(
+            name = "Fast Start Trailing Slow",
+            slowDurationSeconds = 2,
+            fastDurationSeconds = 5,
+            totalIntervals = 4,
+            startsWithFast = true
+        )
+        val timer = createTimer(fastStartFormula)
+
+        timer.restoreState(
+            timeRemainingSeconds = 2,
+            currentInterval = 4,
+            currentPhase = IntervalPhase.Slow,
+            isRunning = false,
+            savedElapsedSeconds = 26
+        )
+
+        val state = timer.state.value
+        assertEquals(26, state.elapsedSeconds)
+    }
+
+    @Test
+    fun `restoreState fallback math handles fast-start trailing slow without saved elapsed`() {
+        val fastStartFormula = IntervalFormula(
+            name = "Fast Start Trailing Slow Fallback",
+            slowDurationSeconds = 2,
+            fastDurationSeconds = 5,
+            totalIntervals = 4,
+            startsWithFast = true
+        )
+        val timer = createTimer(fastStartFormula)
+
+        timer.restoreState(
+            timeRemainingSeconds = 2,
+            currentInterval = 4,
+            currentPhase = IntervalPhase.Slow,
+            isRunning = false
+        )
+
+        val state = timer.state.value
+        // Trailing slow starts after F1,S2,F2,S3,F3,S4,F4 = 26 seconds elapsed.
+        assertEquals(26, state.elapsedSeconds)
     }
 
     @Test

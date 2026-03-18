@@ -33,11 +33,15 @@ Use `feature/<description>` for all branches. Examples: `feature/add-mushroom-th
 
 Workflow: Create branch from `main` → Make changes → Update version/changelog if releasing → Open pull request → Merge to `main` via PR → GitHub Actions auto-creates tag `vX.Y.Z` from version in `app/build.gradle.kts` → Release workflow builds and publishes release.
 
-**All merges to `main` must occur through pull requests.**
+**All changes must be made on a `feature/*` branch (never commit directly to `main`).**
+
+**All merges to `main` must occur through pull requests, and all required PR checks must pass before merge.**
 
 ## Commit Messages
 
-Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification. All commit messages must use the conventional commit format with appropriate types (feat, fix, docs, chore, refactor, etc.). e.g. `chore(release): add .kotlin/ to .gitignore`
+Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.
+
+For this repository's commit message policy (including `release`/`beta` scope conventions and examples), follow [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
 ## Linting
 
