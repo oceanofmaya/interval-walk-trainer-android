@@ -145,6 +145,7 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_SAVED_CURRENT_INTERVAL = "saved_current_interval"
         private const val KEY_SAVED_IS_RUNNING = "saved_is_running"
         private const val KEY_SAVED_PHASE = "saved_phase"
+        private const val KEY_SAVED_ELAPSED_SECONDS = "saved_elapsed_seconds"
         private const val KEY_SAVED_COMPLETION_AT_MILLIS = "saved_completion_at_millis"
         
         // Wake lock configuration
@@ -312,6 +313,7 @@ open class MainActivity : AppCompatActivity() {
             outState.putInt(KEY_SAVED_TIME_REMAINING, timerState.timeRemainingSeconds)
             outState.putInt(KEY_SAVED_CURRENT_INTERVAL, timerState.currentInterval)
             outState.putBoolean(KEY_SAVED_IS_RUNNING, timerState.isRunning)
+            outState.putInt(KEY_SAVED_ELAPSED_SECONDS, timerState.elapsedSeconds)
             outState.putString(KEY_SAVED_PHASE, when (timerState.currentPhase) {
                 is IntervalPhase.Slow -> "slow"
                 is IntervalPhase.Fast -> "fast"
@@ -326,6 +328,7 @@ open class MainActivity : AppCompatActivity() {
         val savedTimeRemaining = savedInstanceState.getInt(KEY_SAVED_TIME_REMAINING, -1)
         val savedCurrentInterval = savedInstanceState.getInt(KEY_SAVED_CURRENT_INTERVAL, 0)
         val savedIsRunning = savedInstanceState.getBoolean(KEY_SAVED_IS_RUNNING, false)
+        val savedElapsedSeconds = savedInstanceState.getInt(KEY_SAVED_ELAPSED_SECONDS, -1)
         val savedPhase = savedInstanceState.getString(KEY_SAVED_PHASE, "slow")
         val savedCompletionAt = savedInstanceState.getLong(KEY_SAVED_COMPLETION_AT_MILLIS, -1L)
         completionAtMillis = if (savedCompletionAt > 0) savedCompletionAt else null
@@ -363,7 +366,8 @@ open class MainActivity : AppCompatActivity() {
                     timeRemainingSeconds = savedTimeRemaining,
                     currentInterval = savedCurrentInterval,
                     currentPhase = restoredPhase,
-                    isRunning = savedIsRunning
+                    isRunning = savedIsRunning,
+                    savedElapsedSeconds = savedElapsedSeconds.takeIf { it >= 0 }
                 )
                 
                 // Clear flag after restoration
