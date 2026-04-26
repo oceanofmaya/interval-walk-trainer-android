@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -14,24 +15,46 @@
         android:layout_marginBottom="12dp"
         android:background="@drawable/bottom_sheet_drag_handle" />
 
+    <!-- Sheet title: centered to match every other bottom-sheet title in the app
+         (Settings, Design Your Own, FAQ, Notification language, Save preset?).
+         Section headers and list rows inside the sheet remain start-aligned. -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/select_training_formula"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
         android:gravity="center"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp" />
+        android:paddingTop="8dp"
+        android:paddingBottom="12dp"
+        android:text="@string/title_select_preset"
+        android:textColor="@color/text_primary"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/formulaRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxHeight="400dp" />
+        android:layout_height="wrap_content" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:background="#1F000000" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/designYourOwnButton"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/action_custom_formula"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="28dp" />
 
 </LinearLayout>
-

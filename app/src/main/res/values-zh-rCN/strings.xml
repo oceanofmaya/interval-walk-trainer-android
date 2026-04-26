@@ -5,6 +5,6 @@
     <string name="tts_fast_walk">快走</string>
     <string name="tts_workout_complete">训练完成</string>
     <string name="tts_voice_notifications_enabled">已开启语音通知</string>
-    <string name="go">开始</string>
-    <string name="voice_notifications_disabled">已关闭语音通知</string>
+    <string name="action_go">开始</string>
+    <string name="snackbar_voice_notifications_disabled">已关闭语音通知</string>
 </resources>

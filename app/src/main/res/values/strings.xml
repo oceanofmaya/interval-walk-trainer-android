@@ -1,135 +1,173 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="PluralsCandidate">
+    <!--
+      String resource naming convention.
+      The prefix encodes both the role of the string AND its expected casing,
+      so future readers can tell at a glance why a string is Title Case vs sentence case.
+
+      Title Case (TC) prefixes - chrome / heading style:
+        title_*       Sheet, screen, or dialog titles
+        group_*       Settings/preference group headings
+        action_*      Standalone buttons, menu items, accessibility actions
+        label_*       Short noun-phrase labels (rows, fields, badges)
+        option_*      Selectable option labels (radio/toggle states)
+        tab_*         Tab labels
+
+      Sentence case (SC) prefixes - in-flow content style:
+        header_*      In-content section headers (within a list/content area)
+        prompt_*      Conversational dialog/sheet prompts ("Save preset?")
+        message_*     Dialog/sheet body messages
+        body_*        Empty-state and other descriptive body text
+        hint_*        Input hints, inline tips
+        cta_*         CTAs that read as conversational continuation of a prompt
+                      ("Save & use" under "Save preset?")
+        snackbar_*    Transient feedback messages
+
+      Domain prefixes (case follows naturalness for that domain):
+        tts_*         Text-to-speech announcements (SC fragments; localized)
+        notif_*       Notification channel + content strings (SC)
+        faq_question_*, faq_answer_*  FAQ Q&A pairs (SC)
+        desc_*        Accessibility content descriptions (SC)
+        format_*      Format strings (case follows the rendered text role)
+        placeholder_* UI placeholder values (numbers, dates, ellipses)
+        symbol_*      UI symbols (math operators, etc.)
+        app_*         App metadata (app_name, app_name_launcher)
+
+      A small handful of dialog titles intentionally use sentence case
+      (e.g. prompt_voice_picker_language = "Notification language") because the
+      product copy reads as a clarifying parenthetical rather than a noun-phrase
+      title; these use a SC prefix (prompt_*) to signal the casing.
+    -->
+
     <string name="app_name">Interval Walk Trainer</string>
     <string name="app_name_launcher">Interval Walk</string>
-    <string name="start">Start</string>
-    <string name="pause">Pause</string>
-    <string name="resume">Resume</string>
-    <string name="reset">Reset</string>
-    <string name="select_formula">Select Formula</string>
-    <string name="slow_phase">Slow</string>
-    <string name="fast_phase">Fast</string>
-    <string name="version">Version %1$s</string>
-    <string name="vibration">Vibration</string>
-    <string name="custom_formula">Design Your Own</string>
-    <string name="slow_duration">Slow Duration (minutes)</string>
-    <string name="fast_duration">Fast Duration (minutes)</string>
-    <string name="rounds">Rounds</string>
-    <string name="start_with">Start With</string>
-    <string name="slow_first">Slow</string>
-    <string name="fast_first">Fast</string>
-    <string name="create_and_start">Create</string>
-    <string name="reset_to_defaults">Reset</string>
-    <string name="circuit_mode">Circuit</string>
-    <string name="interval_mode">Interval</string>
-    <string name="training_type">Training Type</string>
-    <string name="circuit_pattern">Circuit Pattern</string>
-    <string name="fast_slow_fast">Fast → Slow → Fast</string>
-    <string name="slow_fast_slow">Slow → Fast → Slow</string>
-    <string name="workout_stats">Workout History</string>
-    <string name="total_workouts">Total Workouts</string>
-    <string name="total_minutes">Total Minutes</string>
-    <string name="current_streak">Current Streak</string>
-    <string name="avg_workouts_per_week">Avg per Week</string>
-    <string name="clear_stats">Clear History</string>
-    <string name="clear_stats_title">Clear Workout History?</string>
-    <string name="clear_stats_message">This will permanently delete all your workout history. This action cannot be undone.</string>
-    <string name="clear">Clear</string>
-    <string name="cancel">Cancel</string>
-    <string name="delete_workout_title">Delete this workout?</string>
-    <string name="delete_workout_message">This workout will be removed from your history. This cannot be undone.</string>
-    <string name="delete">Delete</string>
-    <string name="completed">Complete</string>
-    <string name="starts_fast">Starts Fast</string>
-    <string name="starts_slow">Starts Slow</string>
-    <string name="voice_notifications_disabled">Voice notifications disabled</string>
-    <!-- TTS announcements: resolved in the selected voice's locale when available -->
+    <string name="action_start">Start</string>
+    <string name="action_pause">Pause</string>
+    <string name="action_resume">Resume</string>
+    <string name="action_reset">Reset</string>
+    <string name="action_select_formula">Select Formula</string>
+    <string name="label_phase_slow">Slow</string>
+    <string name="label_phase_fast">Fast</string>
+    <string name="format_version">Version %1$s</string>
+    <string name="label_vibration">Vibration</string>
+    <string name="action_custom_formula">Design Your Own</string>
+    <string name="label_slow_duration">Slow Duration (minutes)</string>
+    <string name="label_fast_duration">Fast Duration (minutes)</string>
+    <string name="label_rounds">Rounds</string>
+    <string name="label_start_with">Start With</string>
+    <string name="option_start_slow">Slow</string>
+    <string name="option_start_fast">Fast</string>
+    <string name="action_create">Create</string>
+    <string name="action_reset_defaults">Reset</string>
+    <string name="option_mode_circuit">Circuit</string>
+    <string name="option_mode_interval">Interval</string>
+    <string name="label_training_type">Training Type</string>
+    <string name="label_circuit_pattern">Circuit Pattern</string>
+    <string name="option_pattern_fast_slow_fast">Fast → Slow → Fast</string>
+    <string name="option_pattern_slow_fast_slow">Slow → Fast → Slow</string>
+    <string name="title_workout_history">Workout History</string>
+    <string name="label_total_workouts">Total Workouts</string>
+    <string name="label_total_minutes">Total Minutes</string>
+    <string name="label_current_streak">Current Streak</string>
+    <string name="label_avg_per_week">Avg per Week</string>
+    <string name="action_clear_history">Clear History</string>
+    <string name="title_clear_workout_history">Clear Workout History?</string>
+    <string name="message_clear_workout_history">This will permanently delete all your workout history. This action cannot be undone.</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="prompt_delete_workout">Delete this workout?</string>
+    <string name="message_delete_workout">This workout will be removed from your history. This cannot be undone.</string>
+    <string name="action_delete">Delete</string>
+    <string name="label_completed">Complete</string>
+    <string name="label_starts_fast">Starts Fast</string>
+    <string name="label_starts_slow">Starts Slow</string>
+    <string name="snackbar_voice_notifications_disabled">Voice notifications disabled</string>
     <string name="tts_slow_walk">Slow walk</string>
     <string name="tts_fast_walk">Fast walk</string>
     <string name="tts_workout_complete">Workout complete</string>
     <string name="tts_voice_notifications_enabled">Voice notifications enabled</string>
-    <string name="formula_summary_format">%1$s  •  %2$dmin</string>
-    <string name="custom_circuit_name_format">Custom Circuit: %1$s - %2$d Rounds</string>
-    <string name="custom_circuit_name_format_singular">Custom Circuit: %1$s - 1 Round</string>
-    <string name="custom_interval_name_format">Custom: %1$d-%2$d - %3$d Rounds</string>
-    <string name="custom_interval_name_format_singular">Custom: %1$d-%2$d - 1 Round</string>
-    <string name="time_format_m_s">%1$dm %2$ds</string>
-    <string name="time_format_m">%1$dm</string>
-    <string name="time_format_s">%1$ds</string>
-    <string name="pattern_fast_slow_fast">Fast(%1$s) → Slow(%2$s) → Fast(%1$s)</string>
-    <string name="pattern_fast_slow_fast_rounds">Fast(%1$s) → Slow(%2$s) → Fast(%1$s) × %3$d</string>
-    <string name="pattern_slow_fast_slow">Slow(%1$s) → Fast(%2$s) → Slow(%1$s)</string>
-    <string name="pattern_slow_fast_slow_rounds">Slow(%1$s) → Fast(%2$s) → Slow(%1$s) × %3$d</string>
-    <string name="pattern_fast_slow_rounds">Fast(%1$s) → Slow(%2$s) × %3$d</string>
-    <string name="pattern_fast_slow">Fast(%1$s) → Slow(%2$s)</string>
-    <string name="pattern_slow_fast_rounds">Slow(%1$s) → Fast(%2$s) × %3$d</string>
-    <string name="pattern_slow_fast">Slow(%1$s) → Fast(%2$s)</string>
-    <string name="formula_full_text_format">%1$s\n%2$s</string>
-    <string name="days_format">%1$d days</string>
-    <string name="day_format">%1$d day</string>
-    <string name="time_format_hr_min">%1$d hr %2$d min</string>
-    <string name="time_format_min">%1$d min</string>
-    <string name="workout_singular">1 workout</string>
-    <string name="workout_plural">%1$d workouts</string>
-    <string name="workouts_for_month">Workouts</string>
-    <string name="workout_details">Workout Details</string>
-    <string name="workout_number">Workout %1$d</string>
-    <string name="overview">Overview</string>
-    <string name="calendar">Calendar</string>
-    <string name="today">Today</string>
-    <string name="no_workouts_title">No Workouts Yet</string>
-    <string name="no_workouts_message">Start your first workout to see your progress here</string>
-    <string name="no_workouts_in_month">No workouts in %1$s</string>
-    <string name="best_day">Best Day</string>
-    <string name="best_day_format">%1$s (%2$d workouts)</string>
-    <string name="best_day_format_singular">%1$s (1 workout)</string>
-    <string name="month_comparison_title">Monthly Trend</string>
-    <string name="month_comparison_workouts_value">%1$d workouts</string>
-    <string name="month_comparison_workouts_value_singular">1 workout</string>
-    <string name="month_comparison_minutes_value">%1$s</string>
-    <string name="month_comparison_change">%1$d%%</string>
-    <string name="workout_types">Workout Types</string>
-    <string name="streak_progress">%1$d / %2$d</string>
-    <string name="no_best_day_data">No workout data available</string>
-    <string name="no_monthly_trend_data">No data for this month</string>
-    <string name="settings">Settings</string>
-    <string name="about">About</string>
-    <string name="frequently_asked_questions">Frequently Asked Questions</string>
-    <string name="privacy_policy">Privacy Policy</string>
-    <string name="terms_and_conditions">Terms of Service</string>
-    <string name="theme_mode">Theme</string>
-    <string name="accent_mode">Accent</string>
-    <string name="theme_system">System (Auto)</string>
-    <string name="theme_light">Light</string>
-    <string name="theme_dark">Dark</string>
-    <string name="menu">Menu</string>
-    <string name="accent_blue">Blue accent</string>
-    <string name="accent_teal">Teal accent</string>
-    <string name="accent_purple">Purple accent</string>
-    <string name="accent_amber">Amber accent</string>
-    <string name="accent_magenta">Magenta accent</string>
-    <string name="workout_settings">Workout</string>
-    <string name="settings_group_sounds_haptics">Sounds &amp; Haptics</string>
-    <string name="settings_group_during_workout">During Workout</string>
-    <string name="settings_group_history">History</string>
-    <string name="countdown_seconds_format">%1$ds</string>
-    <string name="save_workouts">Save Workouts</string>
-    <string name="voice_notifications">Voice Notifications</string>
-    <string name="voice">Language</string>
-    <string name="voice_default">Default</string>
-    <string name="voice_picker_title">Notification language</string>
-    <string name="no_voices_available">No supported voices available</string>
-    <string name="notifications">Notifications</string>
-    <string name="keep_screen_awake">Keep Screen Awake</string>
-    <string name="report_issue">Report Issue</string>
-    <string name="rate_app">Rate App</string>
-    <string name="help">Help</string>
-    <string name="disable_save_workouts_title">Turn off workout history?</string>
-    <string name="disable_save_workouts_message">New workouts will not be saved to history while this is off.</string>
-    <string name="turn_off">Turn Off</string>
-    <string name="keep_on">Keep On</string>
-    <string name="apply">Apply</string>
-    <string name="go">Start</string>
+    <string name="format_formula_summary">%1$s  •  %2$dmin</string>
+    <string name="format_custom_circuit_name">Custom Circuit: %1$s - %2$d Rounds</string>
+    <string name="format_custom_circuit_name_singular">Custom Circuit: %1$s - 1 Round</string>
+    <string name="format_custom_interval_name">Custom: %1$d-%2$d - %3$d Rounds</string>
+    <string name="format_custom_interval_name_singular">Custom: %1$d-%2$d - 1 Round</string>
+    <string name="format_time_m_s">%1$dm %2$ds</string>
+    <string name="format_time_m">%1$dm</string>
+    <string name="format_time_s">%1$ds</string>
+    <string name="format_pattern_fast_slow_fast">Fast(%1$s) → Slow(%2$s) → Fast(%1$s)</string>
+    <string name="format_pattern_fast_slow_fast_rounds">Fast(%1$s) → Slow(%2$s) → Fast(%1$s) × %3$d</string>
+    <string name="format_pattern_slow_fast_slow">Slow(%1$s) → Fast(%2$s) → Slow(%1$s)</string>
+    <string name="format_pattern_slow_fast_slow_rounds">Slow(%1$s) → Fast(%2$s) → Slow(%1$s) × %3$d</string>
+    <string name="format_pattern_fast_slow_rounds">Fast(%1$s) → Slow(%2$s) × %3$d</string>
+    <string name="format_pattern_fast_slow">Fast(%1$s) → Slow(%2$s)</string>
+    <string name="format_pattern_slow_fast_rounds">Slow(%1$s) → Fast(%2$s) × %3$d</string>
+    <string name="format_pattern_slow_fast">Slow(%1$s) → Fast(%2$s)</string>
+    <string name="format_formula_full_text">%1$s\n%2$s</string>
+    <string name="format_days">%1$d days</string>
+    <string name="format_day">%1$d day</string>
+    <string name="format_time_hr_min">%1$d hr %2$d min</string>
+    <string name="format_time_min">%1$d min</string>
+    <string name="format_workout_count_singular">1 workout</string>
+    <string name="format_workout_count">%1$d workouts</string>
+    <string name="label_workouts">Workouts</string>
+    <string name="title_workout_details">Workout Details</string>
+    <string name="format_workout_number">Workout %1$d</string>
+    <string name="tab_overview">Overview</string>
+    <string name="tab_calendar">Calendar</string>
+    <string name="label_today">Today</string>
+    <string name="title_no_workouts_yet">No Workouts Yet</string>
+    <string name="body_no_workouts">Start your first workout to see your progress here</string>
+    <string name="format_no_workouts_in_month">No workouts in %1$s</string>
+    <string name="label_best_day">Best Day</string>
+    <string name="format_best_day">%1$s (%2$d workouts)</string>
+    <string name="format_best_day_singular">%1$s (1 workout)</string>
+    <string name="title_monthly_trend">Monthly Trend</string>
+    <string name="format_workouts_count">%1$d workouts</string>
+    <string name="format_workouts_count_singular">1 workout</string>
+    <string name="format_minutes_value">%1$s</string>
+    <string name="format_percent_change">%1$d%%</string>
+    <string name="label_workout_types">Workout Types</string>
+    <string name="format_streak_progress">%1$d / %2$d</string>
+    <string name="body_no_best_day_data">No workout data available</string>
+    <string name="body_no_monthly_trend_data">No data for this month</string>
+    <string name="title_settings">Settings</string>
+    <string name="label_about">About</string>
+    <string name="title_faq">Frequently Asked Questions</string>
+    <string name="label_privacy_policy">Privacy Policy</string>
+    <string name="label_terms_of_service">Terms of Service</string>
+    <string name="label_theme">Theme</string>
+    <string name="label_accent">Accent</string>
+    <string name="option_theme_system">System (Auto)</string>
+    <string name="option_theme_light">Light</string>
+    <string name="option_theme_dark">Dark</string>
+    <string name="desc_menu">Menu</string>
+    <string name="desc_accent_blue">Blue accent</string>
+    <string name="desc_accent_teal">Teal accent</string>
+    <string name="desc_accent_purple">Purple accent</string>
+    <string name="desc_accent_amber">Amber accent</string>
+    <string name="desc_accent_magenta">Magenta accent</string>
+    <string name="group_workout">Workout</string>
+    <string name="group_sounds_haptics">Sounds &amp; Haptics</string>
+    <string name="group_during_workout">During Workout</string>
+    <string name="group_history">History</string>
+    <string name="format_countdown_seconds">%1$ds</string>
+    <string name="label_save_workouts">Save Workouts</string>
+    <string name="label_voice_notifications">Voice Notifications</string>
+    <string name="label_voice">Language</string>
+    <string name="option_voice_default">Default</string>
+    <string name="prompt_voice_picker_language">Notification language</string>
+    <string name="body_no_voices_available">No supported voices available</string>
+    <string name="label_notifications">Notifications</string>
+    <string name="label_keep_screen_awake">Keep Screen Awake</string>
+    <string name="label_report_issue">Report Issue</string>
+    <string name="label_rate_app">Rate App</string>
+    <string name="label_help">Help</string>
+    <string name="prompt_disable_save_workouts">Turn off workout history?</string>
+    <string name="message_disable_save_workouts">New workouts will not be saved to history while this is off.</string>
+    <string name="action_turn_off">Turn Off</string>
+    <string name="action_keep_on">Keep On</string>
+    <string name="action_apply">Apply</string>
+    <string name="action_go">Start</string>
     <string name="faq_question_interval_walking">What is interval walking?</string>
     <string name="faq_answer_interval_walking">Interval walking simply means alternating between slower and faster walking for set amounts of time. It gives your walk a bit of structure and keeps things interesting. You don’t need to sprint; just pick up the pace when it’s “fast” and ease off when it’s “slow.” We’ll guide you through each phase so you can focus on the walk.</string>
     <string name="faq_question_why_interval_walking">Why choose interval walking over steady walking or running?</string>
@@ -149,7 +187,7 @@
     <string name="faq_question_slow_fast_mean">What do \"slow\" and \"fast\" mean?</string>
     <string name="faq_answer_slow_fast_mean">We don’t measure your speed; you’re in charge of your pace. As a guide, \"slow\" is ideally around 4/10 effort (comfortable) and \"fast\" around 7/10 (brisk but not exhausting). The app just keeps time and lets you know when to switch.</string>
     <string name="faq_question_custom_formula_saved">Where is my custom formula saved?</string>
-    <string name="faq_answer_custom_formula_saved">Right now we save only the state of your custom formula: the slow/fast times, rounds, and options you had set the last time you used Design Your Own and tapped Create. That’s restored when you reopen the app. A future release will let you save and manage multiple custom formulas.</string>
+    <string name="faq_answer_custom_formula_saved">The app keeps your active custom workout in sync when you use it (so it can restore after a restart). You can also save up to 30 named presets under “My saved presets” in the formula picker. Picking a saved preset makes it active until you pick something else, use an unsaved custom workout, or delete that preset. Updating an active preset refreshes the home screen; if a workout is running or paused, we ask first because confirming resets the timer with the new values. Renaming an active preset updates the label without resetting. Deleting an active preset keeps the current timer values as an unsaved custom workout, so the deleted preset will not come back as active after restart. This preset list is separate from “Save Workouts” in Settings, which controls whether completed sessions are added to workout history.</string>
     <string name="faq_question_pause_reset">Can I pause or reset during a workout?</string>
     <string name="faq_answer_pause_reset">Absolutely. You can Pause (then Resume) or Reset whenever you need to. We only add a workout to your history when you finish it, so if you pause or reset, that session won’t be counted. No pressure.</string>
     <string name="faq_question_countdown">What is the countdown and how do I change it?</string>
@@ -166,36 +204,74 @@
     <string name="faq_answer_keep_screen_awake">When it’s on, the screen stays on while you’re in the app so you can glance at the timer. When you lock the phone, the workout keeps running either way. That’s handled separately, so you’re good to go with the screen off.</string>
     <string name="faq_question_safe">Is interval walking safe for me?</string>
     <string name="faq_answer_safe">We’re just a timer. You decide how hard to push. If you have any health concerns, it’s always a good idea to check with your doctor before starting a new exercise routine. Our Terms of Service has the full disclaimer.</string>
-    <string name="workout_notifications_channel_name">Workout in progress</string>
-    <string name="workout_notifications_channel_description">Keeps interval workouts running in the background</string>
-    <string name="workout_in_progress_notification_title">Interval Walk Trainer</string>
-    <string name="workout_in_progress_notification_body">Workout running in background</string>
-    <string name="activity_recognition_permission_needed">Allow Physical activity to keep workouts running in background.</string>
-    <string name="activity_recognition_permission_denied">Background workouts need Physical activity permission.</string>
-    <string name="phase_slow_format">%1$s</string>
-    <string name="phase_fast_format">%1$s</string>
-    <string name="new_label">New</string>
-    <string name="workout_type_count_format">%1$d (%2$d%%)</string>
-    <string name="longest_streak">Longest Streak</string>
-    <string name="previous_month">Previous month</string>
-    <string name="next_month">Next month</string>
-    <string name="select_training_formula">Select Training Formula</string>
-    <string name="countdown">Countdown</string>
-    <string name="decrease">Decrease</string>
-    <string name="increase">Increase</string>
-    <string name="time_display_placeholder">00:00</string>
-    <string name="time_short_placeholder">0:00</string>
-    <string name="interval_counter_placeholder">0 / 0</string>
-    <string name="countdown_initial">3</string>
-    <string name="zero">0</string>
-    <string name="zero_min">0 min</string>
-    <string name="zero_days">0 days</string>
-    <string name="zero_decimal">0.0</string>
-    <string name="month_year_placeholder">November 2025</string>
-    <string name="minus_sign">−</string>
-    <string name="plus_sign">+</string>
-    <string name="countdown_seconds_placeholder">3s</string>
-    <string name="default_value_3">3</string>
-    <string name="default_value_5">5</string>
+    <string name="notif_channel_name">Workout in progress</string>
+    <string name="notif_channel_description">Keeps interval workouts running in the background</string>
+    <string name="notif_workout_in_progress_title">Interval Walk Trainer</string>
+    <string name="notif_workout_in_progress_body">Workout running in background</string>
+    <string name="snackbar_permission_activity_recognition_needed">Allow Physical activity to keep workouts running in background.</string>
+    <string name="snackbar_permission_activity_recognition_denied">Background workouts need Physical activity permission.</string>
+    <string name="format_phase_slow">%1$s</string>
+    <string name="format_phase_fast">%1$s</string>
+    <string name="label_new">New</string>
+    <string name="format_workout_type_count">%1$d (%2$d%%)</string>
+    <string name="label_longest_streak">Longest Streak</string>
+    <string name="desc_previous_month">Previous month</string>
+    <string name="desc_next_month">Next month</string>
+    <string name="title_select_preset">Select Preset</string>
+    <string name="header_preconfigured_presets">Pre-configured presets</string>
+    <string name="header_my_saved_presets">My saved presets (%1$d)</string>
+    <string name="header_my_saved_presets_cap">My saved presets (%1$d / %2$d)</string>
+    <string name="hint_saved_presets_section">Tap to use · ⋮ for actions · drag to reorder</string>
+    <string name="body_no_saved_presets_yet_title">No saved presets yet</string>
+    <string name="body_no_saved_presets_yet_hint">Tap “Design Your Own” below to build a workout, then save it as a preset.</string>
+    <string name="format_saved_preset_subtitle">%1$d min · %2$s</string>
+    <string name="label_workout_type_interval">Interval</string>
+    <string name="label_workout_type_circuit">Circuit</string>
+    <string name="desc_drag_handle">Reorder</string>
+    <string name="desc_more_options">More options</string>
+    <string name="prompt_save_preset">Save preset?</string>
+    <string name="hint_save_preset_name">Preset name</string>
+    <string name="cta_save_and_use">Save &amp; use</string>
+    <string name="cta_use_without_saving">Use without saving</string>
+    <string name="cta_save_only">Save only</string>
+    <string name="snackbar_saved_to_my_presets">Saved to My saved presets</string>
+    <string name="message_max_saved_presets">You can save up to %1$d presets. Delete one to save another.</string>
+    <string name="action_rename">Rename</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_duplicate">Duplicate</string>
+    <string name="title_edit_preset">Edit Preset</string>
+    <string name="cta_update_preset">Update</string>
+    <string name="cta_update_and_use_preset">Update &amp; use</string>
+    <string name="cta_use_without_updating">Use without updating</string>
+    <string name="prompt_update_preset">Update preset?</string>
+    <string name="message_update_active_preset_resets_timer">This preset is being used by your current workout. Updating it now will reset the timer with the new values.</string>
+    <string name="action_update_and_reset">Update &amp; reset</string>
+    <string name="snackbar_preset_updated">Preset updated</string>
+    <string name="snackbar_preset_no_longer_exists">Preset no longer exists</string>
+    <string name="snackbar_preset_removed">Removed \"%1$s\"</string>
+    <string name="snackbar_preset_renamed">Renamed to \"%1$s\"</string>
+    <string name="snackbar_preset_duplicated">Copied as \"%1$s\"</string>
+    <string name="snackbar_preset_restore_failed">Couldn\'t restore — library is full</string>
+    <string name="action_undo">Undo</string>
+    <string name="prompt_rename_preset">Rename preset</string>
+    <string name="prompt_delete_active_preset">Delete active preset?</string>
+    <string name="message_delete_active_preset_keeps_timer">This preset is being used by your current workout. Deleting it removes it from My saved presets, but the timer will keep these values as an unsaved custom workout.</string>
+    <string name="action_save">Save</string>
+    <string name="label_countdown">Countdown</string>
+    <string name="desc_decrease">Decrease</string>
+    <string name="desc_increase">Increase</string>
+    <string name="placeholder_time_display">00:00</string>
+    <string name="placeholder_time_short">0:00</string>
+    <string name="placeholder_interval_counter">0 / 0</string>
+    <string name="placeholder_countdown_initial">3</string>
+    <string name="placeholder_zero">0</string>
+    <string name="placeholder_zero_min">0 min</string>
+    <string name="placeholder_zero_days">0 days</string>
+    <string name="placeholder_zero_decimal">0.0</string>
+    <string name="placeholder_month_year">November 2025</string>
+    <string name="symbol_minus">−</string>
+    <string name="symbol_plus">+</string>
+    <string name="placeholder_countdown_seconds">3s</string>
+    <string name="placeholder_default_3">3</string>
+    <string name="placeholder_default_5">5</string>
 </resources>
-

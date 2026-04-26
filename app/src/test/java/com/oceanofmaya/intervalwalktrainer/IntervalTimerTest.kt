@@ -501,6 +501,52 @@ class IntervalTimerTest {
     }
 
     @Test
+    fun `restoreState does not set negative internal interval index when display interval is zero`() {
+        val timer = createTimer()
+        timer.restoreState(
+            timeRemainingSeconds = 3,
+            currentInterval = 0,
+            currentPhase = IntervalPhase.Slow,
+            isRunning = false
+        )
+        val field = IntervalTimer::class.java.getDeclaredField("currentIntervalIndex")
+        field.isAccessible = true
+        assertEquals(0, field.getInt(timer))
+    }
+
+    @Test
+    fun `restoreState sets internal interval index to zero when display interval is one`() {
+        // Display interval 1 == "first interval" == zero-based index 0.
+        val timer = createTimer()
+        timer.restoreState(
+            timeRemainingSeconds = 3,
+            currentInterval = 1,
+            currentPhase = IntervalPhase.Slow,
+            isRunning = false
+        )
+        val field = IntervalTimer::class.java.getDeclaredField("currentIntervalIndex")
+        field.isAccessible = true
+        assertEquals(0, field.getInt(timer))
+    }
+
+    @Test
+    fun `restoreState pre-start zero state matches a fresh timer's interval index`() {
+        // Regression: rotating during the pre-start countdown previously left the internal
+        // index at -1 which caused an extra slow phase at completion.
+        val fresh = createTimer()
+        val restored = createTimer()
+        restored.restoreState(
+            timeRemainingSeconds = testFormula.slowDurationSeconds,
+            currentInterval = 0,
+            currentPhase = IntervalPhase.Slow,
+            isRunning = false
+        )
+        val field = IntervalTimer::class.java.getDeclaredField("currentIntervalIndex")
+        field.isAccessible = true
+        assertEquals(field.getInt(fresh), field.getInt(restored))
+    }
+
+    @Test
     fun `phase change callback is called on reset`() {
         val timer = createTimer()
         phaseChanges.clear()

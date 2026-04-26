@@ -50,7 +50,7 @@ These scripts are utilities to optimize Play Store assets and are not required f
 ## Features
 
 - Three pre-configured training formulas including Japanese 3-3 (IWT)
-- **Design Your Own**: Create custom interval formulas with adjustable slow/fast durations, rounds, and starting phase
+- **Design Your Own**: Create custom interval or circuit workouts; optionally save up to 30 named presets under **My saved presets** in the picker (update, rename, duplicate, reorder, delete). This is separate from the **Save Workouts** setting, which controls workout **history**.
 - Vibration patterns: gentle for slow, strong double-pulse for fast
 - Voice notifications: optional text-to-speech announcements with early timing for phase changes
 - **Themes**: System (follows device), Light, or Dark (selected in Settings)
@@ -74,19 +74,19 @@ These scripts are utilities to optimize Play Store assets and are not required f
 
 ## Training Formulas
 
-Three pre-configured formulas covering the main training patterns. Additional variations can be created using "Design Your Own". Formulas may start with either slow or fast phase as indicated.
+Three pre-configured presets cover the main training patterns. **My saved presets** lists your saved custom presets (up to 30). One-off variations can be created with **Design Your Own** without saving. Presets may start with either slow or fast phase as indicated.
 
-1. **3-3 Japanese - 5 Rounds (30 min)**
+1. **3-3 Japanese - 5 Rounds** (30 min · Interval)
    - Pattern: Slow(3m) → Fast(3m) × 5
    - Classic Japanese Interval Walking Training (IWT) method
    - Starts Slow
    - Default formula
 
-2. **5-2 High Intensity - 4 Rounds (28 min)**
+2. **5-2 High Intensity - 4 Rounds** (28 min · Interval)
    - Pattern: Fast(5m) → Slow(2m) × 4
    - Starts Fast
 
-3. **5-4-5 Circuit - 2 Rounds (28 min)**
+3. **5-4-5 Circuit - 2 Rounds** (28 min · Circuit)
    - Pattern: Fast(5m) → Slow(4m) → Fast(5m) × 2
    - Starts Fast
 
@@ -102,15 +102,15 @@ Three pre-configured formulas covering the main training patterns. Additional va
      - Fast duration: 1-60 minutes
      - Rounds: 1-100
      - Choose pattern: Fast → Slow → Fast or Slow → Fast → Slow
-   - Custom formulas are saved and persist across app restarts
+   - After **Create**, choose **Save & use**, **Use without saving**, or **Save only** to control the library vs the active workout; the active custom formula still syncs to preferences for restore across restarts
    - Easy-to-use increment/decrement controls (no keyboard needed)
    - Toggle between Interval Mode and Circuit Mode with a simple switch
 
 ## Usage
 
-1. Tap the formula button to open the selector and choose a training formula
-   - Select from three pre-configured formulas, or
-   - Choose "Design Your Own" to create a custom interval or circuit formula
+1. Tap the formula button to open the picker and choose a preset
+   - Select from three pre-configured presets, pick a row under **My saved presets**, or
+   - Tap the sticky **Design Your Own** button at the bottom to build a custom interval or circuit workout (then Save & use, Use without saving, or Save only)
 2. Tap the **Settings** icon to manage app options:
    - Vibration and voice toggles for in-workout cues
    - Notifications permission and app notification state
@@ -137,10 +137,23 @@ When you select "Design Your Own":
 4. Use the **−** and **+** buttons to adjust rounds (1-100)
 5. **For Interval Mode**: Select whether to start with slow or fast phase
 6. **For Circuit Mode**: Select pattern (Fast → Slow → Fast or Slow → Fast → Slow)
-7. Tap **Create** to load your custom workout
+7. Tap **Create**, then choose **Save & use** (adds to **My saved presets** and applies), **Use without saving** (applies only), or **Save only** (adds the preset to the picker without changing the current formula)
 8. Tap **Start** when ready to begin
 
-Your custom formula is automatically saved and will be restored when you restart the app.
+The active custom workout (when you use or save one) is kept in preferences so it can restore after an app restart.
+
+### Saved Preset Behavior
+
+Saved presets are reusable templates. Picking a row under **My saved presets** makes that preset the active workout until you pick something else, use an unsaved custom workout, or delete that preset.
+
+- **Update & use** updates the preset and makes the updated version active.
+- **Update** changes the preset in the library. If that preset is currently active and the timer has not started, the home screen refreshes to the new values. If the timer is running or paused, the app asks before updating because confirming will reset the timer with the new values.
+- **Use without updating** applies the edited values as an unsaved custom workout and leaves the saved preset unchanged.
+- **Rename** changes the saved preset name. If that preset is active, the home screen label updates without resetting the timer.
+- **Delete** removes the saved preset and offers **Undo**. If the deleted preset is active, the app confirms first, then keeps the current timer values as an unsaved custom workout so the deleted preset is not restored as active after an app restart.
+- **Duplicate** creates a separate copy and does not change the active workout.
+
+Workout history records the workout name shown when the session completes. Existing history entries are not renamed or rewritten when presets change.
 
 ## Requirements
 

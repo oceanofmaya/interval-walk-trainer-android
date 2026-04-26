@@ -5,6 +5,6 @@
     <string name="tts_fast_walk">तेज़ चाल</string>
     <string name="tts_workout_complete">कसरत पूरी</string>
     <string name="tts_voice_notifications_enabled">आवाज़ सूचनाएं चालू</string>
-    <string name="go">शुरू करें</string>
-    <string name="voice_notifications_disabled">आवाज़ सूचनाएं बंद</string>
+    <string name="action_go">शुरू करें</string>
+    <string name="snackbar_voice_notifications_disabled">आवाज़ सूचनाएं बंद</string>
 </resources>

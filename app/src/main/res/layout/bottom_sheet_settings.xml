@@ -25,7 +25,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/settings"
+        android:text="@string/title_settings"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
@@ -69,7 +69,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/workout_settings"
+        android:text="@string/group_workout"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
@@ -85,7 +85,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/settings_group_sounds_haptics"
+        android:text="@string/group_sounds_haptics"
         android:textSize="12sp"
         android:textColor="@color/text_secondary"
         android:gravity="start|center_vertical"
@@ -105,7 +105,7 @@
             android:id="@+id/vibrationLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/vibration"
+            android:text="@string/label_vibration"
             android:textSize="16sp"
             android:textColor="@color/text_primary"
             android:gravity="start|center_vertical"
@@ -145,7 +145,7 @@
             android:id="@+id/voiceNotificationsLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/voice_notifications"
+            android:text="@string/label_voice_notifications"
             android:textSize="16sp"
             android:textColor="@color/text_primary"
             android:gravity="start|center_vertical"
@@ -188,7 +188,7 @@
             android:id="@+id/voiceLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/voice"
+            android:text="@string/label_voice"
             android:textSize="16sp"
             android:textColor="@color/text_primary"
             android:gravity="start|center_vertical"
@@ -214,7 +214,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|center_vertical"
             android:layout_marginEnd="16dp"
-            android:text="@string/voice_default"
+            android:text="@string/option_voice_default"
             android:textSize="14sp"
             android:textColor="@color/text_secondary" />
     </FrameLayout>
@@ -223,7 +223,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/settings_group_during_workout"
+        android:text="@string/group_during_workout"
         android:textSize="12sp"
         android:textColor="@color/text_secondary"
         android:gravity="start|center_vertical"
@@ -243,7 +243,7 @@
             android:id="@+id/notificationsLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/notifications"
+            android:text="@string/label_notifications"
             android:textSize="16sp"
             android:textColor="@color/text_primary"
             android:gravity="start|center_vertical"
@@ -283,7 +283,7 @@
             android:id="@+id/keepScreenAwakeLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/keep_screen_awake"
+            android:text="@string/label_keep_screen_awake"
             android:textSize="16sp"
             android:textColor="@color/text_primary"
             android:gravity="start|center_vertical"
@@ -324,7 +324,7 @@
             android:id="@+id/countdownLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/countdown"
+            android:text="@string/label_countdown"
             android:textSize="16sp"
             android:textColor="@color/text_primary"
             android:gravity="start|center_vertical"
@@ -356,7 +356,7 @@
                 android:id="@+id/startCountdownValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/countdown_seconds_placeholder"
+                android:text="@string/placeholder_countdown_seconds"
                 android:textSize="14sp"
                 android:textColor="@color/text_secondary"
                 android:layout_marginEnd="4dp" />
@@ -367,7 +367,7 @@
                 android:layout_height="32dp"
                 android:src="@drawable/ic_remove"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/decrease"
+                android:contentDescription="@string/desc_decrease"
                 app:tint="@color/text_secondary"
                 android:scaleType="centerInside" />
 
@@ -377,7 +377,7 @@
                 android:layout_height="32dp"
                 android:src="@drawable/ic_add"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/increase"
+                android:contentDescription="@string/desc_increase"
                 app:tint="@color/text_secondary"
                 android:scaleType="centerInside" />
             
@@ -402,7 +402,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/settings_group_history"
+        android:text="@string/group_history"
         android:textSize="12sp"
         android:textColor="@color/text_secondary"
         android:gravity="start|center_vertical"
@@ -423,7 +423,7 @@
             android:id="@+id/saveWorkoutsLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/save_workouts"
+            android:text="@string/label_save_workouts"
             android:textSize="16sp"
             android:textColor="@color/text_primary"
             android:gravity="start|center_vertical"
@@ -458,7 +458,7 @@
         style="@style/Widget.IntervalWalkTrainer.SettingsActionButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/clear_stats"
+        android:text="@string/action_clear_history"
         app:icon="@drawable/outline_delete_24"
         app:iconSize="24dp" />
     
@@ -474,7 +474,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/theme_mode"
+        android:text="@string/label_theme"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
@@ -503,7 +503,7 @@
             android:layout_marginEnd="12dp"
             android:background="@drawable/theme_swatch_unselected_bg"
             android:src="@drawable/swatch_theme_system"
-            android:contentDescription="@string/theme_system"
+            android:contentDescription="@string/option_theme_system"
             android:padding="4dp"
             app:tint="@null" />
 
@@ -514,7 +514,7 @@
             android:layout_marginEnd="12dp"
             android:background="@drawable/theme_swatch_unselected_bg"
             android:src="@drawable/swatch_theme_light"
-            android:contentDescription="@string/theme_light"
+            android:contentDescription="@string/option_theme_light"
             android:padding="4dp"
             app:tint="@null" />
 
@@ -524,7 +524,7 @@
             android:layout_height="44dp"
             android:background="@drawable/theme_swatch_unselected_bg"
             android:src="@drawable/swatch_theme_dark"
-            android:contentDescription="@string/theme_dark"
+            android:contentDescription="@string/option_theme_dark"
             android:padding="4dp"
             app:tint="@null" />
     </LinearLayout>
@@ -532,7 +532,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/accent_mode"
+        android:text="@string/label_accent"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
@@ -561,7 +561,7 @@
             android:layout_marginEnd="10dp"
             android:background="@drawable/theme_swatch_unselected_bg"
             android:src="@drawable/swatch_accent_blue"
-            android:contentDescription="@string/accent_blue"
+            android:contentDescription="@string/desc_accent_blue"
             android:padding="4dp"
             app:tint="@null" />
 
@@ -572,7 +572,7 @@
             android:layout_marginEnd="10dp"
             android:background="@drawable/theme_swatch_unselected_bg"
             android:src="@drawable/swatch_accent_teal"
-            android:contentDescription="@string/accent_teal"
+            android:contentDescription="@string/desc_accent_teal"
             android:padding="4dp"
             app:tint="@null" />
 
@@ -583,7 +583,7 @@
             android:layout_marginEnd="10dp"
             android:background="@drawable/theme_swatch_unselected_bg"
             android:src="@drawable/swatch_accent_purple"
-            android:contentDescription="@string/accent_purple"
+            android:contentDescription="@string/desc_accent_purple"
             android:padding="4dp"
             app:tint="@null" />
 
@@ -594,7 +594,7 @@
             android:layout_marginEnd="10dp"
             android:background="@drawable/theme_swatch_unselected_bg"
             android:src="@drawable/swatch_accent_amber"
-            android:contentDescription="@string/accent_amber"
+            android:contentDescription="@string/desc_accent_amber"
             android:padding="4dp"
             app:tint="@null" />
 
@@ -604,7 +604,7 @@
             android:layout_height="36dp"
             android:background="@drawable/theme_swatch_unselected_bg"
             android:src="@drawable/swatch_accent_magenta"
-            android:contentDescription="@string/accent_magenta"
+            android:contentDescription="@string/desc_accent_magenta"
             android:padding="4dp"
             app:tint="@null" />
     </LinearLayout>
@@ -621,7 +621,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/about"
+        android:text="@string/label_about"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
@@ -637,7 +637,7 @@
         android:id="@+id/privacyPolicyButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/privacy_policy"
+        android:text="@string/label_privacy_policy"
         app:icon="@drawable/ic_privacy"
         style="@style/Widget.IntervalWalkTrainer.SettingsActionButton" />
 
@@ -645,7 +645,7 @@
         android:id="@+id/termsButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/terms_and_conditions"
+        android:text="@string/label_terms_of_service"
         app:icon="@drawable/ic_terms"
         style="@style/Widget.IntervalWalkTrainer.SettingsActionButton" />
 

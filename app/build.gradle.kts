@@ -16,8 +16,9 @@ android {
         applicationId = "com.oceanofmaya.intervalwalktrainer"
         minSdk = 24
         targetSdk = 36
-        versionCode = 56
-        versionName = "1.1.12"
+        versionCode = 57
+        versionName = "1.2.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -171,6 +172,8 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.22.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:6.2.3")
     testImplementation("app.cash.turbine:turbine:1.2.1")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test:runner:1.7.0")
     
     // JUnit 6 test engine and platform launcher for running tests
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.3")

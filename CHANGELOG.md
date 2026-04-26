@@ -2,6 +2,26 @@
 
 ## Version 1
 
+### 1.2.0 - 2026-04-26
+
+#### Features
+
+- **Saved presets:** Save up to 30 custom interval or circuit presets from Design Your Own, pick them under “My saved presets” in the picker, update, rename, duplicate, delete (long-press / overflow menu), and reorder with the drag handle.
+- **After Create:** Choose Save & use, Use without saving, or Save only; snackbar confirms Save only.
+
+#### UI/UX Improvements
+
+- **Picker rename:** “Select Training Formula” is now “Select Preset”; sections are “Pre-configured presets” and “My saved presets”. This makes it clearer this is separate from workout history.
+- **Sticky “Design Your Own”:** The Design Your Own action is pinned below the list so it stays reachable as you save more presets.
+- **Consistent alignment:** Pre-configured rows now left-align like saved-preset rows so the picker reads as one consistent list.
+- **Preset row format:** Pre-configured rows now show the name on the first line and the duration + workout type on a second line (matching saved presets); the redundant “(N min)” suffix has been dropped from preset names (e.g. “3-3 Japanese - 5 Rounds”). Existing workout history retains its original formula-name strings.
+- **Preset feedback:** Save, update, rename, duplicate and delete now all show a brief confirmation snackbar, and Delete is undoable for ~5 seconds instead of requiring a confirmation dialog. Delete is now a single tap: it removes the preset immediately and exposes an **Undo** action that restores the row with its original position and creation time intact.
+- **Active preset rules:** Updating the active preset refreshes the home screen, asks before resetting a running or paused timer, and deleting the active preset converts the current workout to an unsaved custom workout while keeping the timer values.
+
+#### Fixes
+
+- **Timer restore:** Restoring state with `currentInterval == 0` (e.g. rotation during pre-start countdown) no longer leaves the internal interval index negative, which could add an extra slow phase at the end while elapsed time hit the workout cap.
+
 ### 1.1.12 - 2026-03-18
 
 #### Fixes
@@ -511,42 +531,35 @@
   - 3-3 Japanese - 5 Rounds (30 min) - Default
   - 5-2 High Intensity - 4 Rounds (28 min)
   - 5-4-5 Circuit - 2 Rounds (28 min)
-
 - **Design Your Own**: Create custom interval or circuit training formulas
   - Adjustable slow and fast durations (1-60 minutes)
   - Adjustable rounds (1-100)
   - Choose to start with slow or fast phase
   - Circuit mode with three-phase patterns
   - Custom formulas are saved automatically
-
 - **Workout tracking**
   - Visual progress bar showing overall completion
   - Elapsed and remaining time displays
   - Current interval counter
   - Progress bar color changes with phase (blue for slow, red for fast)
   - Automatic workout recording when workouts complete
-
 - **Workout statistics and history**
   - Calendar view with workout day indicators
   - Today indicator (outline ring) and workout days (filled circle)
   - Monthly navigation (previous/next month)
   - Statistics display: total workouts, total minutes, current streak, longest streak, average workouts per week
   - Clear all stats functionality
-
 - **Notifications**
   - Vibration patterns: gentle for slow phase, strong for fast phase
   - Voice announcements with text-to-speech
   - Both can be toggled on/off
-
 - **Theme support**
   - Light and dark themes
   - Theme preference is saved
   - Smooth transitions between themes
-
 - **Background operation**
   - Timer continues running when phone is locked
   - Accurate timing even when screen is off
-
 - **Minimalist interface**
   - Large, readable timer display
   - Clean icon-based controls

@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated:** February 2026
+**Last Updated:** April 2026
 
 ## Introduction
 
@@ -20,9 +20,10 @@ The app stores the following preferences locally on your device using Android's 
 - **Vibration Setting**: Whether vibration notifications are enabled
 - **Voice Setting**: Whether voice notifications are enabled
 
-Additionally, the app stores workout history locally on your device using a local database:
+Additionally, the app stores workout history and optional saved workout templates locally on your device using a local database:
 
 - **Workout History**: Dates on which you completed workouts, the number of workouts completed per day, and total minutes walked per day. This includes statistics such as workout streaks, total workouts, and total minutes walked.
+- **Saved Presets**: Names and interval/circuit settings for up to 30 custom presets you choose to keep in the formula picker. They are not uploaded or synced.
 
 This data is stored only on your device and is never transmitted or shared with us or any third parties. All workout history data remains completely private and local to your device.
 

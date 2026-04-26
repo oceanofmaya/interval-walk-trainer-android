@@ -17,15 +17,16 @@
         android:id="@+id/formulaName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@color/text_primary"
-        android:textAllCaps="false"
         android:fontFamily="sans-serif-medium"
+        android:gravity="start|center_vertical"
+        android:minHeight="56dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        android:paddingTop="18dp"
-        android:paddingBottom="18dp"
-        android:gravity="center" />
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:textAllCaps="false"
+        android:textColor="@color/text_primary"
+        android:textSize="16sp" />
 
 </com.google.android.material.card.MaterialCardView>
 

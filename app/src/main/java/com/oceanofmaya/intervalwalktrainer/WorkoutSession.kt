@@ -17,7 +17,7 @@ data class WorkoutSession(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val date: String, // Format: YYYY-MM-DD
-    val workoutType: String, // Formula name (e.g., "3-3 Japanese - 5 Rounds (30 min)")
+    val workoutType: String, // Formula name (e.g., "3-3 Japanese - 5 Rounds")
     val minutes: Int,
     val timestamp: Long = System.currentTimeMillis()
 )

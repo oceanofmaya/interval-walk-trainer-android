@@ -320,7 +320,9 @@ class IntervalTimer(
         savedElapsedSeconds: Int? = null
     ) {
         countDownTimer?.cancel()
-        currentIntervalIndex = currentInterval - 1
+        // Initial TimerState uses currentInterval == 0 before any tick; (currentInterval - 1) would be -1
+        // and breaks completion (extra phase) after activity recreate, e.g. rotation during pre-start countdown.
+        currentIntervalIndex = (currentInterval - 1).coerceAtLeast(0)
         isSlowPhase = currentPhase is IntervalPhase.Slow
         phaseStartTime = if (isSlowPhase) formula.slowDurationSeconds else formula.fastDurationSeconds
 

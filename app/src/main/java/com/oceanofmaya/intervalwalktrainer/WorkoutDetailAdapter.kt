@@ -44,7 +44,7 @@ class WorkoutDetailAdapter(
         val workoutNumber = position + 1
         
         // Format workout number
-        holder.workoutNumber.text = context.getString(R.string.workout_number, workoutNumber)
+        holder.workoutNumber.text = context.getString(R.string.format_workout_number, workoutNumber)
         
         // Display actual workout type, fixing singular form for "1 Rounds" -> "1 Round"
         val displayType = session.workoutType.replace("1 Rounds", "1 Round")
@@ -74,9 +74,9 @@ class WorkoutDetailAdapter(
         val hours = minutes / 60
         val mins = minutes % 60
         return if (hours > 0) {
-            context.getString(R.string.time_format_hr_min, hours, mins)
+            context.getString(R.string.format_time_hr_min, hours, mins)
         } else {
-            context.getString(R.string.time_format_min, mins)
+            context.getString(R.string.format_time_min, mins)
         }
     }
 }

@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="40dp"
-            android:text="@string/help"
+            android:text="@string/label_help"
             android:textSize="16sp"
             android:textColor="@color/text_primary" />
     </FrameLayout>
@@ -68,7 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="40dp"
-            android:text="@string/rate_app"
+            android:text="@string/label_rate_app"
             android:textSize="16sp"
             android:textColor="@color/text_primary" />
     </FrameLayout>
@@ -97,7 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="40dp"
-            android:text="@string/report_issue"
+            android:text="@string/label_report_issue"
             android:textSize="16sp"
             android:textColor="@color/text_primary" />
     </FrameLayout>
