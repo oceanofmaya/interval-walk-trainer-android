@@ -5,6 +5,6 @@
     <string name="tts_fast_walk">Snel lopen</string>
     <string name="tts_workout_complete">Training voltooid</string>
     <string name="tts_voice_notifications_enabled">Spraakmeldingen ingeschakeld</string>
-    <string name="go">Start</string>
-    <string name="voice_notifications_disabled">Spraakmeldingen uitgeschakeld</string>
+    <string name="action_go">Start</string>
+    <string name="snackbar_voice_notifications_disabled">Spraakmeldingen uitgeschakeld</string>
 </resources>

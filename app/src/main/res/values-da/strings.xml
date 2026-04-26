@@ -5,6 +5,6 @@
     <string name="tts_fast_walk">Hurtig gang</string>
     <string name="tts_workout_complete">Træning afsluttet</string>
     <string name="tts_voice_notifications_enabled">Stemmeunderretninger aktiveret</string>
-    <string name="go">Start</string>
-    <string name="voice_notifications_disabled">Stemmeunderretninger deaktiveret</string>
+    <string name="action_go">Start</string>
+    <string name="snackbar_voice_notifications_disabled">Stemmeunderretninger deaktiveret</string>
 </resources>

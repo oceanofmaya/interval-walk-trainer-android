@@ -51,7 +51,7 @@ class FormulaAdapter(
     override fun onBindViewHolder(holder: FormulaViewHolder, position: Int) {
         if (showCustomOption && position == formulas.size) {
             // Custom option
-            holder.formulaName.text = holder.itemView.context.getString(R.string.custom_formula)
+            holder.formulaName.text = holder.itemView.context.getString(R.string.action_custom_formula)
             holder.itemView.setOnClickListener {
                 onItemClick(null)
             }

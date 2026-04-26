@@ -55,14 +55,13 @@ All lint errors must be fixed before completing a task. Use `read_lints` to chec
 All changes merged into this repository must include:
 
 1. **Changelog Entry**: Update `CHANGELOG.md` with a new version entry following this pattern:
-   - Major version grouping: `## Version X` (if creating a new major version, otherwise add to existing major version section)
-   - Version heading: `### X.Y.Z - YYYY-MM-DD` (placed under the appropriate major version section)
-   - Category headings: Use `#### Category` for organizing changes (e.g., `Breaking Changes`, `Updates`, `UI/UX Improvements`, `Chore`, `Features`, etc.)
-   - List items under each category describing the changes
-
+  - Major version grouping: `## Version X` (if creating a new major version, otherwise add to existing major version section)
+  - Version heading: `### X.Y.Z - YYYY-MM-DD` (placed under the appropriate major version section)
+  - Category headings: Use `#### Category` for organizing changes (e.g., `Breaking Changes`, `Updates`, `UI/UX Improvements`, `Chore`, `Features`, etc.)
+  - List items under each category describing the changes
 2. **Version Update**: Update the version in all locations to match the version in `CHANGELOG.md` following [semantic versioning](https://semver.org/):
-   - Update `versionName` in `app/build.gradle.kts` to match the semantic version (e.g., `1.0.0`, `1.1.0`, `2.0.0`)
-   - **Increment `versionCode`** in `app/build.gradle.kts` - this integer must be incremented for each release, regardless of the semantic version change. The `versionCode` is used by the Google Play Store to determine which version is newer and must always increase with each release.
+  - Update `versionName` in `app/build.gradle.kts` to match the semantic version (e.g., `1.0.0`, `1.1.0`, `2.0.0`)
+  - **Increment `versionCode`** in `app/build.gradle.kts` - this integer must be incremented for each release, regardless of the semantic version change. The `versionCode` is used by the Google Play Store to determine which version is newer and must always increase with each release.
 
 ## Documentation and user-facing copy
 

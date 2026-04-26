@@ -5,6 +5,6 @@
     <string name="tts_fast_walk">Jalan cepat</string>
     <string name="tts_workout_complete">Latihan selesai</string>
     <string name="tts_voice_notifications_enabled">Notifikasi suara diaktifkan</string>
-    <string name="go">Mulai</string>
-    <string name="voice_notifications_disabled">Notifikasi suara dinonaktifkan</string>
+    <string name="action_go">Mulai</string>
+    <string name="snackbar_voice_notifications_disabled">Notifikasi suara dinonaktifkan</string>
 </resources>

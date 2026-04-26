@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/workout_stats"
+                android:text="@string/title_workout_history"
                 android:textColor="@color/text_primary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -44,7 +44,7 @@
                     android:layout_marginEnd="4dp"
                     android:src="@drawable/ic_save"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/save_workouts" />
+                    android:contentDescription="@string/label_save_workouts" />
 
                 <ImageButton
                     android:id="@+id/clearStatsButton"
@@ -53,7 +53,7 @@
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/outline_delete_24"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/clear_stats" />
+                    android:contentDescription="@string/action_clear_history" />
             </LinearLayout>
 
         </androidx.appcompat.widget.Toolbar>
@@ -80,7 +80,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/overview"
+                android:text="@string/tab_overview"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
@@ -107,7 +107,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/total_workouts"
+                        android:text="@string/label_total_workouts"
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="4dp" />
@@ -115,7 +115,7 @@
                         android:id="@+id/totalWorkoutsValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/zero"
+                        android:text="@string/placeholder_zero"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary" />
@@ -135,7 +135,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/total_minutes"
+                        android:text="@string/label_total_minutes"
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="4dp" />
@@ -143,7 +143,7 @@
                         android:id="@+id/totalMinutesValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/zero_min"
+                        android:text="@string/placeholder_zero_min"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary" />
@@ -163,7 +163,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/longest_streak"
+                        android:text="@string/label_longest_streak"
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="4dp" />
@@ -171,7 +171,7 @@
                         android:id="@+id/longestStreakValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/zero_days"
+                        android:text="@string/placeholder_zero_days"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary" />
@@ -199,7 +199,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/current_streak"
+                        android:text="@string/label_current_streak"
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="4dp" />
@@ -207,7 +207,7 @@
                         android:id="@+id/currentStreakValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/zero"
+                        android:text="@string/placeholder_zero"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary" />
@@ -241,7 +241,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/avg_workouts_per_week"
+                        android:text="@string/label_avg_per_week"
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="4dp" />
@@ -249,7 +249,7 @@
                         android:id="@+id/avgWorkoutsPerWeekValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/zero_decimal"
+                        android:text="@string/placeholder_zero_decimal"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary" />
@@ -270,7 +270,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/best_day"
+                    android:text="@string/label_best_day"
                     android:textSize="12sp"
                     android:textColor="@color/text_secondary"
                     android:layout_marginBottom="4dp" />
@@ -294,7 +294,7 @@
                     android:id="@+id/bestDayEmptyState"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/no_best_day_data"
+                    android:text="@string/body_no_best_day_data"
                     android:textSize="14sp"
                     android:textColor="@color/text_secondary"
                     android:visibility="gone" />
@@ -305,7 +305,7 @@
                 android:id="@+id/monthlyTrendHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/month_comparison_title"
+                android:text="@string/title_monthly_trend"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
@@ -335,7 +335,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/total_workouts"
+                        android:text="@string/label_total_workouts"
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="4dp" />
@@ -375,7 +375,7 @@
                         android:id="@+id/monthComparisonWorkoutsEmptyState"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/no_monthly_trend_data"
+                        android:text="@string/body_no_monthly_trend_data"
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
                         android:visibility="gone" />
@@ -392,7 +392,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/total_minutes"
+                        android:text="@string/label_total_minutes"
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
                         android:layout_marginBottom="4dp" />
@@ -432,7 +432,7 @@
                         android:id="@+id/monthComparisonMinutesEmptyState"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/no_monthly_trend_data"
+                        android:text="@string/body_no_monthly_trend_data"
                         android:textSize="12sp"
                         android:textColor="@color/text_secondary"
                         android:visibility="gone" />
@@ -452,7 +452,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/no_workouts_title"
+                    android:text="@string/title_no_workouts_yet"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"
@@ -461,7 +461,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/no_workouts_message"
+                    android:text="@string/body_no_workouts"
                     android:textSize="14sp"
                     android:textColor="@color/text_secondary"
                     android:gravity="center" />
@@ -472,7 +472,7 @@
                 android:id="@+id/calendarSectionHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/calendar"
+                android:text="@string/tab_calendar"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
@@ -499,14 +499,14 @@
                         android:layout_height="40dp"
                         android:src="@drawable/ic_chevron_left"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/previous_month" />
+                        android:contentDescription="@string/desc_previous_month" />
 
                     <TextView
                         android:id="@+id/calendarMonthTitle"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="@string/month_year_placeholder"
+                        android:text="@string/placeholder_month_year"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="@color/text_primary"
@@ -518,13 +518,13 @@
                         android:layout_height="40dp"
                         android:src="@drawable/ic_chevron_right"
                         android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/next_month" />
+                        android:contentDescription="@string/desc_next_month" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/todayButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/today"
+                        android:text="@string/label_today"
                         android:textSize="12sp"
                         android:paddingStart="12dp"
                         android:paddingEnd="12dp"
@@ -551,7 +551,7 @@
                 android:id="@+id/workoutTypesHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/workout_types"
+                android:text="@string/label_workout_types"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
@@ -571,7 +571,7 @@
                 android:id="@+id/workoutsListTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/workouts_for_month"
+                android:text="@string/label_workouts"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"

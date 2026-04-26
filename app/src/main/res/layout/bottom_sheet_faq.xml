@@ -17,7 +17,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/frequently_asked_questions"
+        android:text="@string/title_faq"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"

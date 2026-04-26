@@ -50,7 +50,7 @@ object IntervalFormulas {
      * This is the default formula.
      */
     val formula2 = IntervalFormula(
-        name = "3-3 Japanese - 5 Rounds (30 min)",
+        name = "3-3 Japanese - 5 Rounds",
         slowDurationSeconds = 3 * 60, // 3 minutes
         fastDurationSeconds = 3 * 60, // 3 minutes
         totalIntervals = 5
@@ -61,7 +61,7 @@ object IntervalFormulas {
      * 5-2 pattern starting with fast phase (28 minutes total).
      */
     val formula3 = IntervalFormula(
-        name = "5-2 High Intensity - 4 Rounds (28 min)",
+        name = "5-2 High Intensity - 4 Rounds",
         slowDurationSeconds = 2 * 60, // 2 minutes low-intensity recovery
         fastDurationSeconds = 5 * 60, // 5 minutes high-intensity
         totalIntervals = 4, // Four rounds
@@ -73,7 +73,7 @@ object IntervalFormulas {
      * 5-4-5 pattern repeated 2 times (28 minutes total).
      */
     val formula4 = IntervalFormula(
-        name = "5-4-5 Circuit - 2 Rounds (28 min)",
+        name = "5-4-5 Circuit - 2 Rounds",
         slowDurationSeconds = 4 * 60, // 4 minutes slow recovery
         fastDurationSeconds = 5 * 60, // 5 minutes brisk
         totalIntervals = 4, // 2 circuits (5-4-5 pattern repeated twice)
@@ -84,7 +84,7 @@ object IntervalFormulas {
     /** All available training formulas. */
     val all = listOf(formula2, formula3, formula4)
     
-    /** Default formula: 3-3 Japanese - 5 Rounds (30 minutes). */
+    /** Default formula: 3-3 Japanese - 5 Rounds (30 minutes total). */
     val default = formula2
 }
 

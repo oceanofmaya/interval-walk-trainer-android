@@ -33,3 +33,4 @@ feat(release): v1.1.12
 - Fix interval elapsed/remaining restore drift.
 - Move workout hint below formula selector.
 ```
+

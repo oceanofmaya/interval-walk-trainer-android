@@ -58,9 +58,9 @@ class WorkoutListAdapter(
         
         // Format workout count
         val workoutText = if (workout.completedWorkouts == 1) {
-            context.getString(R.string.workout_singular)
+            context.getString(R.string.format_workout_count_singular)
         } else {
-            context.getString(R.string.workout_plural, workout.completedWorkouts)
+            context.getString(R.string.format_workout_count, workout.completedWorkouts)
         }
         holder.workoutCount.text = workoutText
         
@@ -83,9 +83,9 @@ class WorkoutListAdapter(
         val hours = minutes / 60
         val mins = minutes % 60
         return if (hours > 0) {
-            context.getString(R.string.time_format_hr_min, hours, mins)
+            context.getString(R.string.format_time_hr_min, hours, mins)
         } else {
-            context.getString(R.string.time_format_min, mins)
+            context.getString(R.string.format_time_min, mins)
         }
     }
 }

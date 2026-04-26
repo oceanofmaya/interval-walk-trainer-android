@@ -97,9 +97,9 @@ For the release workflow to work, you need to store the signing credentials as G
 1. Go to your GitHub repository
 2. Settings → Secrets and variables → Actions
 3. Add the following secrets:
-   - `KEYSTORE_PASSWORD`: Your keystore password
-   - `KEY_PASSWORD`: Your key password (if different, otherwise same as keystore)
-   - `KEYSTORE_BASE64`: Base64-encoded keystore file (see below)
+  - `KEYSTORE_PASSWORD`: Your keystore password
+  - `KEY_PASSWORD`: Your key password (if different, otherwise same as keystore)
+  - `KEYSTORE_BASE64`: Base64-encoded keystore file (see below)
 
 ### Creating KEYSTORE_BASE64 Secret
 
@@ -152,3 +152,4 @@ Store backups in multiple secure locations (encrypted cloud storage, password ma
 
 - Verify the key alias matches what's in `keystore.properties`
 - Check that the key password is correct
+

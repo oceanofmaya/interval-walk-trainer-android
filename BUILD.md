@@ -3,21 +3,20 @@
 ## Prerequisites
 
 1. **Java Development Kit (JDK) 21**
-   - Download from: <https://adoptium.net/>
-   - macOS: `brew install openjdk@21`
-   - Windows: Use installer or `choco install openjdk21`
-
+  - Download from: [https://adoptium.net/](https://adoptium.net/)
+  - macOS: `brew install openjdk@21`
+  - Windows: Use installer or `choco install openjdk21`
 2. **Android Studio** (includes Android SDK)
-   - Download from: <https://developer.android.com/studio>
+  - Download from: [https://developer.android.com/studio](https://developer.android.com/studio)
 
 ## Quick Start (Android Studio)
 
 1. Open Android Studio → File → Open → Select project folder
 2. Wait for Gradle sync
 3. Configure JDK 21 (if needed): File → Project Structure → SDK Location → JDK location
-   - macOS: `/opt/homebrew/opt/openjdk@21`
-   - Windows: `C:\Program Files\Eclipse Adoptium\jdk-21.x.x-hotspot`
-   - Linux: `/usr/lib/jvm/java-21-openjdk`
+  - macOS: `/opt/homebrew/opt/openjdk@21`
+  - Windows: `C:\Program Files\Eclipse Adoptium\jdk-21.x.x-hotspot`
+  - Linux: `/usr/lib/jvm/java-21-openjdk`
 4. Click Run ▶️ → Select device/emulator
 
 ## Command Line Build
@@ -115,3 +114,4 @@ Enable USB Debugging: Settings → About Phone → Tap "Build Number" 7 times �
 
 - Enable virtualization in BIOS
 - Install HAXM (Intel) or Hypervisor (AMD)
+

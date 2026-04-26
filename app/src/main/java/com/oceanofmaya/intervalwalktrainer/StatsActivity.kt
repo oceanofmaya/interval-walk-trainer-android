@@ -305,13 +305,13 @@ class StatsActivity : AppCompatActivity() {
     
     private fun showClearConfirmationDialog() {
         AlertDialog.Builder(this)
-            .setTitle(R.string.clear_stats_title)
-            .setMessage(R.string.clear_stats_message)
-            .setPositiveButton(R.string.clear) { _, _ ->
+            .setTitle(R.string.title_clear_workout_history)
+            .setMessage(R.string.message_clear_workout_history)
+            .setPositiveButton(R.string.action_clear) { _, _ ->
                 applyEmptyStatsUiImmediately()
                 clearAllStats()
             }
-            .setNegativeButton(R.string.cancel, null)
+            .setNegativeButton(R.string.action_cancel, null)
             .show()
     }
 
@@ -320,11 +320,11 @@ class StatsActivity : AppCompatActivity() {
      * Call before clearAllStats() so totals and related UI clear right away.
      */
     private fun applyEmptyStatsUiImmediately() {
-        binding.totalWorkoutsValue.text = getString(R.string.zero)
+        binding.totalWorkoutsValue.text = getString(R.string.placeholder_zero)
         binding.totalMinutesValue.text = formatMinutes(0)
-        binding.currentStreakValue.text = getString(R.string.days_format, 0)
-        binding.longestStreakValue.text = getString(R.string.days_format, 0)
-        binding.avgWorkoutsPerWeekValue.text = getString(R.string.zero_decimal)
+        binding.currentStreakValue.text = getString(R.string.format_days, 0)
+        binding.longestStreakValue.text = getString(R.string.format_days, 0)
+        binding.avgWorkoutsPerWeekValue.text = getString(R.string.placeholder_zero_decimal)
         binding.currentStreakCard.setBackgroundResource(R.drawable.formula_details_background)
         updateStreakProgress(0, 0)
         binding.bestDayValue.visibility = View.GONE
@@ -338,7 +338,7 @@ class StatsActivity : AppCompatActivity() {
         binding.workoutsRecyclerView.visibility = View.GONE
         binding.emptyWorkoutListMessage.visibility = View.GONE
         // Reset Monthly trend section so it shows zero until reload completes
-        binding.monthComparisonWorkoutsValue.text = getString(R.string.zero)
+        binding.monthComparisonWorkoutsValue.text = getString(R.string.placeholder_zero)
         binding.monthComparisonMinutesValue.text = formatMinutes(0)
         binding.monthComparisonWorkoutsBadgeContainer.visibility = View.GONE
         binding.monthComparisonWorkoutsEmptyState.visibility = View.VISIBLE
@@ -348,12 +348,12 @@ class StatsActivity : AppCompatActivity() {
 
     private fun showDisableSaveWorkoutsDialog(onConfirm: () -> Unit) {
         AlertDialog.Builder(this)
-            .setTitle(R.string.disable_save_workouts_title)
-            .setMessage(R.string.disable_save_workouts_message)
-            .setPositiveButton(R.string.turn_off) { _, _ ->
+            .setTitle(R.string.prompt_disable_save_workouts)
+            .setMessage(R.string.message_disable_save_workouts)
+            .setPositiveButton(R.string.action_turn_off) { _, _ ->
                 onConfirm()
             }
-            .setNegativeButton(R.string.keep_on, null)
+            .setNegativeButton(R.string.action_keep_on, null)
             .show()
     }
     
@@ -390,14 +390,14 @@ class StatsActivity : AppCompatActivity() {
                 binding.totalWorkoutsValue.text = String.format(Locale.getDefault(), "%d", stats.totalWorkouts)
                 binding.totalMinutesValue.text = formatMinutes(stats.totalMinutes)
                 binding.currentStreakValue.text = if (stats.currentStreak == 1) {
-                    getString(R.string.day_format, stats.currentStreak)
+                    getString(R.string.format_day, stats.currentStreak)
                 } else {
-                    getString(R.string.days_format, stats.currentStreak)
+                    getString(R.string.format_days, stats.currentStreak)
                 }
                 binding.longestStreakValue.text = if (stats.longestStreak == 1) {
-                    getString(R.string.day_format, stats.longestStreak)
+                    getString(R.string.format_day, stats.longestStreak)
                 } else {
-                    getString(R.string.days_format, stats.longestStreak)
+                    getString(R.string.format_days, stats.longestStreak)
                 }
                 binding.avgWorkoutsPerWeekValue.text = String.format(Locale.US, "%.1f", stats.averageWorkoutsPerWeek)
                 
@@ -448,11 +448,11 @@ class StatsActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 android.util.Log.e("StatsActivity", "Error loading statistics", e)
                 // Set default values on error
-                binding.totalWorkoutsValue.text = getString(R.string.zero)
-                binding.totalMinutesValue.text = getString(R.string.time_format_min, 0)
-                binding.currentStreakValue.text = getString(R.string.days_format, 0)
-                binding.longestStreakValue.text = getString(R.string.days_format, 0)
-                binding.avgWorkoutsPerWeekValue.text = getString(R.string.zero_decimal)
+                binding.totalWorkoutsValue.text = getString(R.string.placeholder_zero)
+                binding.totalMinutesValue.text = getString(R.string.format_time_min, 0)
+                binding.currentStreakValue.text = getString(R.string.format_days, 0)
+                binding.longestStreakValue.text = getString(R.string.format_days, 0)
+                binding.avgWorkoutsPerWeekValue.text = getString(R.string.placeholder_zero_decimal)
                 binding.emptyStateContainer.visibility = View.VISIBLE
             }
         }
@@ -502,7 +502,7 @@ class StatsActivity : AppCompatActivity() {
                     val monthFormat = SimpleDateFormat("MMMM yyyy", Locale.US)
                     calendar.set(displayedYear, displayedMonth, 1)
                     val monthName = monthFormat.format(calendar.time)
-                    binding.emptyWorkoutListMessage.text = getString(R.string.no_workouts_in_month, monthName)
+                    binding.emptyWorkoutListMessage.text = getString(R.string.format_no_workouts_in_month, monthName)
                     binding.emptyWorkoutListMessage.visibility = View.VISIBLE
                     binding.workoutsRecyclerView.visibility = View.GONE
                 } else {
@@ -528,7 +528,7 @@ class StatsActivity : AppCompatActivity() {
         if (longestStreak > 0) {
             val progress = ((currentStreak.toFloat() / longestStreak.toFloat()) * 100).toInt().coerceIn(0, 100)
             binding.streakProgressBar.progress = progress
-            binding.streakProgressText.text = getString(R.string.streak_progress, currentStreak, longestStreak)
+            binding.streakProgressText.text = getString(R.string.format_streak_progress, currentStreak, longestStreak)
             binding.streakProgressBar.visibility = View.VISIBLE
             binding.streakProgressText.visibility = View.VISIBLE
         } else {
@@ -544,26 +544,26 @@ class StatsActivity : AppCompatActivity() {
                 val displayDateFormat = SimpleDateFormat("MMM d, yyyy", Locale.US)
                 val dateText = displayDateFormat.format(date)
                 val workoutText = if (bestDay.workoutCount == 1) {
-                    getString(R.string.best_day_format_singular, dateText)
+                    getString(R.string.format_best_day_singular, dateText)
                 } else {
-                    getString(R.string.best_day_format, dateText, bestDay.workoutCount)
+                    getString(R.string.format_best_day, dateText, bestDay.workoutCount)
                 }
                 binding.bestDayValue.text = workoutText
                 binding.bestDayMinutes.text = formatMinutes(bestDay.totalMinutes)
             } else {
                 val workoutText = if (bestDay.workoutCount == 1) {
-                    getString(R.string.best_day_format_singular, bestDay.date)
+                    getString(R.string.format_best_day_singular, bestDay.date)
                 } else {
-                    getString(R.string.best_day_format, bestDay.date, bestDay.workoutCount)
+                    getString(R.string.format_best_day, bestDay.date, bestDay.workoutCount)
                 }
                 binding.bestDayValue.text = workoutText
                 binding.bestDayMinutes.text = formatMinutes(bestDay.totalMinutes)
             }
         } catch (e: Exception) {
             val workoutText = if (bestDay.workoutCount == 1) {
-                getString(R.string.best_day_format_singular, bestDay.date)
+                getString(R.string.format_best_day_singular, bestDay.date)
             } else {
-                getString(R.string.best_day_format, bestDay.date, bestDay.workoutCount)
+                getString(R.string.format_best_day, bestDay.date, bestDay.workoutCount)
             }
             binding.bestDayValue.text = workoutText
             binding.bestDayMinutes.text = formatMinutes(bestDay.totalMinutes)
@@ -582,9 +582,9 @@ class StatsActivity : AppCompatActivity() {
                 // Update workouts card
                 if (comparison.previousMonthWorkouts > 0 || comparison.currentMonthWorkouts > 0) {
                     binding.monthComparisonWorkoutsValue.text = if (comparison.currentMonthWorkouts == 1) {
-                        getString(R.string.month_comparison_workouts_value_singular)
+                        getString(R.string.format_workouts_count_singular)
                     } else {
-                        getString(R.string.month_comparison_workouts_value, comparison.currentMonthWorkouts)
+                        getString(R.string.format_workouts_count, comparison.currentMonthWorkouts)
                     }
                     updateComparisonBadge(
                         binding.monthComparisonWorkoutsArrow,
@@ -596,14 +596,17 @@ class StatsActivity : AppCompatActivity() {
                     binding.monthComparisonWorkoutsBadgeContainer.visibility = View.VISIBLE
                     binding.monthComparisonWorkoutsEmptyState.visibility = View.GONE
                 } else {
-                    binding.monthComparisonWorkoutsValue.text = getString(R.string.zero)
+                    binding.monthComparisonWorkoutsValue.text = getString(R.string.placeholder_zero)
                     binding.monthComparisonWorkoutsBadgeContainer.visibility = View.GONE
                     binding.monthComparisonWorkoutsEmptyState.visibility = View.VISIBLE
                 }
 
                 // Update minutes card
                 if (comparison.previousMonthMinutes > 0 || comparison.currentMonthMinutes > 0) {
-                    binding.monthComparisonMinutesValue.text = getString(R.string.month_comparison_minutes_value, formatMinutes(comparison.currentMonthMinutes))
+                    binding.monthComparisonMinutesValue.text = getString(
+                        R.string.format_minutes_value,
+                        formatMinutes(comparison.currentMonthMinutes)
+                    )
                     updateComparisonBadge(
                         binding.monthComparisonMinutesArrow,
                         binding.monthComparisonMinutesChange,
@@ -647,7 +650,7 @@ class StatsActivity : AppCompatActivity() {
                 arrowView.text = symbol
                 arrowView.setTextColor(increaseColor)
                 arrowView.visibility = View.VISIBLE
-                percentView.text = getString(R.string.month_comparison_change, percent)
+                percentView.text = getString(R.string.format_percent_change, percent)
                 percentView.setTextColor(increaseColor)
                 percentView.visibility = View.VISIBLE
             }
@@ -658,13 +661,13 @@ class StatsActivity : AppCompatActivity() {
                 arrowView.text = symbol
                 arrowView.setTextColor(decreaseColor)
                 arrowView.visibility = View.VISIBLE
-                percentView.text = getString(R.string.month_comparison_change, percent)
+                percentView.text = getString(R.string.format_percent_change, percent)
                 percentView.setTextColor(decreaseColor)
                 percentView.visibility = View.VISIBLE
             }
             previousValue == 0 && currentValue > 0 -> {
                 // New data (no previous month data)
-                arrowView.text = getString(R.string.new_label)
+                arrowView.text = getString(R.string.label_new)
                 arrowView.setTextColor(increaseColor)
                 arrowView.visibility = View.VISIBLE
                 percentView.visibility = View.GONE
@@ -675,7 +678,7 @@ class StatsActivity : AppCompatActivity() {
                 arrowView.text = "\u2212" // Unicode minus
                 arrowView.setTextColor(neutralColor)
                 arrowView.visibility = View.VISIBLE
-                percentView.text = getString(R.string.month_comparison_change, 0)
+                percentView.text = getString(R.string.format_percent_change, 0)
                 percentView.setTextColor(neutralColor)
                 percentView.visibility = View.VISIBLE
             }
@@ -728,7 +731,7 @@ class StatsActivity : AppCompatActivity() {
             // Fix singular form for "1 Rounds" -> "1 Round"
             val displayType = type.replace("1 Rounds", "1 Round")
             typeName.text = displayType
-            typeCount.text = getString(R.string.workout_type_count_format, count, percentage)
+            typeCount.text = getString(R.string.format_workout_type_count, count, percentage)
             typeProgress.progress = percentage
             typeProgress.progressTintList = android.content.res.ColorStateList.valueOf(getAccentColor())
             
@@ -767,9 +770,9 @@ class StatsActivity : AppCompatActivity() {
             }
             recyclerView.adapter = WorkoutDetailAdapter(sessions) { session ->
                 AlertDialog.Builder(this)
-                    .setTitle(R.string.delete_workout_title)
-                    .setMessage(R.string.delete_workout_message)
-                    .setPositiveButton(R.string.delete) { _, _ ->
+                    .setTitle(R.string.prompt_delete_workout)
+                    .setMessage(R.string.message_delete_workout)
+                    .setPositiveButton(R.string.action_delete) { _, _ ->
                         lifecycleScope.launch {
                             try {
                                 workoutRepository.deleteSession(session)
@@ -796,7 +799,7 @@ class StatsActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    .setNegativeButton(R.string.cancel, null)
+                    .setNegativeButton(R.string.action_cancel, null)
                     .show()
             }
         }
@@ -959,9 +962,9 @@ class StatsActivity : AppCompatActivity() {
         val hours = minutes / 60
         val mins = minutes % 60
         return if (hours > 0) {
-            getString(R.string.time_format_hr_min, hours, mins)
+            getString(R.string.format_time_hr_min, hours, mins)
         } else {
-            getString(R.string.time_format_min, mins)
+            getString(R.string.format_time_min, mins)
         }
     }
 }

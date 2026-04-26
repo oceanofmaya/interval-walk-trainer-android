@@ -18,7 +18,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/voice_picker_title"
+        android:text="@string/prompt_voice_picker_language"
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
@@ -59,7 +59,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/cancel" />
+            android:text="@string/action_cancel" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/applyVoiceSelectionButton"
@@ -67,7 +67,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/apply" />
+            android:text="@string/action_apply" />
     </LinearLayout>
 
 </LinearLayout>

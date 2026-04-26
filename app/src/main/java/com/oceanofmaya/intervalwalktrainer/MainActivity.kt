@@ -14,6 +14,7 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
+import android.os.SystemClock
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
 import android.text.SpannableString
@@ -29,6 +30,7 @@ import android.view.View
 import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
@@ -48,8 +50,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.oceanofmaya.intervalwalktrainer.databinding.ActivityMainBinding
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.PopupMenu
 import androidx.core.content.edit
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
@@ -75,11 +89,13 @@ open class MainActivity : AppCompatActivity() {
     private var timerJob: Job? = null
     private var isRestoringTimerState = false
     private lateinit var workoutRepository: WorkoutRepository
+    private lateinit var savedWorkoutRepository: SavedWorkoutRepository
     private var lastDisplayedTime = -1
     private var lastDisplayedPhase: IntervalPhase? = null
     private var hasShownCompletionConfetti = false
     private var preStartCountdownTimer: CountDownTimer? = null
     private var isPreStartCountdownActive = false
+    private var preStartCountdownEndElapsedRealtime: Long = 0L
     private var shouldStartForegroundServiceAfterPermission = false
     private var settingsNotificationsSwitch: com.google.android.material.switchmaterial.SwitchMaterial? = null
     private var isUpdatingNotificationsSwitch = false
@@ -137,7 +153,10 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_CUSTOM_IS_CIRCUIT = "custom_is_circuit"
         private const val KEY_CUSTOM_CIRCUIT_PATTERN = "custom_circuit_pattern" // "fast_slow_fast" or "slow_fast_slow"
         private const val KEY_IS_CUSTOM_FORMULA = "is_custom_formula"
+        private const val KEY_CUSTOM_FORMULA_DISPLAY_NAME = "custom_formula_display_name"
+        private const val KEY_ACTIVE_SAVED_WORKOUT_ID = "active_saved_workout_id"
         private const val KEY_CUSTOM_FORMULA_MODE = "custom_formula_mode" // "circuit" or "interval"
+        private const val KEY_LEGACY_SAVED_MIGRATED = "saved_workouts_legacy_migrated_v3"
         
         // Saved state keys
         private const val KEY_SAVED_FORMULA_NAME = "saved_formula_name"
@@ -147,6 +166,15 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_SAVED_PHASE = "saved_phase"
         private const val KEY_SAVED_ELAPSED_SECONDS = "saved_elapsed_seconds"
         private const val KEY_SAVED_COMPLETION_AT_MILLIS = "saved_completion_at_millis"
+        private const val KEY_PRE_START_ACTIVE = "pre_start_countdown_active"
+        private const val KEY_PRE_START_END_ELAPSED_REALTIME = "pre_start_countdown_end_elapsed_realtime"
+        private const val PRE_START_RESUME_THRESHOLD_MS = 250L
+        private const val PORTRAIT_LIST_MAX_FRACTION = 0.65f
+        private const val LANDSCAPE_LIST_MAX_FRACTION = 0.55f
+
+        // 5 seconds matches the pattern used by Gmail / Keep / Files for undo-able deletes —
+        // long enough to read the row name and tap UNDO, short enough to not linger.
+        private const val UNDO_SNACKBAR_DURATION_MS = 5000
         
         // Wake lock configuration
         private const val WAKE_LOCK_TAG = "IntervalWalkTrainer:TimerWakeLock"
@@ -219,6 +247,10 @@ open class MainActivity : AppCompatActivity() {
         // Initialize workout repository
         val database = AppDatabase.getDatabase(this)
         workoutRepository = WorkoutRepository(database.workoutDao(), database.workoutSessionDao(), database)
+        savedWorkoutRepository = SavedWorkoutRepository(database.savedWorkoutDao(), database)
+        lifecycleScope.launch(Dispatchers.IO) {
+            maybeMigrateLegacySavedWorkouts()
+        }
 
         restoreCustomFormula()
         setupFormulaSpinner()
@@ -232,8 +264,25 @@ open class MainActivity : AppCompatActivity() {
         // Restore timer state if activity was recreated (e.g., theme change)
         if (savedInstanceState != null) {
             restoreTimerState(savedInstanceState)
+            restorePreStartCountdownIfActive(savedInstanceState)
         } else {
             updateUI()
+        }
+    }
+
+    private fun restorePreStartCountdownIfActive(savedInstanceState: Bundle) {
+        if (!savedInstanceState.getBoolean(KEY_PRE_START_ACTIVE, false)) return
+        val endRealtime = savedInstanceState.getLong(KEY_PRE_START_END_ELAPSED_REALTIME, 0L)
+        val remainingMillis = endRealtime - SystemClock.elapsedRealtime()
+        if (intervalTimer == null) {
+            intervalTimer = createIntervalTimer()
+            observeTimerState()
+        }
+        if (remainingMillis > PRE_START_RESUME_THRESHOLD_MS) {
+            startPreStartCountdown(initialMillis = remainingMillis)
+        } else {
+            // Countdown elapsed during recreate - go straight to running.
+            startTimerNow()
         }
     }
 
@@ -321,6 +370,10 @@ open class MainActivity : AppCompatActivity() {
             })
             outState.putLong(KEY_SAVED_COMPLETION_AT_MILLIS, completionAtMillis ?: -1L)
         }
+        if (isPreStartCountdownActive) {
+            outState.putBoolean(KEY_PRE_START_ACTIVE, true)
+            outState.putLong(KEY_PRE_START_END_ELAPSED_REALTIME, preStartCountdownEndElapsedRealtime)
+        }
     }
     
     private fun restoreTimerState(savedInstanceState: Bundle) {
@@ -338,58 +391,61 @@ open class MainActivity : AppCompatActivity() {
             // Try to find the formula in predefined formulas first
             var savedFormula = IntervalFormulas.all.find { it.name == savedFormulaName }
             
-            // If not found, and it's a custom formula, restore from SharedPreferences
-            if (savedFormula == null && savedFormulaName.startsWith("Custom:")) {
+            // If not found, restore the active custom/saved preset from SharedPreferences.
+            if (savedFormula == null && sharedPreferences.getBoolean(KEY_IS_CUSTOM_FORMULA, false)) {
                 savedFormula = restoreCustomFormulaFromPrefs()
             }
-            
-            if (savedFormula != null) {
-                currentFormula = savedFormula
-                binding.formulaButton.text = currentFormula.name
-                updateFormulaDetails()
-                
-                // Restore timer with saved state
-                val restoredPhase = when (savedPhase) {
-                    "slow" -> IntervalPhase.Slow
-                    "fast" -> IntervalPhase.Fast
-                    else -> IntervalPhase.Completed
-                }
-                
-                // Create timer with restored state
-                intervalTimer = createIntervalTimer()
-                
-                // Set flag to prevent notifications during restoration
-                isRestoringTimerState = true
-                
-                // Restore the timer state manually
-                intervalTimer?.restoreState(
-                    timeRemainingSeconds = savedTimeRemaining,
-                    currentInterval = savedCurrentInterval,
-                    currentPhase = restoredPhase,
-                    isRunning = savedIsRunning,
-                    savedElapsedSeconds = savedElapsedSeconds.takeIf { it >= 0 }
-                )
-                
-                // Clear flag after restoration
-                isRestoringTimerState = false
-                
-                // Observe state changes with lifecycle awareness
-                observeTimerState()
 
-                if (restoredPhase is IntervalPhase.Completed && completionAtMillis == null) {
-                    // If completion time was not available (e.g., old saved state), start delay from now.
-                    completionAtMillis = System.currentTimeMillis()
-                }
-                
-                // Acquire wake lock if timer was running
-                if (savedIsRunning) {
-                    acquireWakeLock()
-                    startWorkoutForegroundService()
-                }
-                
+            if (savedFormula == null) {
                 updateUI()
-                updateButtonStates()
+                return
             }
+
+            currentFormula = savedFormula
+            binding.formulaButton.text = currentFormula.name
+            updateFormulaDetails()
+
+            // Restore timer with saved state
+            val restoredPhase = when (savedPhase) {
+                "slow" -> IntervalPhase.Slow
+                "fast" -> IntervalPhase.Fast
+                else -> IntervalPhase.Completed
+            }
+
+            // Create timer with restored state
+            intervalTimer = createIntervalTimer()
+
+            // Set flag to prevent notifications during restoration
+            isRestoringTimerState = true
+
+            // Restore the timer state manually
+            intervalTimer?.restoreState(
+                timeRemainingSeconds = savedTimeRemaining,
+                currentInterval = savedCurrentInterval,
+                currentPhase = restoredPhase,
+                isRunning = savedIsRunning,
+                savedElapsedSeconds = savedElapsedSeconds.takeIf { it >= 0 }
+            )
+
+            // Clear flag after restoration
+            isRestoringTimerState = false
+
+            // Observe state changes with lifecycle awareness
+            observeTimerState()
+
+            if (restoredPhase is IntervalPhase.Completed && completionAtMillis == null) {
+                // If completion time was not available (e.g., old saved state), start delay from now.
+                completionAtMillis = System.currentTimeMillis()
+            }
+
+            // Acquire wake lock if timer was running
+            if (savedIsRunning) {
+                acquireWakeLock()
+                startWorkoutForegroundService()
+            }
+
+            updateUI()
+            updateButtonStates()
         } else {
             updateUI()
         }
@@ -416,18 +472,12 @@ open class MainActivity : AppCompatActivity() {
         val circuitPattern = sharedPreferences.getString(KEY_CUSTOM_CIRCUIT_PATTERN, "fast_slow_fast") ?: "fast_slow_fast"
         
         if (slowMinutes > 0 && fastMinutes > 0 && rounds > 0) {
-            return if (isCircuit) {
-                val patternText = if (circuitPattern == "fast_slow_fast") {
-                    "${fastMinutes}-${slowMinutes}-${fastMinutes}"
-                } else {
-                    "${slowMinutes}-${fastMinutes}-${slowMinutes}"
-                }
+            val storedDisplayName = sharedPreferences
+                .getString(KEY_CUSTOM_FORMULA_DISPLAY_NAME, null)
+                ?.takeIf { it.isNotBlank() }
+            val restored = if (isCircuit) {
                 IntervalFormula(
-                    name = if (rounds == 1) {
-                        getString(R.string.custom_circuit_name_format_singular, patternText)
-                    } else {
-                        getString(R.string.custom_circuit_name_format, patternText, rounds)
-                    },
+                    name = generatedCustomFormulaName(slowMinutes, fastMinutes, rounds, true, circuitPattern),
                     slowDurationSeconds = slowMinutes * 60,
                     fastDurationSeconds = fastMinutes * 60,
                     totalIntervals = rounds * 2, // Each circuit = 2 intervals
@@ -436,34 +486,137 @@ open class MainActivity : AppCompatActivity() {
                 )
             } else {
                 IntervalFormula(
-                    name = if (rounds == 1) {
-                        getString(R.string.custom_interval_name_format_singular, slowMinutes, fastMinutes)
-                    } else {
-                        getString(R.string.custom_interval_name_format, slowMinutes, fastMinutes, rounds)
-                    },
+                    name = generatedCustomFormulaName(slowMinutes, fastMinutes, rounds, false, circuitPattern),
                     slowDurationSeconds = slowMinutes * 60,
                     fastDurationSeconds = fastMinutes * 60,
                     totalIntervals = rounds,
                     startsWithFast = startsWithFast
                 )
             }
+            return storedDisplayName?.let { restored.copy(name = it) } ?: restored
         }
         return null
     }
+
+    private fun generatedCustomFormulaName(
+        slowMinutes: Int,
+        fastMinutes: Int,
+        rounds: Int,
+        isCircuit: Boolean,
+        circuitPattern: String
+    ): String {
+        return if (isCircuit) {
+            val patternText = if (circuitPattern == SavedWorkoutRepository.CIRCUIT_PATTERN_FAST_SLOW_FAST) {
+                "${fastMinutes}-${slowMinutes}-${fastMinutes}"
+            } else {
+                "${slowMinutes}-${fastMinutes}-${slowMinutes}"
+            }
+            if (rounds == 1) {
+                getString(R.string.format_custom_circuit_name_singular, patternText)
+            } else {
+                getString(R.string.format_custom_circuit_name, patternText, rounds)
+            }
+        } else if (rounds == 1) {
+            getString(R.string.format_custom_interval_name_singular, slowMinutes, fastMinutes)
+        } else {
+            getString(R.string.format_custom_interval_name, slowMinutes, fastMinutes, rounds)
+        }
+    }
     
-    private fun saveCustomFormula(formula: IntervalFormula, isCircuit: Boolean = false, circuitPattern: String = "fast_slow_fast") {
+    private fun saveCustomFormula(
+        formula: IntervalFormula,
+        isCircuit: Boolean = false,
+        circuitPattern: String = "fast_slow_fast",
+        activeSavedWorkoutId: Long? = null
+    ) {
         val slowMinutes = formula.slowDurationSeconds / 60
         val fastMinutes = formula.fastDurationSeconds / 60
         val rounds = if (isCircuit) formula.totalIntervals / 2 else formula.totalIntervals
         
         sharedPreferences.edit {
             putBoolean(KEY_IS_CUSTOM_FORMULA, true)
+                .putString(KEY_CUSTOM_FORMULA_DISPLAY_NAME, formula.name)
                 .putInt(KEY_CUSTOM_SLOW_MINUTES, slowMinutes)
                 .putInt(KEY_CUSTOM_FAST_MINUTES, fastMinutes)
                 .putInt(KEY_CUSTOM_ROUNDS, rounds)
                 .putBoolean(KEY_CUSTOM_STARTS_WITH_FAST, formula.startsWithFast)
                 .putBoolean(KEY_CUSTOM_IS_CIRCUIT, isCircuit)
                 .putString(KEY_CUSTOM_CIRCUIT_PATTERN, circuitPattern)
+            if (activeSavedWorkoutId != null) {
+                putLong(KEY_ACTIVE_SAVED_WORKOUT_ID, activeSavedWorkoutId)
+            } else {
+                remove(KEY_ACTIVE_SAVED_WORKOUT_ID)
+            }
+        }
+    }
+
+    private fun isActiveSavedWorkout(workout: SavedWorkout): Boolean =
+        sharedPreferences.getLong(KEY_ACTIVE_SAVED_WORKOUT_ID, -1L) == workout.id
+
+    private fun unlinkActiveSavedWorkoutAsCustom(workout: SavedWorkout) {
+        val circuitPattern = if (workout.isCircuit) {
+            workout.circuitPattern
+        } else {
+            SavedWorkoutRepository.CIRCUIT_PATTERN_FAST_SLOW_FAST
+        }
+        val slowMinutes = workout.slowDurationSeconds / 60
+        val fastMinutes = workout.fastDurationSeconds / 60
+        val rounds = if (workout.isCircuit) workout.totalIntervals / 2 else workout.totalIntervals
+        val customFormula = workout.toIntervalFormula().copy(
+            name = generatedCustomFormulaName(
+                slowMinutes = slowMinutes,
+                fastMinutes = fastMinutes,
+                rounds = rounds,
+                isCircuit = workout.isCircuit,
+                circuitPattern = circuitPattern
+            )
+        )
+        saveCustomFormula(
+            formula = customFormula,
+            isCircuit = workout.isCircuit,
+            circuitPattern = circuitPattern
+        )
+        currentFormula = customFormula
+        binding.formulaButton.text = customFormula.name
+        updateFormulaDetails()
+        updateButtonStates()
+    }
+
+    private fun isTimerIdleForFormulaSwap(): Boolean {
+        val state = intervalTimer?.state?.value ?: return true
+        return !isPreStartCountdownActive &&
+            !state.isRunning &&
+            state.elapsedSeconds == 0 &&
+            state.currentPhase !is IntervalPhase.Completed
+    }
+
+    private fun currentFormulaMatches(workout: SavedWorkout): Boolean =
+        currentFormula.slowDurationSeconds == workout.slowDurationSeconds &&
+            currentFormula.fastDurationSeconds == workout.fastDurationSeconds &&
+            currentFormula.totalIntervals == workout.totalIntervals &&
+            currentFormula.isCircuit == workout.isCircuit &&
+            currentFormula.startsWithFast == workout.startsWithFast
+
+    private fun applySavedWorkoutToHome(workout: SavedWorkout, resetTimerAfterApply: Boolean) {
+        val formula = workout.toIntervalFormula()
+        val pattern = if (workout.isCircuit) {
+            workout.circuitPattern
+        } else {
+            SavedWorkoutRepository.CIRCUIT_PATTERN_FAST_SLOW_FAST
+        }
+        saveCustomFormula(
+            formula = formula,
+            isCircuit = workout.isCircuit,
+            circuitPattern = pattern,
+            activeSavedWorkoutId = workout.id
+        )
+        currentFormula = formula
+        binding.formulaButton.text = formula.name
+        updateFormulaDetails()
+        if (resetTimerAfterApply) {
+            resetTimer()
+        } else {
+            updateButtonStates()
         }
     }
     
@@ -579,44 +732,801 @@ open class MainActivity : AppCompatActivity() {
     }
     
     private fun showFormulaSelectorDialog() {
-        val formulas = IntervalFormulas.all
         val bottomSheetDialog = BottomSheetDialog(this)
-        val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_formula_selector, android.widget.FrameLayout(this), false)
-        bottomSheetDialog.setContentView(view)
-        configureBottomSheet(bottomSheetDialog, view)
-        
-        val recyclerView = view.findViewById<RecyclerView>(R.id.formulaRecyclerView)
+        val sheetView = LayoutInflater.from(this).inflate(
+            R.layout.bottom_sheet_formula_selector,
+            android.widget.FrameLayout(this),
+            false
+        )
+        bottomSheetDialog.setContentView(sheetView)
+        configureBottomSheet(bottomSheetDialog, sheetView)
+        // Open the picker expanded so all presets are visible immediately.
+        // Without this, isFitToContents+responsive height can leave collapsed == expanded,
+        // which makes swiping up to "see more" feel broken and confines the user to the list scroll.
+        // skipCollapsed=true means drag-down dismisses (no awkward half state).
+        bottomSheetDialog.behavior.skipCollapsed = true
+        bottomSheetDialog.setOnShowListener {
+            bottomSheetDialog.behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
+        val recyclerView = sheetView.findViewById<RecyclerView>(R.id.formulaRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = FormulaAdapter(formulas, showCustomOption = true) { formula ->
-            if (formula == null) {
-                // Custom option selected
-                bottomSheetDialog.dismiss()
-                showCustomFormulaDialog()
-            } else {
-                // Regular formula selected
-                // Clear custom formula flag
-                sharedPreferences.edit { putBoolean(KEY_IS_CUSTOM_FORMULA, false) }
-                
-                // Only update if a different formula was selected
-                if (currentFormula != formula) {
-                    currentFormula = formula
-                    binding.formulaButton.text = formula.name
-                    updateFormulaDetails()
-                    // Always reset timer when formula changes, even if running
-                    resetTimer()
+        applyResponsiveMaxHeight(recyclerView)
+
+        val designYourOwnButton = sheetView.findViewById<MaterialButton>(R.id.designYourOwnButton)
+        tintFilledButtonWithAccent(designYourOwnButton)
+        designYourOwnButton.setOnClickListener {
+            bottomSheetDialog.dismiss()
+            showCustomFormulaDialog()
+        }
+
+        val refreshSavedList: () -> Unit = {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val fresh = savedWorkoutRepository.getAllOrdered()
+                withContext(Dispatchers.Main) {
+                    (recyclerView.adapter as? FormulaSheetAdapter)?.updateSaved(fresh)
                 }
-                bottomSheetDialog.dismiss()
             }
         }
-        
+        fun refreshAdapter(list: List<SavedWorkout>) {
+            val adapter = FormulaSheetAdapter(
+                context = this,
+                savedWorkouts = list,
+                onPickPreset = { formula ->
+                    sharedPreferences.edit {
+                        putBoolean(KEY_IS_CUSTOM_FORMULA, false)
+                        remove(KEY_ACTIVE_SAVED_WORKOUT_ID)
+                    }
+                    if (currentFormula != formula) {
+                        currentFormula = formula
+                        binding.formulaButton.text = formula.name
+                        updateFormulaDetails()
+                        resetTimer()
+                    }
+                    bottomSheetDialog.dismiss()
+                },
+                onPickSaved = { workout ->
+                    applySavedWorkoutToHome(workout, resetTimerAfterApply = true)
+                    bottomSheetDialog.dismiss()
+                },
+                onEmptyCreate = {
+                    bottomSheetDialog.dismiss()
+                    showCustomFormulaDialog()
+                },
+                onSavedLongPress = { workout, anchor ->
+                    showSavedWorkoutPopupMenu(
+                        anchorView = anchor,
+                        hostView = sheetView,
+                        workout = workout,
+                        onChanged = refreshSavedList,
+                        onEdit = { row ->
+                            bottomSheetDialog.dismiss()
+                            editSavedWorkout(row)
+                        }
+                    )
+                },
+                onOrderChanged = { ids ->
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        savedWorkoutRepository.persistOrder(ids)
+                    }
+                },
+                onSavedAction = { actionType, workout ->
+                    dispatchSavedAction(
+                        actionType = actionType,
+                        workout = workout,
+                        hostSheet = bottomSheetDialog,
+                        hostView = sheetView,
+                        refresh = refreshSavedList
+                    )
+                }
+            )
+            recyclerView.adapter = adapter
+            adapter.attachItemTouchHelper(recyclerView)
+        }
+
+        val loadJob = lifecycleScope.launch {
+            savedWorkoutRepository.observeAllOrdered().collect { list ->
+                withContext(Dispatchers.Main) {
+                    if (recyclerView.adapter == null) {
+                        refreshAdapter(list)
+                    } else {
+                        (recyclerView.adapter as? FormulaSheetAdapter)?.updateSaved(list)
+                    }
+                }
+            }
+        }
+        bottomSheetDialog.setOnDismissListener { loadJob.cancel() }
+
         bottomSheetDialog.show()
     }
-    
-    private fun showCustomFormulaDialog() {
+
+    private suspend fun maybeMigrateLegacySavedWorkouts() {
+        val alreadyMigrated = sharedPreferences.getBoolean(KEY_LEGACY_SAVED_MIGRATED, false)
+        val isCustom = sharedPreferences.getBoolean(KEY_IS_CUSTOM_FORMULA, false)
+        if (alreadyMigrated || !isCustom) return
+        // SharedPreferences reads + getString are thread-safe; no need to hop to the main thread.
+        val formula = restoreCustomFormulaFromPrefs()
+        val pattern = sharedPreferences.getString(
+            KEY_CUSTOM_CIRCUIT_PATTERN,
+            SavedWorkoutRepository.CIRCUIT_PATTERN_FAST_SLOW_FAST
+        ) ?: SavedWorkoutRepository.CIRCUIT_PATTERN_FAST_SLOW_FAST
+        val decision = SavedWorkoutMigration.decide(
+            alreadyMigrated = false,
+            hasCustomFormula = true,
+            legacyFormula = formula,
+            circuitPattern = pattern,
+            savedCount = savedWorkoutRepository.count()
+        )
+        when (decision) {
+            SavedWorkoutMigration.Decision.Skip -> Unit
+            SavedWorkoutMigration.Decision.MarkMigratedOnly ->
+                sharedPreferences.edit { putBoolean(KEY_LEGACY_SAVED_MIGRATED, true) }
+            is SavedWorkoutMigration.Decision.InsertAndMark -> {
+                val id = savedWorkoutRepository.insertForMigration(decision.entity)
+                if (savedWorkoutRepository.getById(id) != null) {
+                    sharedPreferences.edit { putBoolean(KEY_LEGACY_SAVED_MIGRATED, true) }
+                }
+            }
+        }
+    }
+
+    /**
+     * [anchorView] positions the popup menu (the row's ⋮ button); [hostView] is the stable
+     * snackbar host. These must differ because when the acted-on row disappears (delete) or the
+     * full list rebinds (rename/duplicate → Flow emit → notifyDataSetChanged), the anchor view's
+     * ViewHolder is recycled and loses its parent chain, causing Snackbar.make to silently drop
+     * the message. [hostView] points at the bottom sheet's root content, which outlives any
+     * individual row binding.
+     */
+    private fun showSavedWorkoutPopupMenu(
+        anchorView: View,
+        hostView: View,
+        workout: SavedWorkout,
+        onChanged: () -> Unit,
+        onEdit: (SavedWorkout) -> Unit = { editSavedWorkout(it) }
+    ) {
+        val popup = PopupMenu(this, anchorView)
+        popup.menuInflater.inflate(R.menu.menu_saved_workout, popup.menu)
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_edit_saved -> {
+                    onEdit(workout); true
+                }
+                R.id.action_rename_saved -> {
+                    showRenameSavedWorkoutDialog(workout, hostView, onChanged); true
+                }
+                R.id.action_duplicate_saved -> {
+                    duplicateSavedWorkout(workout, hostView, onChanged); true
+                }
+                R.id.action_delete_saved -> {
+                    removeSavedWorkoutWithUndo(workout, hostView, onChanged); true
+                }
+                else -> false
+            }
+        }
+        popup.show()
+    }
+
+    /**
+     * Opens the Design Your Own sheet prefilled from [workout] so the user can tweak its
+     * canonical fields. On confirm, the save-after-create sheet routes through
+     * [SavedWorkoutRepository.updateFromFormula], preserving the row's id, sortOrder, and createdAt.
+     */
+    private fun editSavedWorkout(workout: SavedWorkout) {
+        showCustomFormulaDialog(editingRow = workout)
+    }
+
+    /**
+     * Routes a [FormulaSheetAdapter.SavedWorkoutAction] to the correct handler. Extracted so the
+     * formula selector's adapter wiring stays small and so Edit can dismiss the host sheet before
+     * opening the Design-Your-Own editor (prevents stacked bottom sheets). [hostView] is the view
+     * inside the picker that snackbars anchor to (so they remain visible while the sheet is open).
+     */
+    private fun dispatchSavedAction(
+        actionType: FormulaSheetAdapter.SavedWorkoutAction,
+        workout: SavedWorkout,
+        hostSheet: BottomSheetDialog,
+        hostView: View,
+        refresh: () -> Unit
+    ) {
+        when (actionType) {
+            FormulaSheetAdapter.SavedWorkoutAction.EDIT -> {
+                hostSheet.dismiss()
+                editSavedWorkout(workout)
+            }
+            FormulaSheetAdapter.SavedWorkoutAction.RENAME ->
+                showRenameSavedWorkoutDialog(workout, hostView, refresh)
+            FormulaSheetAdapter.SavedWorkoutAction.DUPLICATE ->
+                duplicateSavedWorkout(workout, hostView, refresh)
+            FormulaSheetAdapter.SavedWorkoutAction.DELETE ->
+                removeSavedWorkoutWithUndo(workout, hostView, refresh)
+        }
+    }
+
+    private fun duplicateSavedWorkout(
+        workout: SavedWorkout,
+        hostView: View,
+        onChanged: () -> Unit
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = savedWorkoutRepository.duplicate(workout.id)
+            val copyName = result.getOrNull()?.let { newId ->
+                savedWorkoutRepository.getById(newId)?.displayName
+            }
+            withContext(Dispatchers.Main) {
+                if (result.isFailure) {
+                    showMaxSavedWorkoutsSnackbar(hostView)
+                } else {
+                    onChanged()
+                    if (copyName != null) {
+                        showPresetSnackbar(
+                            host = hostView,
+                            message = getString(R.string.snackbar_preset_duplicated, copyName)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Removes a saved preset immediately and shows an undoable snackbar. The dialog-confirmation
+     * flow was dropped in favor of this pattern because (a) it matches modern Material lists
+     * (Gmail / Keep / Files), (b) it makes Delete a single tap instead of two, and (c) it is
+     * actually safer: mistakes are recoverable for ~5 seconds vs the old "confirm then permanent"
+     * flow. Undo re-inserts from the captured [snapshot] preserving id / sortOrder / createdAt
+     * via [SavedWorkoutRepository.restore].
+     */
+    private fun removeSavedWorkoutWithUndo(
+        workout: SavedWorkout,
+        hostView: View,
+        onChanged: () -> Unit
+    ) {
+        val wasActive = isActiveSavedWorkout(workout)
+        if (wasActive) {
+            showDeleteActivePresetDialog(workout, hostView, onChanged)
+        } else {
+            removeSavedWorkoutWithUndoConfirmed(workout, hostView, onChanged, wasActive)
+        }
+    }
+
+    private fun showDeleteActivePresetDialog(
+        workout: SavedWorkout,
+        hostView: View,
+        onChanged: () -> Unit
+    ) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.prompt_delete_active_preset)
+            .setMessage(R.string.message_delete_active_preset_keeps_timer)
+            .setPositiveButton(R.string.action_delete) { _, _ ->
+                removeSavedWorkoutWithUndoConfirmed(
+                    workout = workout,
+                    hostView = hostView,
+                    onChanged = onChanged,
+                    wasActive = true
+                )
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .show()
+    }
+
+    private fun removeSavedWorkoutWithUndoConfirmed(
+        workout: SavedWorkout,
+        hostView: View,
+        onChanged: () -> Unit,
+        wasActive: Boolean
+    ) {
+        val snapshot = workout
+        lifecycleScope.launch(Dispatchers.IO) {
+            savedWorkoutRepository.delete(snapshot.id)
+            withContext(Dispatchers.Main) {
+                if (wasActive) {
+                    unlinkActiveSavedWorkoutAsCustom(snapshot)
+                }
+                onChanged()
+                showPresetSnackbar(
+                    host = hostView,
+                    message = getString(R.string.snackbar_preset_removed, snapshot.displayName),
+                    actionLabelRes = R.string.action_undo,
+                    onAction = {
+                        undoRemoveSavedWorkout(
+                            snapshot,
+                            hostView,
+                            onChanged,
+                            relinkIfStillActiveCopy = wasActive
+                        )
+                    },
+                    durationMs = UNDO_SNACKBAR_DURATION_MS
+                )
+            }
+        }
+    }
+
+    private fun undoRemoveSavedWorkout(
+        snapshot: SavedWorkout,
+        hostView: View,
+        onChanged: () -> Unit,
+        relinkIfStillActiveCopy: Boolean
+    ) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = savedWorkoutRepository.restore(snapshot)
+            val restored = if (result.isSuccess) {
+                savedWorkoutRepository.getById(snapshot.id) ?: snapshot
+            } else {
+                null
+            }
+            withContext(Dispatchers.Main) {
+                if (result.isSuccess) {
+                    if (relinkIfStillActiveCopy && currentFormulaMatches(snapshot)) {
+                        applySavedWorkoutToHome(restored ?: snapshot, resetTimerAfterApply = false)
+                    }
+                    onChanged()
+                } else {
+                    showPresetSnackbar(
+                        host = hostView,
+                        message = getString(R.string.snackbar_preset_restore_failed)
+                    )
+                }
+            }
+        }
+    }
+
+    private fun showRenameSavedWorkoutDialog(
+        workout: SavedWorkout,
+        hostView: View,
+        onChanged: () -> Unit
+    ) {
+        val container = FrameLayout(this).apply {
+            val pad = (resources.displayMetrics.density * 24).toInt()
+            setPadding(pad, pad / 2, pad, 0)
+        }
+        val input = EditText(this).apply {
+            setText(workout.displayName)
+            setSelection(text?.length ?: 0)
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            imeOptions = EditorInfo.IME_ACTION_DONE
+            setSingleLine(true)
+            filters = arrayOf(
+                android.text.InputFilter.LengthFilter(SavedWorkoutRepository.MAX_DISPLAY_NAME_LENGTH)
+            )
+        }
+        container.addView(
+            input,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+
+        val wasActive = isActiveSavedWorkout(workout)
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.prompt_rename_preset)
+            .setView(container)
+            .setPositiveButton(R.string.action_rename) { d, _ ->
+                val name = input.text?.toString()?.trim().orEmpty()
+                if (name.isNotEmpty() && name != workout.displayName) {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val result = savedWorkoutRepository.updateDisplayName(workout.id, name)
+                        // Read back the persisted name so the snackbar reflects any
+                        // uniquification (e.g. "Morning walk" → "Morning walk (2)").
+                        val persistedRow = if (result.isSuccess) {
+                            savedWorkoutRepository.getById(workout.id)
+                        } else {
+                            null
+                        }
+                        withContext(Dispatchers.Main) {
+                            onChanged()
+                            if (persistedRow != null) {
+                                if (wasActive) {
+                                    applySavedWorkoutToHome(persistedRow, resetTimerAfterApply = false)
+                                }
+                                showPresetSnackbar(
+                                    host = hostView,
+                                    message = getString(
+                                        R.string.snackbar_preset_renamed,
+                                        persistedRow.displayName
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+                d.dismiss()
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .create()
+        input.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE)?.performClick()
+                true
+            } else {
+                false
+            }
+        }
+        dialog.show()
+    }
+
+    private class SaveSheetState(var capped: Boolean = false)
+
+    private fun buildSaveSheetSummary(formula: IntervalFormula, isCircuit: Boolean): String {
+        val totalMinutes = formula.totalDurationSeconds / 60
+        val typeLabel = getString(
+            if (isCircuit) R.string.label_workout_type_circuit else R.string.label_workout_type_interval
+        )
+        val rounds = if (isCircuit) formula.totalIntervals / 2 else formula.totalIntervals
+        val slowMin = formula.slowDurationSeconds / 60
+        val fastMin = formula.fastDurationSeconds / 60
+        return "$typeLabel · $rounds × (${slowMin}m slow / ${fastMin}m fast) · ${totalMinutes}m total"
+    }
+
+    /**
+     * Unified snackbar for preset-mutation feedback (saved / renamed / removed / duplicated /
+     * updated / cap-hit / errors).
+     *
+     * We don't pass [host] straight to [Snackbar.make] because its internal
+     * `findSuitableParent` walks up to the first CoordinatorLayout it finds. For a view inside
+     * the preset picker's BottomSheetDialog that's the dialog's *internal* CoordinatorLayout,
+     * which is where `design_bottom_sheet` also lives — and in practice the Snackbar ends up
+     * rendered underneath/behind the sheet content there and is invisible to the user.
+     *
+     * Instead we walk all the way up to the hosting `Window`'s `android.R.id.content`
+     * FrameLayout (for a BottomSheetDialog that's the dialog's own top-level content FrameLayout,
+     * one level below its DecorView) and attach the Snackbar there. Children added to that
+     * FrameLayout draw on top of everything else in the window, so the Snackbar is guaranteed
+     * to overlay the sheet. For activity-level hosts (e.g. after the sheet is dismissed) this
+     * resolves to the activity's own content FrameLayout and behaves normally.
+     *
+     * Messages are pre-resolved by callers to avoid the silent ambiguity of Kotlin named-vararg
+     * arguments with getString formatting. When [actionLabelRes] + [onAction] are supplied, the
+     * action text is tinted with the app accent.
+     */
+    private fun showPresetSnackbar(
+        host: View,
+        message: String,
+        @StringRes actionLabelRes: Int = 0,
+        onAction: (() -> Unit)? = null,
+        durationMs: Int = Snackbar.LENGTH_LONG
+    ) {
+        val snackbarParent = resolveSnackbarParent(host)
+        val snackbar = Snackbar.make(snackbarParent, message, durationMs)
+        if (actionLabelRes != 0 && onAction != null) {
+            snackbar.setAction(actionLabelRes) { onAction() }
+            snackbar.setActionTextColor(getAccentColor())
+        }
+        snackbar.show()
+    }
+
+    /**
+     * Walk up the view tree from [host] to the hosting [android.view.Window]'s
+     * `android.R.id.content` FrameLayout. Returns [host] itself if none is found (defensive; in
+     * practice every dialog/activity window has one).
+     */
+    private fun resolveSnackbarParent(host: View): View {
+        var current: View? = host
+        while (current != null) {
+            if (current.id == android.R.id.content && current is FrameLayout) {
+                return current
+            }
+            current = current.parent as? View
+        }
+        return host
+    }
+
+    private fun showMaxSavedWorkoutsSnackbar(host: View = binding.root) {
+        showPresetSnackbar(
+            host = host,
+            message = getString(
+                R.string.message_max_saved_presets,
+                SavedWorkoutRepository.MAX_SAVED_WORKOUTS
+            )
+        )
+    }
+
+    private fun showSaveWorkoutAfterCreateSheet(
+        customFormula: IntervalFormula,
+        isCircuitMode: Boolean,
+        circuitPattern: String,
+        editingRow: SavedWorkout? = null
+    ) {
+        val saveDialog = BottomSheetDialog(this)
+        val v = LayoutInflater.from(this).inflate(
+            R.layout.bottom_sheet_save_workout,
+            android.widget.FrameLayout(this),
+            false
+        )
+        saveDialog.setContentView(v)
+        configureBottomSheet(saveDialog, v)
+        val isEditing = editingRow != null
+        v.findViewById<android.widget.TextView>(R.id.saveSheetTitle).setText(
+            if (isEditing) R.string.prompt_update_preset else R.string.prompt_save_preset
+        )
+        val nameLayout = v.findViewById<TextInputLayout>(R.id.saveWorkoutNameLayout)
+        val nameInput = v.findViewById<TextInputEditText>(R.id.saveWorkoutNameInput)
+        nameInput.setText(editingRow?.displayName ?: customFormula.name)
+        nameInput.setSelection(nameInput.text?.length ?: 0)
+        val capMsg = v.findViewById<android.widget.TextView>(R.id.saveWorkoutCapMessage)
+        val saveAndUse = v.findViewById<MaterialButton>(R.id.saveAndUseButton)
+        val useOnly = v.findViewById<MaterialButton>(R.id.useWithoutSavingButton)
+        val saveOnly = v.findViewById<MaterialButton>(R.id.saveOnlyButton)
+        if (isEditing) {
+            // Edit mode reuses the three-button layout but the semantics are UPDATE-in-place,
+            // so all actions use "Update" language to match the sheet prompt.
+            saveAndUse.setText(R.string.cta_update_and_use_preset)
+            saveOnly.setText(R.string.cta_update_preset)
+            useOnly.setText(R.string.cta_use_without_updating)
+        }
+
+        tintFilledButtonWithAccent(saveAndUse)
+        tintOutlinedButtonWithAccent(saveOnly)
+        tintTextButtonWithAccent(useOnly)
+
+        v.findViewById<android.widget.TextView>(R.id.saveSheetSummary).text =
+            buildSaveSheetSummary(customFormula, isCircuitMode)
+
+        val saveState = SaveSheetState()
+        fun refreshSaveButtons() {
+            val hasName = (nameInput.text?.toString()?.trim().orEmpty()).isNotEmpty()
+            saveAndUse.isEnabled = hasName && !saveState.capped
+            saveOnly.isEnabled = hasName && !saveState.capped
+        }
+        nameInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: Editable?) {
+                nameLayout.error = null
+                refreshSaveButtons()
+            }
+        })
+        nameInput.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE && saveAndUse.isEnabled) {
+                saveAndUse.performClick()
+                true
+            } else {
+                false
+            }
+        }
+        refreshSaveButtons()
+
+        if (isEditing) {
+            // Edit never inserts a new row, so the cap does not apply. saveState.capped stays false.
+            refreshSaveButtons()
+        } else {
+            lifecycleScope.launch {
+                val capped = withContext(Dispatchers.IO) {
+                    savedWorkoutRepository.count() >= SavedWorkoutRepository.MAX_SAVED_WORKOUTS
+                }
+                saveState.capped = capped
+                if (capped) {
+                    capMsg.text = getString(
+                        R.string.message_max_saved_presets,
+                        SavedWorkoutRepository.MAX_SAVED_WORKOUTS
+                    )
+                    capMsg.visibility = View.VISIBLE
+                }
+                refreshSaveButtons()
+            }
+        }
+
+        wireSaveWorkoutAfterCreateSheetActions(
+            saveDialog = saveDialog,
+            nameInput = nameInput,
+            saveAndUse = saveAndUse,
+            useOnly = useOnly,
+            saveOnly = saveOnly,
+            customFormula = customFormula,
+            isCircuitMode = isCircuitMode,
+            circuitPattern = circuitPattern,
+            editingRow = editingRow
+        )
+        saveDialog.show()
+    }
+
+    /**
+     * Context object for the save-after-create / save-after-edit sheet's button handlers.
+     * Bundled so we can extract the three click bodies into focused helpers without dragging
+     * a forest of parameters through every call.
+     */
+    private class SaveSheetContext(
+        val saveDialog: BottomSheetDialog,
+        val nameInput: TextInputEditText,
+        val saveAndUse: MaterialButton,
+        val useOnly: MaterialButton,
+        val saveOnly: MaterialButton,
+        val customFormula: IntervalFormula,
+        val isCircuitMode: Boolean,
+        val circuitPattern: String,
+        val editingRow: SavedWorkout?
+    ) {
+        val inFlight: java.util.concurrent.atomic.AtomicBoolean = java.util.concurrent.atomic.AtomicBoolean(false)
+        fun currentName(): String = nameInput.text?.toString()?.trim().orEmpty()
+        fun setBusy(busy: Boolean) {
+            val hasName = currentName().isNotEmpty()
+            saveAndUse.isEnabled = !busy && hasName
+            saveOnly.isEnabled = !busy && hasName
+            useOnly.isEnabled = !busy
+        }
+    }
+
+    private suspend fun persistForSaveSheet(
+        ctx: SaveSheetContext,
+        name: String
+    ): Result<Long> = if (ctx.editingRow != null) {
+        savedWorkoutRepository.updateFromFormula(
+            id = ctx.editingRow.id,
+            newDisplayName = name,
+            formula = ctx.customFormula,
+            circuitPattern = ctx.circuitPattern
+        ).map { ctx.editingRow.id }
+    } else {
+        savedWorkoutRepository.insertFromFormula(name, ctx.customFormula, ctx.circuitPattern)
+    }
+
+    private fun showPersistFailure(ctx: SaveSheetContext, result: Result<Long>) {
+        val missingRow = ctx.editingRow != null && result.exceptionOrNull() is IllegalArgumentException
+        if (missingRow) {
+            showPresetSnackbar(
+                host = binding.root,
+                message = getString(R.string.snackbar_preset_no_longer_exists)
+            )
+        } else {
+            showMaxSavedWorkoutsSnackbar()
+        }
+    }
+
+    private fun wireSaveWorkoutAfterCreateSheetActions(
+        saveDialog: BottomSheetDialog,
+        nameInput: TextInputEditText,
+        saveAndUse: MaterialButton,
+        useOnly: MaterialButton,
+        saveOnly: MaterialButton,
+        customFormula: IntervalFormula,
+        isCircuitMode: Boolean,
+        circuitPattern: String,
+        editingRow: SavedWorkout? = null
+    ) {
+        val ctx = SaveSheetContext(
+            saveDialog, nameInput, saveAndUse, useOnly, saveOnly,
+            customFormula, isCircuitMode, circuitPattern, editingRow
+        )
+        saveAndUse.setOnClickListener { btn -> onSaveAndUseClicked(ctx, btn) }
+        useOnly.setOnClickListener { btn -> onUseWithoutSavingClicked(ctx, btn) }
+        saveOnly.setOnClickListener { btn -> onSaveOnlyClicked(ctx, btn) }
+    }
+
+    private fun onSaveAndUseClicked(ctx: SaveSheetContext, btn: View) {
+        val name = ctx.currentName()
+        if (name.isEmpty()) return
+        if (!ctx.inFlight.compareAndSet(false, true)) return
+        hapticSuccess(btn)
+        ctx.setBusy(true)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = persistForSaveSheet(ctx, name)
+            withContext(Dispatchers.Main) {
+                try {
+                    if (result.isFailure) {
+                        showPersistFailure(ctx, result)
+                    } else {
+                        applySaveAndUse(ctx, result.getOrThrow(), name)
+                        // Sheet is dismissed; snackbar appears on the main activity as a secondary
+                        // confirmation on top of the visible state change (home-screen button
+                        // updated). Same message whether save-only or save-and-use, so users build
+                        // a consistent mental model of "saved presets live in My saved presets".
+                        showSaveSuccessSnackbar(ctx)
+                    }
+                } finally {
+                    ctx.inFlight.set(false)
+                    ctx.setBusy(false)
+                }
+            }
+        }
+    }
+
+    private suspend fun applySaveAndUse(ctx: SaveSheetContext, rowId: Long, name: String) {
+        val row = savedWorkoutRepository.getById(rowId)
+        if (row != null) {
+            applySavedWorkoutToHome(row, resetTimerAfterApply = true)
+        } else {
+            val toUse = ctx.customFormula.copy(name = name)
+            saveCustomFormula(toUse, ctx.isCircuitMode, ctx.circuitPattern)
+            currentFormula = toUse
+            binding.formulaButton.text = toUse.name
+            updateFormulaDetails()
+            resetTimer()
+        }
+        ctx.saveDialog.dismiss()
+    }
+
+    private fun showSaveSuccessSnackbar(ctx: SaveSheetContext) {
+        val messageRes = if (ctx.editingRow != null) {
+            R.string.snackbar_preset_updated
+        } else {
+            R.string.snackbar_saved_to_my_presets
+        }
+        showPresetSnackbar(host = binding.root, message = getString(messageRes))
+    }
+
+    private fun onUseWithoutSavingClicked(ctx: SaveSheetContext, btn: View) {
+        if (!ctx.inFlight.compareAndSet(false, true)) return
+        hapticSuccess(btn)
+        ctx.setBusy(true)
+        // Apply the in-memory (possibly edited) formula once; the saved row, if any, is
+        // intentionally left untouched so "use without saving" preserves its prior state.
+        saveCustomFormula(ctx.customFormula, ctx.isCircuitMode, ctx.circuitPattern)
+        currentFormula = ctx.customFormula
+        binding.formulaButton.text = ctx.customFormula.name
+        updateFormulaDetails()
+        resetTimer()
+        ctx.saveDialog.dismiss()
+        // No need to release - the dialog is gone. Leaving inFlight=true is intentional.
+    }
+
+    private fun onSaveOnlyClicked(ctx: SaveSheetContext, btn: View) {
+        val name = ctx.currentName()
+        if (name.isEmpty()) return
+        hapticSuccess(btn)
+        val updatesActivePreset = ctx.editingRow?.let { isActiveSavedWorkout(it) } == true
+        if (updatesActivePreset && !isTimerIdleForFormulaSwap()) {
+            showActivePresetUpdateResetDialog(ctx, name)
+            return
+        }
+        persistSaveOnly(ctx, name, applyActiveAfterUpdate = updatesActivePreset)
+    }
+
+    private fun showActivePresetUpdateResetDialog(ctx: SaveSheetContext, name: String) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.prompt_update_preset)
+            .setMessage(R.string.message_update_active_preset_resets_timer)
+            .setPositiveButton(R.string.action_update_and_reset) { _, _ ->
+                persistSaveOnly(ctx, name, applyActiveAfterUpdate = true)
+            }
+            .setNegativeButton(R.string.action_cancel, null)
+            .show()
+    }
+
+    private fun persistSaveOnly(
+        ctx: SaveSheetContext,
+        name: String,
+        applyActiveAfterUpdate: Boolean
+    ) {
+        if (!ctx.inFlight.compareAndSet(false, true)) return
+        ctx.setBusy(true)
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = persistForSaveSheet(ctx, name)
+            val updatedActiveRow = if (result.isSuccess && applyActiveAfterUpdate && ctx.editingRow != null) {
+                savedWorkoutRepository.getById(ctx.editingRow.id)
+            } else {
+                null
+            }
+            withContext(Dispatchers.Main) {
+                try {
+                    if (result.isFailure) {
+                        showPersistFailure(ctx, result)
+                    } else {
+                        if (updatedActiveRow != null) {
+                            applySavedWorkoutToHome(updatedActiveRow, resetTimerAfterApply = true)
+                        }
+                        ctx.saveDialog.dismiss()
+                        showSaveSuccessSnackbar(ctx)
+                    }
+                } finally {
+                    ctx.inFlight.set(false)
+                    ctx.setBusy(false)
+                }
+            }
+        }
+    }
+
+    private fun showCustomFormulaDialog(editingRow: SavedWorkout? = null) {
         val bottomSheetDialog = BottomSheetDialog(this)
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_custom_formula, android.widget.FrameLayout(this), false)
         bottomSheetDialog.setContentView(view)
         configureBottomSheet(bottomSheetDialog, view)
+
+        if (editingRow != null) {
+            view.findViewById<android.widget.TextView>(R.id.customFormulaSheetTitle)
+                .setText(R.string.title_edit_preset)
+        }
         
         val slowValue = view.findViewById<android.widget.TextView>(R.id.slowDurationValue)
         val fastValue = view.findViewById<android.widget.TextView>(R.id.fastDurationValue)
@@ -638,6 +1548,9 @@ open class MainActivity : AppCompatActivity() {
         val fastFirstRadio = view.findViewById<android.widget.RadioButton>(R.id.fastFirstRadio)
         val resetDefaultsButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.resetDefaultsButton)
         val createButton = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.createButton)
+        if (editingRow != null) {
+            createButton.setText(R.string.cta_update_preset)
+        }
         val accentColor = getAccentColor()
         val accentTint = android.content.res.ColorStateList.valueOf(accentColor)
         createButton.backgroundTintList = accentTint
@@ -660,24 +1573,46 @@ open class MainActivity : AppCompatActivity() {
         val savedMode = sharedPreferences.getString(KEY_CUSTOM_FORMULA_MODE, "interval") ?: "interval"
         var isCircuitMode = savedMode == "circuit"
         var circuitPattern = sharedPreferences.getString(KEY_CUSTOM_CIRCUIT_PATTERN, "fast_slow_fast") ?: "fast_slow_fast"
-        
-        // Pre-fill with current custom formula values if available
-        if (currentFormula.name.startsWith("Custom:")) {
-            slowMinutes = currentFormula.slowDurationSeconds / 60
-            fastMinutes = currentFormula.fastDurationSeconds / 60
-            
-            val isCircuit = currentFormula.isCircuit
-            if (isCircuit) {
+
+        // Prefill source:
+        //  - Edit flow: from the specific SavedWorkout so the editor reflects that row's canonical
+        //    fields even if prefs point at a different custom formula (e.g. the user picked another
+        //    preset after saving this one).
+        //  - Create flow: from prefs when the user has an active custom formula, preserving legacy
+        //    "continue tweaking the last thing you made" behavior.
+        if (editingRow != null) {
+            slowMinutes = editingRow.slowDurationSeconds / 60
+            fastMinutes = editingRow.fastDurationSeconds / 60
+            if (editingRow.isCircuit) {
                 isCircuitMode = true
-                rounds = currentFormula.totalIntervals / 2 // Convert intervals to circuits
-                // Determine pattern from startsWithFast
-                circuitPattern = if (currentFormula.startsWithFast) "fast_slow_fast" else "slow_fast_slow"
+                rounds = editingRow.totalIntervals / 2
+                circuitPattern = editingRow.circuitPattern
             } else {
-                rounds = currentFormula.totalIntervals
-                if (currentFormula.startsWithFast) {
+                isCircuitMode = false
+                rounds = editingRow.totalIntervals
+                if (editingRow.startsWithFast) {
                     fastFirstRadio.isChecked = true
                 } else {
                     slowFirstRadio.isChecked = true
+                }
+            }
+        } else if (sharedPreferences.getBoolean(KEY_IS_CUSTOM_FORMULA, false)) {
+            val restored = restoreCustomFormulaFromPrefs()
+            if (restored != null) {
+                slowMinutes = restored.slowDurationSeconds / 60
+                fastMinutes = restored.fastDurationSeconds / 60
+                val isCircuit = restored.isCircuit
+                if (isCircuit) {
+                    isCircuitMode = true
+                    rounds = restored.totalIntervals / 2
+                    circuitPattern = if (restored.startsWithFast) "fast_slow_fast" else "slow_fast_slow"
+                } else {
+                    rounds = restored.totalIntervals
+                    if (restored.startsWithFast) {
+                        fastFirstRadio.isChecked = true
+                    } else {
+                        slowFirstRadio.isChecked = true
+                    }
                 }
             }
         }
@@ -870,9 +1805,9 @@ open class MainActivity : AppCompatActivity() {
                 }
                 IntervalFormula(
                     name = if (rounds == 1) {
-                        getString(R.string.custom_circuit_name_format_singular, patternText)
+                        getString(R.string.format_custom_circuit_name_singular, patternText)
                     } else {
-                        getString(R.string.custom_circuit_name_format, patternText, rounds)
+                        getString(R.string.format_custom_circuit_name, patternText, rounds)
                     },
                     slowDurationSeconds = slowMinutes * 60,
                     fastDurationSeconds = fastMinutes * 60,
@@ -884,9 +1819,9 @@ open class MainActivity : AppCompatActivity() {
                 // Regular interval
                 IntervalFormula(
                     name = if (rounds == 1) {
-                        getString(R.string.custom_interval_name_format_singular, slowMinutes, fastMinutes)
+                        getString(R.string.format_custom_interval_name_singular, slowMinutes, fastMinutes)
                     } else {
-                        getString(R.string.custom_interval_name_format, slowMinutes, fastMinutes, rounds)
+                        getString(R.string.format_custom_interval_name, slowMinutes, fastMinutes, rounds)
                     },
                     slowDurationSeconds = slowMinutes * 60,
                     fastDurationSeconds = fastMinutes * 60,
@@ -895,23 +1830,45 @@ open class MainActivity : AppCompatActivity() {
                 )
             }
             
-            // Save custom formula to preferences
-            saveCustomFormula(customFormula, isCircuitMode, circuitPattern)
-            
-            // Update current formula and UI
-            currentFormula = customFormula
-            binding.formulaButton.text = customFormula.name
-            updateFormulaDetails()
-            resetTimer()
-            
             bottomSheetDialog.dismiss()
-            
-            // Formula is loaded and ready, user can start when ready
+            showSaveWorkoutAfterCreateSheet(
+                customFormula = customFormula,
+                isCircuitMode = isCircuitMode,
+                circuitPattern = circuitPattern,
+                editingRow = editingRow
+            )
         }
         
         bottomSheetDialog.show()
     }
 
+
+    /**
+     * Caps a scrollable child of a bottom sheet so the sheet stays usable on small phones
+     * and in landscape (where the default 80% sheet height can hide later sections).
+     * Uses a one-shot pre-draw listener so we only override when the natural measured height
+     * exceeds the cap.
+     */
+    private fun applyResponsiveMaxHeight(view: View) {
+        val isLandscape = resources.configuration.orientation ==
+            android.content.res.Configuration.ORIENTATION_LANDSCAPE
+        val fraction = if (isLandscape) LANDSCAPE_LIST_MAX_FRACTION else PORTRAIT_LIST_MAX_FRACTION
+        val maxHeightPx = (resources.displayMetrics.heightPixels * fraction).toInt()
+        view.viewTreeObserver.addOnPreDrawListener(
+            object : android.view.ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    if (view.height > maxHeightPx) {
+                        view.viewTreeObserver.removeOnPreDrawListener(this)
+                        val lp = view.layoutParams
+                        lp.height = maxHeightPx
+                        view.layoutParams = lp
+                        return false
+                    }
+                    return true
+                }
+            }
+        )
+    }
 
     private fun configureBottomSheet(dialog: BottomSheetDialog, contentView: View) {
         val behavior = dialog.behavior
@@ -972,9 +1929,9 @@ open class MainActivity : AppCompatActivity() {
         val versionText = view.findViewById<android.widget.TextView>(R.id.appVersion)
         try {
             val packageInfo = packageManager.getPackageInfo(packageName, 0)
-            versionText.text = getString(R.string.version, packageInfo.versionName)
+            versionText.text = getString(R.string.format_version, packageInfo.versionName)
         } catch (e: Exception) {
-            versionText.text = getString(R.string.version, "Unknown")
+            versionText.text = getString(R.string.format_version, "Unknown")
         }
         
         // Privacy Policy button
@@ -1152,7 +2109,7 @@ open class MainActivity : AppCompatActivity() {
             if (isChecked) {
                 notificationHelper?.testTts()
             } else {
-                notificationHelper?.speakStringRes(R.string.voice_notifications_disabled)
+                notificationHelper?.speakStringRes(R.string.snackbar_voice_notifications_disabled)
             }
 
             sharedPreferences.edit { putBoolean(KEY_VOICE_ENABLED, isChecked) }
@@ -1408,6 +2365,41 @@ open class MainActivity : AppCompatActivity() {
         binding.workoutProgress.progressTintList = android.content.res.ColorStateList.valueOf(accentColor)
     }
 
+    /**
+     * Apply the runtime accent color to a filled MaterialButton's background.
+     * The framework defaults filled buttons to ?attr/colorPrimary, but this app
+     * stores the accent in prefs and tints buttons programmatically (see Create button).
+     */
+    private fun tintFilledButtonWithAccent(button: MaterialButton) {
+        val accent = android.content.res.ColorStateList.valueOf(getAccentColor())
+        button.backgroundTintList = accent
+        button.setTextColor(ContextCompat.getColor(this, R.color.white))
+        button.iconTint = android.content.res.ColorStateList.valueOf(
+            ContextCompat.getColor(this, R.color.white)
+        )
+    }
+
+    /**
+     * Apply the runtime accent color to an outlined MaterialButton (stroke + text + ripple).
+     */
+    private fun tintOutlinedButtonWithAccent(button: MaterialButton) {
+        val accent = android.content.res.ColorStateList.valueOf(getAccentColor())
+        button.strokeColor = accent
+        button.setTextColor(accent)
+        button.iconTint = accent
+        button.rippleColor = accent
+    }
+
+    /**
+     * Apply the runtime accent color to a text-only MaterialButton (text + icon + ripple).
+     */
+    private fun tintTextButtonWithAccent(button: MaterialButton) {
+        val accent = android.content.res.ColorStateList.valueOf(getAccentColor())
+        button.setTextColor(accent)
+        button.iconTint = accent
+        button.rippleColor = accent
+    }
+
     private fun applyKeepScreenAwakePreference() {
         if (sharedPreferences.getBoolean(KEY_KEEP_SCREEN_AWAKE, false)) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -1451,12 +2443,14 @@ open class MainActivity : AppCompatActivity() {
         updateButtonStates()
     }
 
-    private fun startPreStartCountdown() {
+    private fun startPreStartCountdown(initialMillis: Long? = null) {
         if (isPreStartCountdownActive) return
         isPreStartCountdownActive = true
         preStartCountdownTimer?.cancel()
-        val countdownSeconds = getStartCountdownSeconds()
-        binding.preStartCountdown.text = String.format(Locale.getDefault(), "%d", countdownSeconds)
+        val totalMillis = initialMillis ?: (getStartCountdownSeconds() * 1000L)
+        preStartCountdownEndElapsedRealtime = SystemClock.elapsedRealtime() + totalMillis
+        val initialSecondsLeft = ((totalMillis + 999) / 1000).toInt().coerceAtLeast(1)
+        binding.preStartCountdown.text = String.format(Locale.getDefault(), "%d", initialSecondsLeft)
         binding.preStartOverlay.visibility = View.VISIBLE
         binding.preStartOverlay.setOnClickListener {
             cancelPreStartCountdown(startImmediately = true)
@@ -1468,7 +2462,7 @@ open class MainActivity : AppCompatActivity() {
             notificationHelper = createNotificationHelper()
         }
 
-        preStartCountdownTimer = object : CountDownTimer(countdownSeconds * 1000L, 1000L) {
+        preStartCountdownTimer = object : CountDownTimer(totalMillis, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsLeft = ((millisUntilFinished + 999) / 1000).toInt()
                 binding.preStartCountdown.text = String.format(Locale.getDefault(), "%d", secondsLeft)
@@ -1481,12 +2475,12 @@ open class MainActivity : AppCompatActivity() {
             }
 
             override fun onFinish() {
-                binding.preStartCountdown.text = getString(R.string.go)
+                binding.preStartCountdown.text = getString(R.string.action_go)
                 if (useVibration) {
                     hapticSuccess(binding.root)
                 }
                 if (useVoice) {
-                    notificationHelper?.speakStringRes(R.string.go)
+                    notificationHelper?.speakStringRes(R.string.action_go)
                 }
                 Handler(Looper.getMainLooper()).postDelayed({
                     cancelPreStartCountdown(startImmediately = true)
@@ -1501,6 +2495,7 @@ open class MainActivity : AppCompatActivity() {
         preStartCountdownTimer?.cancel()
         preStartCountdownTimer = null
         isPreStartCountdownActive = false
+        preStartCountdownEndElapsedRealtime = 0L
         binding.preStartOverlay.visibility = View.GONE
         binding.preStartOverlay.setOnClickListener(null)
         if (startImmediately) {
@@ -1517,7 +2512,7 @@ open class MainActivity : AppCompatActivity() {
 
     private fun updateStartCountdownValue(valueView: android.widget.TextView) {
         val seconds = getStartCountdownSeconds()
-        valueView.text = getString(R.string.countdown_seconds_format, seconds)
+        valueView.text = getString(R.string.format_countdown_seconds, seconds)
     }
 
     private fun adjustStartCountdownSeconds(valueView: android.widget.TextView, delta: Int) {
@@ -1611,17 +2606,17 @@ open class MainActivity : AppCompatActivity() {
 
         when (phase) {
             is IntervalPhase.Slow -> {
-                binding.phaseLabel.text = getString(R.string.phase_slow_format, getString(R.string.slow_phase))
+                binding.phaseLabel.text = getString(R.string.format_phase_slow, getString(R.string.label_phase_slow))
                 binding.phaseLabel.setTextColor(getSlowColor())
                 binding.phaseLabel.setTypeface(null, Typeface.BOLD)
             }
             is IntervalPhase.Fast -> {
-                binding.phaseLabel.text = getString(R.string.phase_fast_format, getString(R.string.fast_phase))
+                binding.phaseLabel.text = getString(R.string.format_phase_fast, getString(R.string.label_phase_fast))
                 binding.phaseLabel.setTextColor(getFastColor())
                 binding.phaseLabel.setTypeface(null, Typeface.BOLD)
             }
             is IntervalPhase.Completed -> {
-                binding.phaseLabel.text = getString(R.string.completed)
+                binding.phaseLabel.text = getString(R.string.label_completed)
                 binding.phaseLabel.setTextColor(getAccentColor())
                 binding.phaseLabel.setTypeface(null, Typeface.BOLD)
             }
@@ -1684,24 +2679,20 @@ open class MainActivity : AppCompatActivity() {
         updateFormulaDetails()
     }
 
+    private fun formatDurationMinSec(totalSeconds: Int): String {
+        val min = totalSeconds / 60
+        val sec = totalSeconds % 60
+        return when {
+            min > 0 && sec > 0 -> getString(R.string.format_time_m_s, min, sec)
+            min > 0 -> getString(R.string.format_time_m, min)
+            else -> getString(R.string.format_time_s, sec)
+        }
+    }
+
     private fun updateFormulaDetails() {
-        val slowMin = currentFormula.slowDurationSeconds / 60
-        val slowSec = currentFormula.slowDurationSeconds % 60
-        val fastMin = currentFormula.fastDurationSeconds / 60
-        val fastSec = currentFormula.fastDurationSeconds % 60
         val totalMin = currentFormula.totalDurationSeconds / 60
-        
-        val slowText = if (slowMin > 0) {
-            if (slowSec > 0) getString(R.string.time_format_m_s, slowMin, slowSec) else getString(R.string.time_format_m, slowMin)
-        } else {
-            getString(R.string.time_format_s, slowSec)
-        }
-        
-        val fastText = if (fastMin > 0) {
-            if (fastSec > 0) getString(R.string.time_format_m_s, fastMin, fastSec) else getString(R.string.time_format_m, fastMin)
-        } else {
-            getString(R.string.time_format_s, fastSec)
-        }
+        val slowText = formatDurationMinSec(currentFormula.slowDurationSeconds)
+        val fastText = formatDurationMinSec(currentFormula.fastDurationSeconds)
         
         // Build pattern description showing execution pattern
         val isCircuit = currentFormula.isCircuit
@@ -1715,41 +2706,57 @@ open class MainActivity : AppCompatActivity() {
                 val circuitPattern = if (currentFormula.startsWithFast) {
                     // Fast-Slow-Fast pattern
                     if (circuits == 1) {
-                        getString(R.string.pattern_fast_slow_fast, fastText, slowText)
+                        getString(R.string.format_pattern_fast_slow_fast, fastText, slowText)
                     } else {
-                        getString(R.string.pattern_fast_slow_fast_rounds, fastText, slowText, circuits)
+                        getString(R.string.format_pattern_fast_slow_fast_rounds, fastText, slowText, circuits)
                     }
                 } else {
                     // Slow-Fast-Slow pattern
                     if (circuits == 1) {
-                        getString(R.string.pattern_slow_fast_slow, slowText, fastText)
+                        getString(R.string.format_pattern_slow_fast_slow, slowText, fastText)
                     } else {
-                        getString(R.string.pattern_slow_fast_slow_rounds, slowText, fastText, circuits)
+                        getString(R.string.format_pattern_slow_fast_slow_rounds, slowText, fastText, circuits)
                     }
                 }
                 circuitPattern
             }
             isHighIntensity -> {
                 // High Intensity 5-2 pattern: Fast(5) → Slow(2) × rounds
-                getString(R.string.pattern_fast_slow_rounds, fastText, slowText, currentFormula.totalIntervals)
+                getString(R.string.format_pattern_fast_slow_rounds, fastText, slowText, currentFormula.totalIntervals)
             }
             isCustom && currentFormula.startsWithFast -> {
                 // Custom formula starting with fast
                 if (currentFormula.totalIntervals == 1) {
-                    getString(R.string.pattern_fast_slow, fastText, slowText)
+                    getString(R.string.format_pattern_fast_slow, fastText, slowText)
                 } else {
-                    getString(R.string.pattern_fast_slow_rounds, fastText, slowText, currentFormula.totalIntervals)
+                    getString(
+                        R.string.format_pattern_fast_slow_rounds,
+                        fastText,
+                        slowText,
+                        currentFormula.totalIntervals
+                    )
                 }
             }
-            currentFormula.totalIntervals == 1 -> getString(R.string.pattern_slow_fast, slowText, fastText)
-            else -> getString(R.string.pattern_slow_fast_rounds, slowText, fastText, currentFormula.totalIntervals)
+            currentFormula.totalIntervals == 1 ->
+                getString(R.string.format_pattern_slow_fast, slowText, fastText)
+            else ->
+                getString(
+                    R.string.format_pattern_slow_fast_rounds,
+                    slowText,
+                    fastText,
+                    currentFormula.totalIntervals
+                )
         }
         
         // Update styled text with colored note
-        val fullText = getString(R.string.formula_summary_format, pattern, totalMin)
-        val startNoteText = if (currentFormula.startsWithFast) getString(R.string.starts_fast) else getString(R.string.starts_slow)
+        val fullText = getString(R.string.format_formula_summary, pattern, totalMin)
+        val startNoteText = if (currentFormula.startsWithFast) {
+            getString(R.string.label_starts_fast)
+        } else {
+            getString(R.string.label_starts_slow)
+        }
         
-        val combinedText = getString(R.string.formula_full_text_format, fullText, startNoteText)
+        val combinedText = getString(R.string.format_formula_full_text, fullText, startNoteText)
         val spannable = SpannableString(combinedText)
         val noteStart = fullText.length + 1
         val noteEnd = combinedText.length
@@ -1769,10 +2776,10 @@ open class MainActivity : AppCompatActivity() {
         val state = intervalTimer?.state?.value
         val isRunning = state?.isRunning == true
         binding.startPauseButton.text = when {
-            isRunning -> getString(R.string.pause)
+            isRunning -> getString(R.string.action_pause)
             state != null && state.elapsedSeconds > 0 && state.currentPhase !is IntervalPhase.Completed ->
-                getString(R.string.resume)
-            else -> getString(R.string.start)
+                getString(R.string.action_resume)
+            else -> getString(R.string.action_start)
         }
     }
 
@@ -1818,7 +2825,7 @@ open class MainActivity : AppCompatActivity() {
         val name = sharedPreferences.getString(KEY_TTS_VOICE, null).orEmpty()
         val display = sharedPreferences.getString(KEY_TTS_VOICE_DISPLAY, null).orEmpty()
         return when {
-            name.isEmpty() && localeTag.isEmpty() -> getString(R.string.voice_default)
+            name.isEmpty() && localeTag.isEmpty() -> getString(R.string.option_voice_default)
             display.isNotBlank() -> display
             localeTag.isNotBlank() -> Locale.forLanguageTag(localeTag).getDisplayName()
             else -> name
@@ -1877,7 +2884,7 @@ open class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 if (status != TextToSpeech.SUCCESS) {
                     tempTts?.shutdown()
-                    val msg = getString(R.string.no_voices_available)
+                    val msg = getString(R.string.body_no_voices_available)
                     android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
                     return@runOnUiThread
                 }
@@ -1886,11 +2893,12 @@ open class MainActivity : AppCompatActivity() {
                 val voiceOptions = buildVoiceLanguageOptions(voices)
                 if (voiceOptions.isEmpty()) {
                     tts.shutdown()
-                    val msg = getString(R.string.no_voices_available)
+                    val msg = getString(R.string.body_no_voices_available)
                     android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_SHORT).show()
                     return@runOnUiThread
                 }
-                val displayNames = listOf(getString(R.string.voice_default)) + voiceOptions.map { it.displayName }
+                val displayNames =
+                    listOf(getString(R.string.option_voice_default)) + voiceOptions.map { it.displayName }
                 val voiceNames = listOf("") + voiceOptions.map { it.voiceName }
                 val voiceLocaleTags = listOf("") + voiceOptions.map { it.localeTag }
                 val currentName = sharedPreferences.getString(KEY_TTS_VOICE, null).orEmpty()
@@ -2002,13 +3010,13 @@ open class MainActivity : AppCompatActivity() {
 
     private fun showClearStatsConfirmationDialog(parentDialog: BottomSheetDialog) {
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(R.string.clear_stats_title)
-            .setMessage(R.string.clear_stats_message)
-            .setPositiveButton(R.string.clear) { _, _ ->
+            .setTitle(R.string.title_clear_workout_history)
+            .setMessage(R.string.message_clear_workout_history)
+            .setPositiveButton(R.string.action_clear) { _, _ ->
                 clearAllStats()
                 parentDialog.dismiss()
             }
-            .setNegativeButton(R.string.cancel, null)
+            .setNegativeButton(R.string.action_cancel, null)
             .show()
     }
     
@@ -2075,12 +3083,12 @@ open class MainActivity : AppCompatActivity() {
 
     private fun showDisableSaveWorkoutsDialog(onConfirm: () -> Unit, onCancel: (() -> Unit)? = null) {
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(R.string.disable_save_workouts_title)
-            .setMessage(R.string.disable_save_workouts_message)
-            .setPositiveButton(R.string.turn_off) { _, _ ->
+            .setTitle(R.string.prompt_disable_save_workouts)
+            .setMessage(R.string.message_disable_save_workouts)
+            .setPositiveButton(R.string.action_turn_off) { _, _ ->
                 onConfirm()
             }
-            .setNegativeButton(R.string.keep_on) { _, _ ->
+            .setNegativeButton(R.string.action_keep_on) { _, _ ->
                 onCancel?.invoke()
             }
             .setOnCancelListener {
@@ -2169,7 +3177,7 @@ open class MainActivity : AppCompatActivity() {
             )
             android.widget.Toast.makeText(
                 this,
-                getString(R.string.activity_recognition_permission_needed),
+                getString(R.string.snackbar_permission_activity_recognition_needed),
                 android.widget.Toast.LENGTH_LONG
             ).show()
             return
@@ -2184,7 +3192,7 @@ open class MainActivity : AppCompatActivity() {
             // Guard against API 34+ foreground service permission edge-cases.
             android.widget.Toast.makeText(
                 this,
-                getString(R.string.activity_recognition_permission_denied),
+                getString(R.string.snackbar_permission_activity_recognition_denied),
                 android.widget.Toast.LENGTH_LONG
             ).show()
         }
@@ -2295,7 +3303,7 @@ open class MainActivity : AppCompatActivity() {
         if (!granted) {
             android.widget.Toast.makeText(
                 this,
-                getString(R.string.activity_recognition_permission_denied),
+                getString(R.string.snackbar_permission_activity_recognition_denied),
                 android.widget.Toast.LENGTH_LONG
             ).show()
         }

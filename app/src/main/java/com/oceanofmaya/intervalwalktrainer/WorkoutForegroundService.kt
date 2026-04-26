@@ -51,8 +51,8 @@ class WorkoutForegroundService : Service() {
 
         val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_media_play)
-            .setContentTitle(getString(R.string.workout_in_progress_notification_title))
-            .setContentText(getString(R.string.workout_in_progress_notification_body))
+            .setContentTitle(getString(R.string.notif_workout_in_progress_title))
+            .setContentText(getString(R.string.notif_workout_in_progress_body))
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -77,10 +77,10 @@ class WorkoutForegroundService : Service() {
 
         val channel = NotificationChannel(
             CHANNEL_ID,
-            getString(R.string.workout_notifications_channel_name),
+            getString(R.string.notif_channel_name),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = getString(R.string.workout_notifications_channel_description)
+            description = getString(R.string.notif_channel_description)
             setShowBadge(false)
         }
         manager.createNotificationChannel(channel)

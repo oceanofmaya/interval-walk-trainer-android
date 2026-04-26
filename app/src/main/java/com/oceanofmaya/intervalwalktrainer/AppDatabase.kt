@@ -11,18 +11,44 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 /**
  * Room database for storing workout records.
  */
-@Database(entities = [WorkoutRecord::class, WorkoutSession::class], version = 2, exportSchema = false)
+@Database(
+    entities = [WorkoutRecord::class, WorkoutSession::class, SavedWorkout::class],
+    version = 3,
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun workoutDao(): WorkoutDao
     abstract fun workoutSessionDao(): WorkoutSessionDao
-    
+    abstract fun savedWorkoutDao(): SavedWorkoutDao
+
     companion object {
         private const val TAG = "AppDatabase"
-        
+
         @Volatile
         private var INSTANCE: AppDatabase? = null
-        
-        private val MIGRATION_1_2 = object : Migration(1, 2) {
+
+        internal val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS saved_workouts (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        displayName TEXT NOT NULL,
+                        slowDurationSeconds INTEGER NOT NULL,
+                        fastDurationSeconds INTEGER NOT NULL,
+                        totalIntervals INTEGER NOT NULL,
+                        isCircuit INTEGER NOT NULL,
+                        circuitPattern TEXT NOT NULL,
+                        startsWithFast INTEGER NOT NULL,
+                        createdAt INTEGER NOT NULL,
+                        sortOrder INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
+        internal val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
                     """
@@ -47,7 +73,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "workout_database"
                 )
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .build()
                 INSTANCE = instance
                 Log.d(TAG, "Database instance created")

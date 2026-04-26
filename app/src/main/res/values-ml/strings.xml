@@ -5,6 +5,6 @@
     <string name="tts_fast_walk">വേഗത്തിൽ നടത്തം</string>
     <string name="tts_workout_complete">വ്യായാമം പൂർത്തിയായി</string>
     <string name="tts_voice_notifications_enabled">ശബ്ദ അറിയിപ്പുകൾ ഓണാക്കി</string>
-    <string name="go">തുടങ്ങുക</string>
-    <string name="voice_notifications_disabled">ശബ്ദ അറിയിപ്പുകൾ ഓഫാക്കി</string>
+    <string name="action_go">തുടങ്ങുക</string>
+    <string name="snackbar_voice_notifications_disabled">ശബ്ദ അറിയിപ്പുകൾ ഓഫാക്കി</string>
 </resources>
