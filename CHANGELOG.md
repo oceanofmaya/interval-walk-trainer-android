@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.3.1 - 2026-05-22
+
+#### Fixes
+
+- **Workout reminders:** Weekly reminder notifications now use sound and vibration when allowed by the user's device notification settings.
+
 ### 1.3.0 - 2026-05-22
 
 #### Features
