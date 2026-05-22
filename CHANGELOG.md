@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.3.2 - 2026-05-22
+
+#### UI/UX Improvements
+
+- **Home screen weekly goal:** Replaced the extra weekly-goal summary line with a tappable compact chip and tightened timer-screen spacing so controls stay clear on shorter phones.
+
 ### 1.3.1 - 2026-05-22
 
 #### Fixes

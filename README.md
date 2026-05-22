@@ -63,7 +63,7 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - Icon buttons for Workout History and Settings; overflow menu (⋮) for Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional language-based picker for notification TTS
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
 - **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
-- **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and show a subtle “This week” summary on the timer screen
+- **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and show a tappable compact “This week” chip on the timer screen
 - **Workout reminders**: Schedule exact recurring reminder notifications for selected days and time, with an option to pause reminders once the weekly goal is met
 - **TTS languages:** Voice announcements (e.g. “Slow walk”, “Fast walk”, “Workout complete”) are spoken in the selected notification language when supported. Supported locales:
   - Arabic, Danish, Dutch, Filipino, French, German, Hindi, Indonesian, Italian, Japanese, Kannada, Korean, Malayalam, Polish, Portuguese (Brazil and Portugal), Russian, Simplified Chinese (China), Spanish, Swedish, Tagalog, Tamil, Telugu, Thai, Traditional Chinese (Hong Kong), Turkish, Urdu, Vietnamese
@@ -128,14 +128,14 @@ Three pre-configured presets cover the main training patterns. **My saved preset
 6. Use **Pause** (button shows **Resume** when paused) or **Reset** as needed
 7. The timer continues running even when the phone is locked
 8. View workout history and statistics by tapping the **Workout History** (stats) icon
-9. Tap **Weekly Goal** in Workout History to set weekly targets and optional recurring reminders
+9. Tap **Weekly Goal** in Workout History, Settings, or the timer screen chip to set weekly targets and optional recurring reminders
 10. Tap a day in the calendar to see workout details; delete individual workouts from the detail sheet or clear all history from the Stats screen
 
 ### Weekly Goals
 
 Weekly Goals are local planning targets. You can track workouts per week, minutes per week, or both. Only completed workouts that are saved to Workout History count toward the current week.
 
-The Weekly Goal card uses a small status pill to summarize progress: **Off** when no weekly goal is active, **On track** while an active goal is still open, **Last day** during the final 24 hours of the goal week when the goal is not yet met, and **Goal met** once all enabled targets are complete. Active states use the selected app accent color; **Off** uses secondary text styling.
+The timer screen shows weekly progress as a compact chip when a weekly goal is active. It stays hidden when no goal is set, shows current progress during the week, switches to a last-day remaining summary near the end of the week, and becomes **Goal met this week** once all enabled targets are complete. Tap the chip to edit the goal. The full Weekly Goal card in Workout History keeps the detailed status pill, progress bars, and reminder summary.
 
 Optional reminders repeat on the selected days at the selected time. Reminder notifications open the timer screen, respect Android notification permission, and can pause automatically once the weekly goal is met. On Android 12+, the app may ask for **Alarms & reminders** access so reminders can fire at the exact time you choose.
 
