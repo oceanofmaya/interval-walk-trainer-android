@@ -3,6 +3,7 @@ package com.oceanofmaya.intervalwalktrainer
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlarmManager
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -106,6 +107,8 @@ class WeeklyReminderScheduler(private val context: Context) {
             NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
             description = appContext.getString(R.string.notif_weekly_reminder_channel_description)
+            enableVibration(true)
+            vibrationPattern = REMINDER_VIBRATION_PATTERN
         }
         notificationManager.createNotificationChannel(channel)
     }
@@ -121,6 +124,8 @@ class WeeklyReminderScheduler(private val context: Context) {
                 .setContentTitle(appContext.getString(R.string.notif_weekly_reminder_title))
                 .setContentText(appContext.getString(R.string.notif_weekly_reminder_body))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
+                .setVibrate(REMINDER_VIBRATION_PATTERN)
                 .setAutoCancel(true)
                 .setContentIntent(mainActivityPendingIntent())
                 .build()
@@ -152,6 +157,7 @@ class WeeklyReminderScheduler(private val context: Context) {
     companion object {
         private const val REMINDER_REQUEST_CODE = 1300
         private const val REMINDER_NOTIFICATION_ID = 1301
-        private const val REMINDER_CHANNEL_ID = "weekly_goal_reminders"
+        private const val REMINDER_CHANNEL_ID = "weekly_goal_reminders_alerts"
+        private val REMINDER_VIBRATION_PATTERN = longArrayOf(0L, 300L, 150L, 300L)
     }
 }
