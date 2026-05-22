@@ -116,7 +116,7 @@
             android:minHeight="52dp"
             android:clickable="false"
             android:focusable="false"
-            app:icon="@drawable/ic_vibration"
+            app:icon="@drawable/outline_vibration_24"
             app:iconGravity="start"
             app:iconTint="@color/text_secondary"
             app:iconPadding="12dp"
@@ -156,7 +156,7 @@
             android:minHeight="52dp"
             android:clickable="false"
             android:focusable="false"
-            app:icon="@drawable/ic_voice"
+            app:icon="@drawable/outline_volume_up_24"
             app:iconGravity="start"
             app:iconTint="@color/text_secondary"
             app:iconPadding="12dp"
@@ -199,7 +199,7 @@
             android:minHeight="52dp"
             android:clickable="false"
             android:focusable="false"
-            app:icon="@drawable/ic_voice"
+            app:icon="@drawable/outline_volume_up_24"
             app:iconGravity="start"
             app:iconTint="@color/text_secondary"
             app:iconPadding="12dp"
@@ -254,7 +254,7 @@
             android:minHeight="52dp"
             android:clickable="false"
             android:focusable="false"
-            app:icon="@drawable/ic_notifications"
+            app:icon="@drawable/baseline_notifications_24"
             app:iconGravity="start"
             app:iconTint="@color/text_secondary"
             app:iconPadding="12dp"
@@ -294,7 +294,7 @@
             android:minHeight="52dp"
             android:clickable="false"
             android:focusable="false"
-            app:icon="@drawable/ic_screen_awake"
+            app:icon="@drawable/outline_screen_awake_24"
             app:iconGravity="start"
             app:iconTint="@color/text_secondary"
             app:iconPadding="12dp"
@@ -335,7 +335,7 @@
             android:minHeight="52dp"
             android:clickable="false"
             android:focusable="false"
-            app:icon="@drawable/ic_timer"
+            app:icon="@drawable/outline_timer_24"
             app:iconGravity="start"
             app:iconTint="@color/text_secondary"
             app:iconPadding="12dp"
@@ -365,7 +365,7 @@
                 android:id="@+id/startCountdownDecrease"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:src="@drawable/ic_remove"
+                android:src="@drawable/baseline_remove_24"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/desc_decrease"
                 app:tint="@color/text_secondary"
@@ -375,7 +375,7 @@
                 android:id="@+id/startCountdownIncrease"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:src="@drawable/ic_add"
+                android:src="@drawable/baseline_add_24"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/desc_increase"
                 app:tint="@color/text_secondary"
@@ -412,6 +412,15 @@
         android:paddingBottom="2dp"
         android:letterSpacing="0.05" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/weeklyGoalSettingsButton"
+        style="@style/Widget.IntervalWalkTrainer.SettingsActionButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/title_weekly_goal"
+        app:icon="@drawable/outline_bar_chart_24"
+        app:iconSize="24dp" />
+
     <!-- Save Workouts toggle row -->
     <FrameLayout
         android:id="@+id/saveWorkoutsRow"
@@ -434,7 +443,7 @@
             android:minHeight="52dp"
             android:clickable="false"
             android:focusable="false"
-            app:icon="@drawable/ic_save"
+            app:icon="@drawable/baseline_save_24"
             app:iconGravity="start"
             app:iconTint="@color/text_secondary"
             app:iconPadding="12dp"
@@ -638,7 +647,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/label_privacy_policy"
-        app:icon="@drawable/ic_privacy"
+        app:icon="@drawable/outline_privacy_tip_24"
         style="@style/Widget.IntervalWalkTrainer.SettingsActionButton" />
 
     <com.google.android.material.button.MaterialButton
@@ -646,7 +655,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/label_terms_of_service"
-        app:icon="@drawable/ic_terms"
+        app:icon="@drawable/outline_description_24"
         style="@style/Widget.IntervalWalkTrainer.SettingsActionButton" />
 
 

@@ -32,7 +32,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_gravity="end|center_vertical"
-            android:src="@drawable/ic_chevron_right"
+            android:src="@drawable/baseline_chevron_right_24"
             app:tint="@color/text_secondary"
             android:contentDescription="@null" />
     </FrameLayout>

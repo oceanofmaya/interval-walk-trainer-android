@@ -268,6 +268,20 @@ class WorkoutRepository(
         android.util.Log.d("WorkoutRepository", "Found ${records.size} records")
         return records
     }
+
+    suspend fun getWeeklyGoalProgress(
+        settings: WeeklyGoalSettings,
+        nowMillis: Long = System.currentTimeMillis()
+    ): WeeklyGoalProgress {
+        val range = WeeklyGoalCalculator.currentWeekRange(nowMillis, settings.weekStartDay)
+        val records = workoutDao.getRecordsByDateRange(range.startDate, range.endDate)
+        return WeeklyGoalProgress(
+            settings = settings,
+            dateRange = range,
+            completedWorkouts = records.sumOf { it.completedWorkouts },
+            completedMinutes = records.sumOf { it.totalMinutes }
+        )
+    }
     
     /**
      * Get a workout record by date.

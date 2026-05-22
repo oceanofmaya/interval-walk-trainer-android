@@ -30,7 +30,7 @@ interval-walk-trainer-android/
 
 The `scripts/` directory contains utility scripts to automate asset generation:
 
-- **`optimize-screenshots.sh`** - Optimizes screenshot file sizes
+- **`optimize-screenshots.sh`** - Optimizes changed phone screenshots by default; pass `--all` to optimize every phone screenshot
 
 These scripts are utilities to optimize Play Store assets and are not required for building or running the app.
 
@@ -63,10 +63,13 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - Icon buttons for Workout History and Settings; overflow menu (⋮) for Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional language-based picker for notification TTS
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
 - **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
+- **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and show a subtle “This week” summary on the timer screen
+- **Workout reminders**: Schedule exact recurring reminder notifications for selected days and time, with an option to pause reminders once the weekly goal is met
 - **TTS languages:** Voice announcements (e.g. “Slow walk”, “Fast walk”, “Workout complete”) are spoken in the selected notification language when supported. Supported locales:
   - Arabic, Danish, Dutch, Filipino, French, German, Hindi, Indonesian, Italian, Japanese, Kannada, Korean, Malayalam, Polish, Portuguese (Brazil and Portugal), Russian, Simplified Chinese (China), Spanish, Swedish, Tagalog, Tamil, Telugu, Thai, Traditional Chinese (Hong Kong), Turkish, Urdu, Vietnamese
   - English is the default. Translations were AI-generated and may contain mistakes. Availability depends on installed voices and your device's TTS engine support.
 - **Workout statistics and history**
+  - Weekly Goal card showing current-week workout and minute progress
   - Calendar view showing workout days with a high-contrast today indicator
   - Total workouts, minutes, and streaks
   - Monthly navigation to view past workouts
@@ -125,7 +128,16 @@ Three pre-configured presets cover the main training patterns. **My saved preset
 6. Use **Pause** (button shows **Resume** when paused) or **Reset** as needed
 7. The timer continues running even when the phone is locked
 8. View workout history and statistics by tapping the **Workout History** (stats) icon
-9. Tap a day in the calendar to see workout details; delete individual workouts from the detail sheet or clear all history from the Stats screen
+9. Tap **Weekly Goal** in Workout History to set weekly targets and optional recurring reminders
+10. Tap a day in the calendar to see workout details; delete individual workouts from the detail sheet or clear all history from the Stats screen
+
+### Weekly Goals
+
+Weekly Goals are local planning targets. You can track workouts per week, minutes per week, or both. Only completed workouts that are saved to Workout History count toward the current week.
+
+The Weekly Goal card uses a small status pill to summarize progress: **Off** when no weekly goal is active, **On track** while an active goal is still open, **Last day** during the final 24 hours of the goal week when the goal is not yet met, and **Goal met** once all enabled targets are complete. Active states use the selected app accent color; **Off** uses secondary text styling.
+
+Optional reminders repeat on the selected days at the selected time. Reminder notifications open the timer screen, respect Android notification permission, and can pause automatically once the weekly goal is met. On Android 12+, the app may ask for **Alarms & reminders** access so reminders can fire at the exact time you choose.
 
 ### Creating Custom Formulas
 
@@ -221,6 +233,7 @@ The app requires the following permissions:
 
 - `VIBRATE`: For vibration notifications
 - `POST_NOTIFICATIONS`: For system notifications (Android 13+)
+- `SCHEDULE_EXACT_ALARM`: For exact weekly goal reminder times on Android 12+
 - `WAKE_LOCK`: To keep the timer running when the phone is locked
 - `FOREGROUND_SERVICE`: To run active workouts reliably in the background
 - `FOREGROUND_SERVICE_HEALTH`: Required for health/workout foreground service type on newer Android versions

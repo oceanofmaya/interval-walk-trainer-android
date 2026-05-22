@@ -116,6 +116,7 @@ open class MainActivity : AppCompatActivity() {
             FaqEntry(R.string.faq_question_countdown, R.string.faq_answer_countdown),
             FaqEntry(R.string.faq_question_pause_reset, R.string.faq_answer_pause_reset),
             FaqEntry(R.string.faq_question_workout_history, R.string.faq_answer_workout_history),
+            FaqEntry(R.string.faq_question_weekly_goals, R.string.faq_answer_weekly_goals),
             FaqEntry(R.string.faq_question_data_shared, R.string.faq_answer_data_shared),
             FaqEntry(R.string.faq_question_notifications, R.string.faq_answer_notifications),
             FaqEntry(R.string.faq_question_voice, R.string.faq_answer_voice),
@@ -259,6 +260,10 @@ open class MainActivity : AppCompatActivity() {
         setupOverflowMenuButton()
         setupWorkoutHistoryButton()
         setupSettingsButton()
+        loadWeeklyGoalSummary()
+        lifecycleScope.launch(Dispatchers.IO) {
+            WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
+        }
         lastKnownNotificationsEnabled = areAppNotificationsEnabled()
         
         // Restore timer state if activity was recreated (e.g., theme change)
@@ -294,6 +299,10 @@ open class MainActivity : AppCompatActivity() {
         handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
         lastKnownNotificationsEnabled = notificationsEnabled
         refreshNotificationsSwitchState()
+        loadWeeklyGoalSummary()
+        lifecycleScope.launch(Dispatchers.IO) {
+            WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
+        }
     }
 
     override fun onPause() {
@@ -709,6 +718,53 @@ open class MainActivity : AppCompatActivity() {
             hapticSelection(view)
             startActivity(Intent(this, StatsActivity::class.java))
         }
+    }
+
+    private fun loadWeeklyGoalSummary() {
+        val settings = WeeklyGoalPreferences.loadGoalSettings(sharedPreferences)
+        if (!settings.enabled || !settings.hasAnyTarget) {
+            binding.weeklyGoalSummary.visibility = View.GONE
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                val progress = workoutRepository.getWeeklyGoalProgress(settings)
+                binding.weeklyGoalSummary.text = formatWeeklyGoalSummary(progress)
+                binding.weeklyGoalSummary.visibility = View.VISIBLE
+            } catch (e: Exception) {
+                android.util.Log.e("MainActivity", "Error loading weekly goal summary", e)
+                binding.weeklyGoalSummary.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun formatWeeklyGoalSummary(progress: WeeklyGoalProgress): String {
+        val parts = mutableListOf<String>()
+        if (progress.settings.tracksWorkouts) {
+            parts.add(
+                getString(
+                    R.string.format_weekly_goal_summary_workouts,
+                    progress.completedWorkouts,
+                    progress.settings.targetWorkouts
+                )
+            )
+        }
+        if (progress.settings.tracksMinutes) {
+            parts.add(
+                getString(
+                    R.string.format_weekly_goal_summary_minutes,
+                    progress.completedMinutes,
+                    progress.settings.targetMinutes
+                )
+            )
+        }
+        val prefix = if (progress.isGoalMet) {
+            getString(R.string.label_weekly_goal_met)
+        } else {
+            getString(R.string.label_this_week)
+        }
+        return "$prefix: ${parts.joinToString(" • ")}"
     }
 
     private fun setupSettingsButton() {
@@ -2081,6 +2137,18 @@ open class MainActivity : AppCompatActivity() {
             showClearStatsConfirmationDialog(bottomSheetDialog)
         }
 
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.weeklyGoalSettingsButton)
+            .setOnClickListener { btn ->
+                hapticSelection(btn)
+                bottomSheetDialog.dismiss()
+                WeeklyGoalEditor(
+                    activity = this,
+                    sharedPreferences = sharedPreferences,
+                    accentColorProvider = ::getAccentColor,
+                    onSaved = ::loadWeeklyGoalSummary
+                ).show()
+            }
+
         // Vibration toggle switch
         val vibrationSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.vibrationSwitch)
         vibrationSwitchRef = vibrationSwitch
@@ -2812,6 +2880,8 @@ open class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     workoutRepository.recordWorkout(minutes, workoutType)
+                    loadWeeklyGoalSummary()
+                    WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
                     android.util.Log.d("MainActivity", "Workout recorded: $minutes minutes, type: $workoutType")
                 } catch (e: Exception) {
                     android.util.Log.e("MainActivity", "Error recording workout", e)
@@ -3288,6 +3358,9 @@ open class MainActivity : AppCompatActivity() {
             handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
             lastKnownNotificationsEnabled = notificationsEnabled
             refreshNotificationsSwitchState()
+            if (notificationsEnabled) {
+                requestExactAlarmAccessForWeeklyRemindersIfNeeded()
+            }
             return
         }
         if (requestCode != REQUEST_CODE_ACTIVITY_RECOGNITION) return
@@ -3306,6 +3379,35 @@ open class MainActivity : AppCompatActivity() {
                 getString(R.string.snackbar_permission_activity_recognition_denied),
                 android.widget.Toast.LENGTH_LONG
             ).show()
+        }
+    }
+
+    private fun requestExactAlarmAccessForWeeklyRemindersIfNeeded() {
+        val reminderSettings = WeeklyGoalPreferences.loadReminderSettings(sharedPreferences)
+        val shouldRequest = reminderSettings.enabled &&
+            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
+            !WeeklyReminderScheduler(this).canScheduleExactReminders()
+        if (shouldRequest) {
+            openExactAlarmSettings()
+            android.widget.Toast.makeText(
+                this,
+                R.string.toast_allow_exact_reminders,
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    private fun openExactAlarmSettings() {
+        val intent = Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+            data = Uri.parse("package:$packageName")
+        }
+        try {
+            startActivity(intent)
+        } catch (_: Exception) {
+            val fallbackIntent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            startActivity(fallbackIntent)
         }
     }
 

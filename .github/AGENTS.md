@@ -26,6 +26,11 @@ When making code suggestions:
 
 - All markdown files should be named using uppercase letters only.
 - All files that are not markdown should be named using lowercase with dashes separating words.
+- Android drawable icon resources should follow the source/style naming convention used by the Android/Material icon library:
+  - Use `baseline_<icon_name>_24.xml` for baseline Material icons.
+  - Use `outline_<icon_name>_24.xml` for outlined Material icons.
+  - Reserve `ic_*` names for launcher icons or truly app-specific/custom icon assets that do not map cleanly to a Material icon style/name.
+  - Do not introduce one-off icon names when a Material-library style/name exists; use Android Studio Refactor Rename when normalizing existing drawables so all references are updated safely.
 
 ## Branching Strategy
 
@@ -69,3 +74,14 @@ When the app’s behavior changes, update the following so they stay accurate:
 
 - **README.md**: Adjust the Features, Usage, Training Formulas, and any other sections that describe how the app works or how to use it.
 - **In-app FAQ (Help)**: The FAQ is built from strings in `app/src/main/res/values/strings.xml` (e.g. `faq_question_*`, `faq_answer_*`) and the list in `MainActivity.kt` (`faqEntries`). Add, remove, or edit Q&A entries so the Help bottom sheet reflects current behavior.
+
+## Android UI/UX Conventions
+
+When adding or changing app UI, first inspect nearby screens and existing bottom sheets for established patterns, then match those patterns unless there is a clear product reason to diverge.
+
+- Use the app's existing theme colors and accent behavior for interactive controls. Buttons, switches, checkboxes, icons, and selected states should use the same accent/tint patterns already used elsewhere in the app, rather than default Material colors.
+- When adding or changing icons, check that drawable names follow the `baseline_*_24` / `outline_*_24` convention for Material icons, and that icon tinting matches nearby UI (`@color/text_secondary`, theme accent, or another established local pattern).
+- Build bottom sheets as cohesive workflows. Group related settings together, order controls by how users think about the task, and keep supporting options close to the feature toggle or section they modify.
+- For bottom sheets, follow the sizing approach in `MainActivity.configureBottomSheet`: set content width to `MATCH_PARENT`, force the Material `design_bottom_sheet` container to `MATCH_PARENT` on show when needed, and measure content using the resolved parent width with an `EXACTLY` width spec. Avoid `AT_MOST` width measurement for sheet content, since it can collapse labels to only a few characters.
+- For rows with trailing controls, prefer the existing row pattern: a full-width clickable row, a label using `layout_width="0dp"` and `layout_weight="1"`, and a fixed-size control aligned at the end. Avoid overlaying labels and controls in a `FrameLayout` when a horizontal weighted row communicates the layout better.
+- Use compact visible labels only when they improve readability or fit, and keep full labels available through content descriptions or surrounding context for accessibility.

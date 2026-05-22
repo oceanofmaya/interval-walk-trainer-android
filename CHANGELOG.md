@@ -2,6 +2,24 @@
 
 ## Version 1
 
+### 1.3.0 - 2026-05-22
+
+#### Features
+
+- **Weekly Goals:** Set a weekly target for workouts, minutes, or both from Workout History. Progress uses only completed workouts saved locally on the device.
+- **Goal reminders:** Choose recurring workout reminder days and exact reminder time, with an option to pause reminders once the week’s goal is met.
+
+#### UI/UX Improvements
+
+- **Weekly progress card:** Workout History now shows this week’s progress alongside the existing overview stats.
+- **Main-screen status:** The timer screen shows a compact “This week” goal summary when weekly goals are enabled.
+- Store screenshots and promo images updated for Weekly Goals and reminders.
+
+#### Chore
+
+- **Screenshot tooling:** The screenshot optimization script now optimizes only changed phone screenshots by default, with `--all` available for full-batch optimization.
+- **Store listing docs:** Added Play Store listing field constraints and current listing copy to the store assets documentation.
+
 ### 1.2.0 - 2026-04-26
 
 #### Features

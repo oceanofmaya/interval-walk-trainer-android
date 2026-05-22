@@ -82,3 +82,6 @@ lint/tmp/
 
 # VS Code
 .vscode/
+
+# Plan Markdown files
+PLAN-*.md

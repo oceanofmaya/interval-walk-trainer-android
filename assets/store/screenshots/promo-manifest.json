@@ -2,7 +2,7 @@
   "platform": "android-play-store",
   "device": "phone",
   "manual_composition": true,
-  "last_updated": "2026-04-26",
+  "last_updated": "2026-05-23",
   "items": [
     {
       "position": 1,
@@ -52,10 +52,10 @@
       "position": 5,
       "source": "phone/stats-overview-light.png",
       "promo": "promo/05-stats-overview-light-promo.png",
-      "feature_message": "Track workouts, streaks, and progress over time",
+      "feature_message": "Track workouts, streaks, weekly goals, and progress over time",
       "caption": {
         "headline": "Track Your Progress",
-        "supporting_text": "Motivation through streaks and history",
+        "supporting_text": "Motivation through weekly goals, streaks and history",
         "callouts": []
       }
     },
@@ -72,8 +72,19 @@
     },
     {
       "position": 7,
+      "source": "phone/weekly-goal-reminders-light.png",
+      "promo": "promo/07-weekly-goal-reminders-light-promo.png",
+      "feature_message": "Weekly goals, streaks, and local workout history",
+      "caption": {
+        "headline": "Stay On Track Each Week",
+        "supporting_text": "Set weekly targets for workouts and minutes with reminders",
+        "callouts": []
+      }
+    },
+    {
+      "position": 8,
       "source": "phone/complete-light.png",
-      "promo": "promo/07-complete-light-promo.png",
+      "promo": "promo/08-complete-light-promo.png",
       "feature_message": "Finish sessions with clear completion and summary feedback",
       "caption": {
         "headline": "Zero Distractions",
