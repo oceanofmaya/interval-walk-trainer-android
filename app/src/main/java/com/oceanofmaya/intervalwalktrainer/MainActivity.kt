@@ -66,6 +66,8 @@ import android.widget.FrameLayout
 import android.widget.PopupMenu
 import androidx.core.content.edit
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
 /**
  * Main activity for the Interval Walk Trainer app.
@@ -185,6 +187,13 @@ open class MainActivity : AppCompatActivity() {
         private const val PRE_START_SECONDS_MIN = 1
         private const val PRE_START_SECONDS_MAX = 10
         private const val AUTO_RESET_AFTER_COMPLETION_DELAY_MS = 15_000L
+        private const val HOME_WEEKLY_CHIP_CORNER_RADIUS_DP = 14
+        private const val HOME_WEEKLY_CHIP_STROKE_WIDTH_DP = 1
+        private const val HOME_WEEKLY_CHIP_BACKGROUND_ALPHA = 0.12f
+        private const val HOME_WEEKLY_CHIP_STROKE_ALPHA = 0.32f
+        private const val COLOR_CHANNEL_MAX = 255
+        private const val MILLIS_PER_DAY = 24L * 60L * 60L * 1000L
+        private const val WEEK_DATE_PATTERN = "yyyy-MM-dd"
         private const val ACCENT_BLUE = "blue"
         private const val ACCENT_TEAL = "teal"
         private const val ACCENT_PURPLE = "purple"
@@ -260,7 +269,8 @@ open class MainActivity : AppCompatActivity() {
         setupOverflowMenuButton()
         setupWorkoutHistoryButton()
         setupSettingsButton()
-        loadWeeklyGoalSummary()
+        setupHomeWeeklyGoalChip()
+        loadHomeWeeklyGoalChip()
         lifecycleScope.launch(Dispatchers.IO) {
             WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
         }
@@ -299,7 +309,7 @@ open class MainActivity : AppCompatActivity() {
         handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
         lastKnownNotificationsEnabled = notificationsEnabled
         refreshNotificationsSwitchState()
-        loadWeeklyGoalSummary()
+        loadHomeWeeklyGoalChip()
         lifecycleScope.launch(Dispatchers.IO) {
             WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
         }
@@ -720,7 +730,15 @@ open class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadWeeklyGoalSummary() {
+    private fun setupHomeWeeklyGoalChip() {
+        binding.weeklyGoalSummary.setOnClickListener { view ->
+            hapticSelection(view)
+            showWeeklyGoalEditor()
+        }
+        styleHomeWeeklyGoalChip()
+    }
+
+    private fun loadHomeWeeklyGoalChip() {
         val settings = WeeklyGoalPreferences.loadGoalSettings(sharedPreferences)
         if (!settings.enabled || !settings.hasAnyTarget) {
             binding.weeklyGoalSummary.visibility = View.GONE
@@ -730,16 +748,39 @@ open class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val progress = workoutRepository.getWeeklyGoalProgress(settings)
-                binding.weeklyGoalSummary.text = formatWeeklyGoalSummary(progress)
+                val chipText = formatHomeWeeklyGoalChip(progress)
+                binding.weeklyGoalSummary.text = chipText
+                binding.weeklyGoalSummary.contentDescription = getString(
+                    R.string.desc_home_weekly_goal_chip,
+                    chipText
+                )
+                styleHomeWeeklyGoalChip()
                 binding.weeklyGoalSummary.visibility = View.VISIBLE
             } catch (e: Exception) {
-                android.util.Log.e("MainActivity", "Error loading weekly goal summary", e)
+                android.util.Log.e("MainActivity", "Error loading weekly goal chip", e)
                 binding.weeklyGoalSummary.visibility = View.GONE
             }
         }
     }
 
-    private fun formatWeeklyGoalSummary(progress: WeeklyGoalProgress): String {
+    private fun formatHomeWeeklyGoalChip(progress: WeeklyGoalProgress): String {
+        val separator = getString(R.string.separator_bullet)
+        val remainingParts = homeWeeklyGoalRemainingParts(progress)
+        return when {
+            progress.isGoalMet -> getString(R.string.label_weekly_goal_met_this_week)
+            isLastGoalDay(progress) && remainingParts.isNotEmpty() -> getString(
+                R.string.format_home_weekly_goal_last_day,
+                remainingParts.joinToString(separator)
+            )
+            else -> getString(
+                R.string.format_home_weekly_goal_progress,
+                getString(R.string.label_this_week),
+                homeWeeklyGoalProgressParts(progress).joinToString(separator)
+            )
+        }
+    }
+
+    private fun homeWeeklyGoalProgressParts(progress: WeeklyGoalProgress): List<String> {
         val parts = mutableListOf<String>()
         if (progress.settings.tracksWorkouts) {
             parts.add(
@@ -759,12 +800,86 @@ open class MainActivity : AppCompatActivity() {
                 )
             )
         }
-        val prefix = if (progress.isGoalMet) {
-            getString(R.string.label_weekly_goal_met)
-        } else {
-            getString(R.string.label_this_week)
+        return parts
+    }
+
+    private fun homeWeeklyGoalRemainingParts(progress: WeeklyGoalProgress): List<String> {
+        val parts = mutableListOf<String>()
+        if (progress.settings.tracksWorkouts) {
+            val remaining = (progress.settings.targetWorkouts - progress.completedWorkouts)
+                .coerceAtLeast(0)
+            if (remaining > 0) {
+                parts.add(
+                    resources.getQuantityString(
+                        R.plurals.format_weekly_goal_workouts_remaining,
+                        remaining,
+                        remaining
+                    )
+                )
+            }
         }
-        return "$prefix: ${parts.joinToString(" • ")}"
+        if (progress.settings.tracksMinutes) {
+            val remaining = (progress.settings.targetMinutes - progress.completedMinutes)
+                .coerceAtLeast(0)
+            if (remaining > 0) {
+                parts.add(
+                    resources.getQuantityString(
+                        R.plurals.format_weekly_goal_minutes_remaining,
+                        remaining,
+                        remaining
+                    )
+                )
+            }
+        }
+        return parts
+    }
+
+    private fun isLastGoalDay(progress: WeeklyGoalProgress): Boolean {
+        val weekEndMillis = runCatching {
+            SimpleDateFormat(WEEK_DATE_PATTERN, Locale.US).parse(progress.dateRange.endDate)?.time
+        }.getOrNull() ?: return false
+        val weekEndExclusive = Calendar.getInstance().apply {
+            timeInMillis = weekEndMillis
+            add(Calendar.DAY_OF_MONTH, 1)
+        }.timeInMillis
+        val remainingMillis = weekEndExclusive - System.currentTimeMillis()
+        return remainingMillis in 1..MILLIS_PER_DAY
+    }
+
+    private fun styleHomeWeeklyGoalChip() {
+        val accentColor = getAccentColor()
+        binding.weeklyGoalSummary.setTextColor(accentColor)
+        binding.weeklyGoalSummary.background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = dpToPx(HOME_WEEKLY_CHIP_CORNER_RADIUS_DP).toFloat()
+            setColor(colorWithAlpha(accentColor, HOME_WEEKLY_CHIP_BACKGROUND_ALPHA))
+            setStroke(
+                dpToPx(HOME_WEEKLY_CHIP_STROKE_WIDTH_DP),
+                colorWithAlpha(accentColor, HOME_WEEKLY_CHIP_STROKE_ALPHA)
+            )
+        }
+    }
+
+    private fun colorWithAlpha(color: Int, alpha: Float): Int {
+        return Color.argb(
+            (alpha * COLOR_CHANNEL_MAX).toInt(),
+            Color.red(color),
+            Color.green(color),
+            Color.blue(color)
+        )
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
+    }
+
+    private fun showWeeklyGoalEditor() {
+        WeeklyGoalEditor(
+            activity = this,
+            sharedPreferences = sharedPreferences,
+            accentColorProvider = ::getAccentColor,
+            onSaved = ::loadHomeWeeklyGoalChip
+        ).show()
     }
 
     private fun setupSettingsButton() {
@@ -2141,12 +2256,7 @@ open class MainActivity : AppCompatActivity() {
             .setOnClickListener { btn ->
                 hapticSelection(btn)
                 bottomSheetDialog.dismiss()
-                WeeklyGoalEditor(
-                    activity = this,
-                    sharedPreferences = sharedPreferences,
-                    accentColorProvider = ::getAccentColor,
-                    onSaved = ::loadWeeklyGoalSummary
-                ).show()
+                showWeeklyGoalEditor()
             }
 
         // Vibration toggle switch
@@ -2431,6 +2541,7 @@ open class MainActivity : AppCompatActivity() {
         val accentColor = getAccentColor()
         binding.startPauseButton.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
         binding.workoutProgress.progressTintList = android.content.res.ColorStateList.valueOf(accentColor)
+        styleHomeWeeklyGoalChip()
     }
 
     /**
@@ -2880,7 +2991,7 @@ open class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     workoutRepository.recordWorkout(minutes, workoutType)
-                    loadWeeklyGoalSummary()
+                    loadHomeWeeklyGoalChip()
                     WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
                     android.util.Log.d("MainActivity", "Workout recorded: $minutes minutes, type: $workoutType")
                 } catch (e: Exception) {
