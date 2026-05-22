@@ -1,14 +1,10 @@
 package com.oceanofmaya.intervalwalktrainer
 
 import android.annotation.SuppressLint
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
-import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -36,6 +32,9 @@ import java.util.*
 class StatsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStatsBinding
     private lateinit var workoutRepository: WorkoutRepository
+    private lateinit var weeklyGoalController: WeeklyGoalStatsController
+    private lateinit var trendsController: StatsTrendsController
+    private lateinit var calendarController: StatsCalendarController
     private lateinit var sharedPreferences: android.content.SharedPreferences
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     // Track the currently displayed month
@@ -53,6 +52,27 @@ class StatsActivity : AppCompatActivity() {
         // Initialize workout repository
         val database = AppDatabase.getDatabase(this)
         workoutRepository = WorkoutRepository(database.workoutDao(), database.workoutSessionDao(), database)
+        weeklyGoalController = WeeklyGoalStatsController(
+            activity = this,
+            binding = binding,
+            workoutRepository = workoutRepository,
+            sharedPreferences = sharedPreferences,
+            accentColorProvider = ::getAccentColor
+        )
+        trendsController = StatsTrendsController(
+            activity = this,
+            binding = binding,
+            workoutRepository = workoutRepository,
+            accentColorProvider = ::getAccentColor,
+            formatMinutes = ::formatMinutes
+        )
+        calendarController = StatsCalendarController(
+            activity = this,
+            binding = binding,
+            dateFormat = dateFormat,
+            accentColorProvider = ::getAccentColor,
+            onWorkoutDateSelected = ::showWorkoutDetail
+        )
         
         // Initialize displayed month to current month
         val calendar = Calendar.getInstance()
@@ -62,12 +82,14 @@ class StatsActivity : AppCompatActivity() {
         setupToolbar()
         applyAccentStyling()
         setupSaveWorkoutsButton()
+        setupWeeklyGoalCard()
         setupClearButton()
         setupMonthNavigation()
         setupTodayButton()
         setupPullToRefresh()
         setupWorkoutList()
         loadStatistics()
+        loadWeeklyGoalProgress()
         loadCalendar()
         loadWorkoutList()
         loadMonthComparison()
@@ -176,6 +198,7 @@ class StatsActivity : AppCompatActivity() {
     private fun setupPullToRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
             loadStatistics()
+            loadWeeklyGoalProgress()
             loadCalendar()
             loadWorkoutList()
             loadMonthComparison()
@@ -225,6 +248,14 @@ class StatsActivity : AppCompatActivity() {
         binding.saveWorkoutsButton.imageTintList = android.content.res.ColorStateList.valueOf(tintColor)
     }
 
+    private fun setupWeeklyGoalCard() {
+        weeklyGoalController.setup()
+    }
+
+    private fun loadWeeklyGoalProgress() {
+        weeklyGoalController.load()
+    }
+
     companion object {
         private const val PREFS_NAME = "interval_walk_trainer_prefs"
         private const val KEY_SAVE_WORKOUTS = "save_workouts"
@@ -257,52 +288,6 @@ class StatsActivity : AppCompatActivity() {
         binding.streakProgressBar.progressTintList = android.content.res.ColorStateList.valueOf(accent)
     }
 
-    private fun createCalendarDayBackground(
-        fillColor: Int?,
-        strokeColor: Int? = null
-    ): LayerDrawable {
-        val layers = mutableListOf<GradientDrawable>()
-
-        if (strokeColor != null) {
-            layers.add(
-                GradientDrawable().apply {
-                    shape = GradientDrawable.OVAL
-                    setColor(Color.TRANSPARENT)
-                    setStroke(dpToPx(2.5f), strokeColor)
-                }
-            )
-        }
-
-        if (fillColor != null) {
-            layers.add(
-                GradientDrawable().apply {
-                    shape = GradientDrawable.OVAL
-                    setColor(fillColor)
-                }
-            )
-        }
-
-        val layerDrawable = LayerDrawable(layers.toTypedArray())
-        if (strokeColor != null && fillColor != null) {
-            layerDrawable.setLayerSize(0, dpToPx(34f), dpToPx(34f))
-            layerDrawable.setLayerGravity(0, Gravity.CENTER)
-            layerDrawable.setLayerSize(1, dpToPx(31f), dpToPx(31f))
-            layerDrawable.setLayerGravity(1, Gravity.CENTER)
-        } else {
-            layerDrawable.setLayerSize(0, dpToPx(32f), dpToPx(32f))
-            layerDrawable.setLayerGravity(0, Gravity.CENTER)
-        }
-        return layerDrawable
-    }
-
-    private fun getTodayOutlineColor(): Int {
-        val isDarkMode = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
-            android.content.res.Configuration.UI_MODE_NIGHT_YES
-        return if (isDarkMode) Color.WHITE else Color.BLACK
-    }
-
-    private fun dpToPx(valueDp: Float): Int = (valueDp * resources.displayMetrics.density).toInt()
-    
     private fun showClearConfirmationDialog() {
         AlertDialog.Builder(this)
             .setTitle(R.string.title_clear_workout_history)
@@ -331,19 +316,14 @@ class StatsActivity : AppCompatActivity() {
         binding.bestDayMinutes.visibility = View.GONE
         binding.bestDayEmptyState.visibility = View.VISIBLE
         binding.bestDayCard.visibility = View.VISIBLE
+        weeklyGoalController.applyEmptyUi()
         binding.emptyStateContainer.visibility = View.VISIBLE
         binding.calendarSectionHeader.visibility = View.GONE
         binding.calendarSectionContainer.visibility = View.GONE
         binding.workoutsListTitle.visibility = View.GONE
         binding.workoutsRecyclerView.visibility = View.GONE
         binding.emptyWorkoutListMessage.visibility = View.GONE
-        // Reset Monthly trend section so it shows zero until reload completes
-        binding.monthComparisonWorkoutsValue.text = getString(R.string.placeholder_zero)
-        binding.monthComparisonMinutesValue.text = formatMinutes(0)
-        binding.monthComparisonWorkoutsBadgeContainer.visibility = View.GONE
-        binding.monthComparisonWorkoutsEmptyState.visibility = View.VISIBLE
-        binding.monthComparisonMinutesBadgeContainer.visibility = View.GONE
-        binding.monthComparisonMinutesEmptyState.visibility = View.VISIBLE
+        trendsController.applyEmptyUi()
     }
 
     private fun showDisableSaveWorkoutsDialog(onConfirm: () -> Unit) {
@@ -362,6 +342,7 @@ class StatsActivity : AppCompatActivity() {
             try {
                 workoutRepository.clearAllData()
                 loadStatistics()
+                loadWeeklyGoalProgress()
                 loadCalendar()
                 loadWorkoutList()
                 loadMonthComparison()
@@ -476,12 +457,10 @@ class StatsActivity : AppCompatActivity() {
                 val workoutDates = records.map { it.date }.toSet()
                 android.util.Log.d("StatsActivity", "Workout dates: $workoutDates")
                 
-                // Create calendar grid
-                setupCalendarGrid(displayedYear, displayedMonth, workoutDates)
+                calendarController.setupCalendarGrid(displayedYear, displayedMonth, workoutDates)
             } catch (e: Exception) {
                 android.util.Log.e("StatsActivity", "Error loading calendar", e)
-                // Show empty calendar on error
-                setupCalendarGrid(displayedYear, displayedMonth, emptySet())
+                calendarController.setupCalendarGrid(displayedYear, displayedMonth, emptySet())
             }
         }
         binding.swipeRefreshLayout.isRefreshing = false
@@ -571,172 +550,11 @@ class StatsActivity : AppCompatActivity() {
     }
     
     private fun loadMonthComparison() {
-        lifecycleScope.launch {
-            try {
-                val comparison = workoutRepository.getMonthComparison(displayedYear, displayedMonth)
-                
-                // Show the header and container
-                binding.monthlyTrendHeader.visibility = View.VISIBLE
-                binding.monthComparisonContainer.visibility = View.VISIBLE
-                
-                // Update workouts card
-                if (comparison.previousMonthWorkouts > 0 || comparison.currentMonthWorkouts > 0) {
-                    binding.monthComparisonWorkoutsValue.text = if (comparison.currentMonthWorkouts == 1) {
-                        getString(R.string.format_workouts_count_singular)
-                    } else {
-                        getString(R.string.format_workouts_count, comparison.currentMonthWorkouts)
-                    }
-                    updateComparisonBadge(
-                        binding.monthComparisonWorkoutsArrow,
-                        binding.monthComparisonWorkoutsChange,
-                        comparison.workoutChangePercent,
-                        comparison.currentMonthWorkouts,
-                        comparison.previousMonthWorkouts
-                    )
-                    binding.monthComparisonWorkoutsBadgeContainer.visibility = View.VISIBLE
-                    binding.monthComparisonWorkoutsEmptyState.visibility = View.GONE
-                } else {
-                    binding.monthComparisonWorkoutsValue.text = getString(R.string.placeholder_zero)
-                    binding.monthComparisonWorkoutsBadgeContainer.visibility = View.GONE
-                    binding.monthComparisonWorkoutsEmptyState.visibility = View.VISIBLE
-                }
-
-                // Update minutes card
-                if (comparison.previousMonthMinutes > 0 || comparison.currentMonthMinutes > 0) {
-                    binding.monthComparisonMinutesValue.text = getString(
-                        R.string.format_minutes_value,
-                        formatMinutes(comparison.currentMonthMinutes)
-                    )
-                    updateComparisonBadge(
-                        binding.monthComparisonMinutesArrow,
-                        binding.monthComparisonMinutesChange,
-                        comparison.minutesChangePercent,
-                        comparison.currentMonthMinutes,
-                        comparison.previousMonthMinutes
-                    )
-                    binding.monthComparisonMinutesBadgeContainer.visibility = View.VISIBLE
-                    binding.monthComparisonMinutesEmptyState.visibility = View.GONE
-                } else {
-                    binding.monthComparisonMinutesValue.text = formatMinutes(0)
-                    binding.monthComparisonMinutesBadgeContainer.visibility = View.GONE
-                    binding.monthComparisonMinutesEmptyState.visibility = View.VISIBLE
-                }
-
-                binding.swipeRefreshLayout.isRefreshing = false
-            } catch (e: Exception) {
-                android.util.Log.e("StatsActivity", "Error loading month comparison", e)
-                binding.monthlyTrendHeader.visibility = View.GONE
-                binding.monthComparisonContainer.visibility = View.GONE
-                binding.swipeRefreshLayout.isRefreshing = false
-            }
-        }
-    }
-    
-    private fun updateComparisonBadge(
-        arrowView: TextView,
-        percentView: TextView,
-        changePercent: Double,
-        currentValue: Int,
-        previousValue: Int
-    ) {
-        val increaseColor = getAccentColor()
-        val decreaseColor = ContextCompat.getColor(this, android.R.color.holo_red_dark)
-        
-        when {
-            changePercent > 0 -> {
-                // Increase - accent color.
-                val symbol = "▲" // Thicker up arrow
-                val percent = Math.abs(changePercent.toInt())
-                arrowView.text = symbol
-                arrowView.setTextColor(increaseColor)
-                arrowView.visibility = View.VISIBLE
-                percentView.text = getString(R.string.format_percent_change, percent)
-                percentView.setTextColor(increaseColor)
-                percentView.visibility = View.VISIBLE
-            }
-            changePercent < 0 -> {
-                // Decrease - red for clear negative contrast.
-                val symbol = "▼" // Thicker down arrow
-                val percent = Math.abs(changePercent.toInt())
-                arrowView.text = symbol
-                arrowView.setTextColor(decreaseColor)
-                arrowView.visibility = View.VISIBLE
-                percentView.text = getString(R.string.format_percent_change, percent)
-                percentView.setTextColor(decreaseColor)
-                percentView.visibility = View.VISIBLE
-            }
-            previousValue == 0 && currentValue > 0 -> {
-                // New data (no previous month data)
-                arrowView.text = getString(R.string.label_new)
-                arrowView.setTextColor(increaseColor)
-                arrowView.visibility = View.VISIBLE
-                percentView.visibility = View.GONE
-            }
-            changePercent == 0.0 && previousValue > 0 -> {
-                // No change - show neutral indicator so both cards keep same badge row
-                val neutralColor = ContextCompat.getColor(this, R.color.text_secondary)
-                arrowView.text = "\u2212" // Unicode minus
-                arrowView.setTextColor(neutralColor)
-                arrowView.visibility = View.VISIBLE
-                percentView.text = getString(R.string.format_percent_change, 0)
-                percentView.setTextColor(neutralColor)
-                percentView.visibility = View.VISIBLE
-            }
-            else -> {
-                // No data - hide badge
-                arrowView.visibility = View.GONE
-                percentView.visibility = View.GONE
-            }
-        }
+        trendsController.loadMonthComparison(displayedYear, displayedMonth)
     }
     
     private fun loadWorkoutTypeDistribution() {
-        lifecycleScope.launch {
-            try {
-                val distribution = workoutRepository.getWorkoutTypeDistribution(displayedYear, displayedMonth)
-                
-                if (distribution.isNotEmpty()) {
-                    displayWorkoutTypeDistribution(distribution)
-                    binding.workoutTypesHeader.visibility = View.VISIBLE
-                    binding.workoutTypesContainer.visibility = View.VISIBLE
-                } else {
-                    binding.workoutTypesHeader.visibility = View.GONE
-                    binding.workoutTypesContainer.visibility = View.GONE
-                }
-                binding.swipeRefreshLayout.isRefreshing = false
-            } catch (e: Exception) {
-                android.util.Log.e("StatsActivity", "Error loading workout type distribution", e)
-                binding.workoutTypesHeader.visibility = View.GONE
-                binding.workoutTypesContainer.visibility = View.GONE
-                binding.swipeRefreshLayout.isRefreshing = false
-            }
-        }
-    }
-    
-    private fun displayWorkoutTypeDistribution(distribution: Map<String, Int>) {
-        binding.workoutTypesContainer.removeAllViews()
-        
-        val total = distribution.values.sum()
-        val sorted = distribution.toList().sortedByDescending { it.second }
-        
-        sorted.forEach { (type, count) ->
-            val percentage = ((count.toFloat() / total.toFloat()) * 100).toInt()
-            
-            val itemView = LayoutInflater.from(this).inflate(R.layout.item_workout_type, binding.workoutTypesContainer, false)
-            
-            val typeName = itemView.findViewById<TextView>(R.id.workoutTypeName)
-            val typeCount = itemView.findViewById<TextView>(R.id.workoutTypeCount)
-            val typeProgress = itemView.findViewById<android.widget.ProgressBar>(R.id.workoutTypeProgress)
-            
-            // Fix singular form for "1 Rounds" -> "1 Round"
-            val displayType = type.replace("1 Rounds", "1 Round")
-            typeName.text = displayType
-            typeCount.text = getString(R.string.format_workout_type_count, count, percentage)
-            typeProgress.progress = percentage
-            typeProgress.progressTintList = android.content.res.ColorStateList.valueOf(getAccentColor())
-            
-            binding.workoutTypesContainer.addView(itemView)
-        }
+        trendsController.loadWorkoutTypeDistribution(displayedYear, displayedMonth)
     }
     
     private fun showWorkoutDetail(date: String) {
@@ -780,6 +598,7 @@ class StatsActivity : AppCompatActivity() {
                                 if (remaining.isEmpty()) {
                                     bottomSheetDialog.dismiss()
                                     loadStatistics()
+                                    loadWeeklyGoalProgress()
                                     loadCalendar()
                                     loadWorkoutList()
                                     loadMonthComparison()
@@ -789,6 +608,7 @@ class StatsActivity : AppCompatActivity() {
                                     updateSheetWithSessions(remaining, updatedRecord)
                                     // Refresh main history list and stats so the day's row shows updated total
                                     loadStatistics()
+                                    loadWeeklyGoalProgress()
                                     loadCalendar()
                                     loadWorkoutList()
                                     loadMonthComparison()
@@ -852,112 +672,6 @@ class StatsActivity : AppCompatActivity() {
             behavior.peekHeight = contentHeight.coerceIn(minPeekHeight, maxPeekHeight)
         }
     }
-    
-    private fun setupCalendarGrid(year: Int, month: Int, workoutDates: Set<String>) {
-        val calendar = Calendar.getInstance()
-        val todayCalendar = Calendar.getInstance()
-        val todayYear = todayCalendar.get(Calendar.YEAR)
-        val todayMonth = todayCalendar.get(Calendar.MONTH)
-        val todayDay = todayCalendar.get(Calendar.DAY_OF_MONTH)
-        
-        calendar.set(year, month, 1)
-        
-        val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-        val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-        
-        // Clear existing views
-        binding.calendarGrid.removeAllViews()
-        
-        // Calculate cell size based on screen width
-        val displayMetrics = resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels
-        val padding = (48 * displayMetrics.density).toInt() // 24dp padding on each side
-        val cellWidth = (screenWidth - padding) / 7
-        val cellHeight = (40 * displayMetrics.density).toInt()
-        
-        // Add day headers
-        val dayHeaders = arrayOf("S", "M", "T", "W", "T", "F", "S")
-        dayHeaders.forEach { day ->
-            val textView = TextView(this)
-            textView.text = day
-            textView.textSize = 12f
-            textView.gravity = Gravity.CENTER
-            textView.setTextColor(getColor(R.color.text_secondary))
-            textView.layoutParams = android.widget.GridLayout.LayoutParams().apply {
-                width = cellWidth
-                height = cellHeight
-            }
-            binding.calendarGrid.addView(textView)
-        }
-        
-        // Add empty cells for days before month starts
-        repeat((firstDayOfWeek - 1).coerceAtLeast(0)) {
-            val emptyView = TextView(this)
-            emptyView.layoutParams = android.widget.GridLayout.LayoutParams().apply {
-                width = cellWidth
-                height = cellHeight
-            }
-            binding.calendarGrid.addView(emptyView)
-        }
-        
-        // Add day cells
-        for (day in 1..daysInMonth) {
-            val textView = TextView(this)
-            textView.text = String.format(Locale.US, "%d", day)
-            textView.gravity = Gravity.CENTER
-            textView.setTextColor(getColor(R.color.text_primary))
-            textView.layoutParams = android.widget.GridLayout.LayoutParams().apply {
-                width = cellWidth
-                height = cellHeight
-            }
-            
-            // Check if this is today
-            val isToday = (year == todayYear && month == todayMonth && day == todayDay)
-            
-            // Check if this date has a workout
-            calendar.set(year, month, day)
-            val dateString = dateFormat.format(calendar.time)
-            val hasWorkout = workoutDates.contains(dateString)
-            
-            when {
-                isToday && hasWorkout -> {
-                    // Today with workout: accent fill with theme-aware ring.
-                    textView.background = createCalendarDayBackground(
-                        fillColor = getAccentColor(),
-                        strokeColor = getTodayOutlineColor()
-                    )
-                    textView.setTextColor(getColor(R.color.white))
-                }
-                isToday -> {
-                    // Today without workout: theme-aware outline ring.
-                    textView.background = createCalendarDayBackground(
-                        fillColor = null,
-                        strokeColor = getTodayOutlineColor()
-                    )
-                }
-                hasWorkout -> {
-                    // Workout day: accent fill.
-                    textView.background = createCalendarDayBackground(
-                        fillColor = getAccentColor()
-                    )
-                    textView.setTextColor(getColor(R.color.white))
-                }
-            }
-            
-            // Make clickable if it has a workout
-            if (hasWorkout) {
-                textView.setOnClickListener { view ->
-                    performHapticFeedback(view)
-                    showWorkoutDetail(dateString)
-                }
-                textView.isClickable = true
-                textView.isFocusable = true
-            }
-            
-            binding.calendarGrid.addView(textView)
-        }
-    }
-    
     private fun formatMinutes(minutes: Int): String {
         val hours = minutes / 60
         val mins = minutes % 60

@@ -30,7 +30,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_drag_handle"
             android:padding="8dp"
-            app:srcCompat="@drawable/ic_drag_handle_24"
+            app:srcCompat="@drawable/baseline_drag_indicator_24"
             app:tint="@color/text_secondary" />
 
         <LinearLayout
@@ -65,7 +65,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/desc_more_options"
             android:padding="8dp"
-            app:srcCompat="@drawable/ic_more_vert"
+            app:srcCompat="@drawable/baseline_more_vert_24"
             app:tint="@color/text_secondary" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

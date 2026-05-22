@@ -30,7 +30,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="start|center_vertical"
-            android:src="@drawable/ic_help"
+            android:src="@drawable/outline_help_24"
             app:tint="@color/text_secondary"
             android:contentDescription="@null" />
 
@@ -59,7 +59,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="start|center_vertical"
-            android:src="@drawable/ic_outline_star_24"
+            android:src="@drawable/outline_star_24"
             app:tint="@color/text_secondary"
             android:contentDescription="@null" />
 
@@ -88,7 +88,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_gravity="start|center_vertical"
-            android:src="@drawable/ic_report_issue"
+            android:src="@drawable/outline_report_problem_24"
             app:tint="@color/text_secondary"
             android:contentDescription="@null" />
 

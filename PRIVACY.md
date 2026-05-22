@@ -19,6 +19,7 @@ The app stores the following preferences locally on your device using Android's 
 - **Theme Preference**: Your choice of dark or light theme
 - **Vibration Setting**: Whether vibration notifications are enabled
 - **Voice Setting**: Whether voice notifications are enabled
+- **Weekly Goal Settings**: Optional weekly targets and reminder preferences, including selected reminder days and time
 
 Additionally, the app stores workout history and optional saved workout templates locally on your device using a local database:
 
@@ -49,6 +50,7 @@ The app requests the following permissions:
 
 - **VIBRATE**: Used to provide vibration notifications during interval phase changes. This permission does not collect or transmit any data.
 - **POST_NOTIFICATIONS**: Required on Android 13+ to display system notifications. The app only shows timer-related notifications and does not collect data through notifications.
+- **SCHEDULE_EXACT_ALARM**: Used for optional weekly goal reminders so Android can show them at the exact time you choose. This permission does not collect, store, transmit, or share any data.
 - **WAKE_LOCK**: Used to keep the timer running accurately when your device screen is locked. This ensures the timer continues functioning in the background without collecting any data.
 - **FOREGROUND_SERVICE**: Required by Android to run an active workout as a foreground service so interval timing can continue while the app is in the background.
 - **FOREGROUND_SERVICE_HEALTH**: Required by Android for health/fitness foreground-service use cases on newer Android versions.
@@ -67,6 +69,7 @@ The app uses the following Android system services, which are provided by your d
 
 - **Text-to-Speech (TTS)**: Used for optional voice notifications. TTS is a system service that runs locally on your device. We do not have access to any data processed by TTS.
 - **Vibration Service**: Used for vibration notifications. This service operates locally on your device.
+- **Alarm Manager**: Used for optional weekly goal reminders. Reminder settings remain local on your device.
 
 ## Data Sharing
 

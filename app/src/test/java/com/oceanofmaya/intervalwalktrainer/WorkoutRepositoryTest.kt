@@ -2,6 +2,8 @@ package com.oceanofmaya.intervalwalktrainer
 
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -209,6 +211,96 @@ class WorkoutRepositoryTest {
         assertEquals(2, result.size)
         verify(workoutDao).getRecordsByDateRange(startDate, endDate)
     }
+
+    @Test
+    fun `getWeeklyGoalProgress uses current week range and totals records`() = runTest {
+        val nowMillis = millisFor(2026, Calendar.MAY, 21)
+        val settings = WeeklyGoalSettings(enabled = true, targetWorkouts = 3, targetMinutes = 90)
+        val records = listOf(
+            WorkoutRecord("2026-05-18", 1, 30),
+            WorkoutRecord("2026-05-20", 2, 45)
+        )
+        whenever(workoutDao.getRecordsByDateRange("2026-05-18", "2026-05-24")).thenReturn(records)
+
+        val progress = repository.getWeeklyGoalProgress(settings, nowMillis)
+
+        assertEquals("2026-05-18", progress.dateRange.startDate)
+        assertEquals("2026-05-24", progress.dateRange.endDate)
+        assertEquals(3, progress.completedWorkouts)
+        assertEquals(75, progress.completedMinutes)
+        assertEquals(100, progress.workoutPercent)
+        assertEquals(83, progress.minutesPercent)
+        assertFalse(progress.isGoalMet)
+    }
+
+    @Test
+    fun `getWeeklyGoalProgress treats completed sessions only via aggregate records`() = runTest {
+        val nowMillis = millisFor(2026, Calendar.MAY, 21)
+        val settings = WeeklyGoalSettings(enabled = true, targetWorkouts = 2, targetMinutes = 60)
+        whenever(workoutDao.getRecordsByDateRange("2026-05-18", "2026-05-24")).thenReturn(
+            listOf(WorkoutRecord("2026-05-21", 2, 60))
+        )
+
+        val progress = repository.getWeeklyGoalProgress(settings, nowMillis)
+
+        assertTrue(progress.isGoalMet)
+        verify(workoutDao).getRecordsByDateRange("2026-05-18", "2026-05-24")
+    }
+
+    @Test
+    fun `currentWeekRange supports Sunday week start`() {
+        val range = WeeklyGoalCalculator.currentWeekRange(
+            nowMillis = millisFor(2026, Calendar.MAY, 21),
+            weekStartDay = Calendar.SUNDAY
+        )
+
+        assertEquals("2026-05-17", range.startDate)
+        assertEquals("2026-05-23", range.endDate)
+    }
+
+    @Test
+    fun `nextReminderTimeMillis returns next selected day at reminder time`() {
+        val settings = WeeklyReminderSettings(
+            enabled = true,
+            hourOfDay = 18,
+            minute = 30,
+            selectedDays = setOf(Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.FRIDAY)
+        )
+
+        val next = WeeklyGoalCalculator.nextReminderTimeMillis(
+            settings = settings,
+            nowMillis = millisFor(2026, Calendar.MAY, 21, 19, 0)
+        )
+
+        assertEquals(millisFor(2026, Calendar.MAY, 22, 18, 30), next)
+    }
+
+    @Test
+    fun `nextReminderTimeMillis returns later time on same selected day after reminder time changes`() {
+        val settings = WeeklyReminderSettings(
+            enabled = true,
+            hourOfDay = 14,
+            minute = 0,
+            selectedDays = setOf(Calendar.THURSDAY)
+        )
+
+        val next = WeeklyGoalCalculator.nextReminderTimeMillis(
+            settings = settings,
+            nowMillis = millisFor(2026, Calendar.MAY, 21, 12, 5)
+        )
+
+        assertEquals(millisFor(2026, Calendar.MAY, 21, 14, 0), next)
+    }
+
+    @Test
+    fun `nextReminderTimeMillis returns null when reminders disabled`() {
+        val next = WeeklyGoalCalculator.nextReminderTimeMillis(
+            settings = WeeklyReminderSettings(enabled = false),
+            nowMillis = millisFor(2026, Calendar.MAY, 21)
+        )
+
+        assertEquals(null, next)
+    }
     
     @Test
     fun `clearAllData deletes all records`() = runTest {
@@ -401,6 +493,24 @@ class WorkoutRepositoryTest {
         // Best day should still be returned (first one with max count)
         assertEquals("2024-01-01", stats.bestDay?.date)
         assertEquals(1, stats.bestDay?.workoutCount)
+    }
+
+    private fun millisFor(
+        year: Int,
+        month: Int,
+        day: Int,
+        hour: Int = 12,
+        minute: Int = 0
+    ): Long {
+        return Calendar.getInstance().apply {
+            set(Calendar.YEAR, year)
+            set(Calendar.MONTH, month)
+            set(Calendar.DAY_OF_MONTH, day)
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
     }
 }
 
