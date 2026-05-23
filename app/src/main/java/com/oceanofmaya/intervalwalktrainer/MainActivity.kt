@@ -50,6 +50,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.oceanofmaya.intervalwalktrainer.databinding.ActivityMainBinding
+import com.oceanofmaya.intervalwalktrainer.home.HomeInsightRegistry
+import com.oceanofmaya.intervalwalktrainer.home.HomeInsightsController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -66,9 +68,6 @@ import android.widget.FrameLayout
 import android.widget.PopupMenu
 import androidx.core.content.edit
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import java.text.SimpleDateFormat
-import java.util.Calendar
-
 /**
  * Main activity for the Interval Walk Trainer app.
  * 
@@ -105,6 +104,12 @@ open class MainActivity : AppCompatActivity() {
     private val mainHandler = Handler(Looper.getMainLooper())
     private var completionAtMillis: Long? = null
     private var completionAutoResetRunnable: Runnable? = null
+    private lateinit var homeInsightsController: HomeInsightsController
+
+    private val homeWorkoutSetup get() = binding.homeWorkoutSetup
+    private val homeSession get() = binding.homeSession
+    private val homeActions get() = binding.homeActions
+    private val phaseLabel get() = homeSession.phaseLabel
 
     companion object {
         // FAQ order: basics → how to use → workout flow → data & history → technical & permissions → safety
@@ -187,13 +192,6 @@ open class MainActivity : AppCompatActivity() {
         private const val PRE_START_SECONDS_MIN = 1
         private const val PRE_START_SECONDS_MAX = 10
         private const val AUTO_RESET_AFTER_COMPLETION_DELAY_MS = 15_000L
-        private const val HOME_WEEKLY_CHIP_CORNER_RADIUS_DP = 14
-        private const val HOME_WEEKLY_CHIP_STROKE_WIDTH_DP = 1
-        private const val HOME_WEEKLY_CHIP_BACKGROUND_ALPHA = 0.12f
-        private const val HOME_WEEKLY_CHIP_STROKE_ALPHA = 0.32f
-        private const val COLOR_CHANNEL_MAX = 255
-        private const val MILLIS_PER_DAY = 24L * 60L * 60L * 1000L
-        private const val WEEK_DATE_PATTERN = "yyyy-MM-dd"
         private const val ACCENT_BLUE = "blue"
         private const val ACCENT_TEAL = "teal"
         private const val ACCENT_PURPLE = "purple"
@@ -269,8 +267,7 @@ open class MainActivity : AppCompatActivity() {
         setupOverflowMenuButton()
         setupWorkoutHistoryButton()
         setupSettingsButton()
-        setupHomeWeeklyGoalChip()
-        loadHomeWeeklyGoalChip()
+        setupHomeInsights()
         lifecycleScope.launch(Dispatchers.IO) {
             WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
         }
@@ -309,7 +306,7 @@ open class MainActivity : AppCompatActivity() {
         handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
         lastKnownNotificationsEnabled = notificationsEnabled
         refreshNotificationsSwitchState()
-        loadHomeWeeklyGoalChip()
+        homeInsightsController.load()
         lifecycleScope.launch(Dispatchers.IO) {
             WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
         }
@@ -421,7 +418,7 @@ open class MainActivity : AppCompatActivity() {
             }
 
             currentFormula = savedFormula
-            binding.formulaButton.text = currentFormula.name
+            homeWorkoutSetup.formulaButton.text = currentFormula.name
             updateFormulaDetails()
 
             // Restore timer with saved state
@@ -476,7 +473,7 @@ open class MainActivity : AppCompatActivity() {
             val customFormula = restoreCustomFormulaFromPrefs()
             if (customFormula != null) {
                 currentFormula = customFormula
-                binding.formulaButton.text = currentFormula.name
+                homeWorkoutSetup.formulaButton.text = currentFormula.name
                 updateFormulaDetails()
             }
         }
@@ -596,7 +593,7 @@ open class MainActivity : AppCompatActivity() {
             circuitPattern = circuitPattern
         )
         currentFormula = customFormula
-        binding.formulaButton.text = customFormula.name
+        homeWorkoutSetup.formulaButton.text = customFormula.name
         updateFormulaDetails()
         updateButtonStates()
     }
@@ -630,7 +627,7 @@ open class MainActivity : AppCompatActivity() {
             activeSavedWorkoutId = workout.id
         )
         currentFormula = formula
-        binding.formulaButton.text = formula.name
+        homeWorkoutSetup.formulaButton.text = formula.name
         updateFormulaDetails()
         if (resetTimerAfterApply) {
             resetTimer()
@@ -692,7 +689,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun setupOverflowMenuButton() {
-        binding.overflowMenuButton.setOnClickListener { view ->
+        homeActions.overflowMenuButton.setOnClickListener { view ->
             hapticSelection(view)
             showOverflowBottomSheet()
         }
@@ -724,153 +721,23 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun setupWorkoutHistoryButton() {
-        binding.workoutHistoryButton.setOnClickListener { view ->
+        homeActions.workoutHistoryButton.setOnClickListener { view ->
             hapticSelection(view)
             startActivity(Intent(this, StatsActivity::class.java))
         }
     }
 
-    private fun setupHomeWeeklyGoalChip() {
-        binding.weeklyGoalSummary.setOnClickListener { view ->
-            hapticSelection(view)
-            showWeeklyGoalEditor()
-        }
-        styleHomeWeeklyGoalChip()
-    }
-
-    private fun loadHomeWeeklyGoalChip() {
-        val settings = WeeklyGoalPreferences.loadGoalSettings(sharedPreferences)
-        if (!settings.enabled || !settings.hasAnyTarget) {
-            binding.weeklyGoalSummary.visibility = View.GONE
-            return
-        }
-
-        lifecycleScope.launch {
-            try {
-                val progress = workoutRepository.getWeeklyGoalProgress(settings)
-                val chipText = formatHomeWeeklyGoalChip(progress)
-                binding.weeklyGoalSummary.text = chipText
-                binding.weeklyGoalSummary.contentDescription = getString(
-                    R.string.desc_home_weekly_goal_chip,
-                    chipText
-                )
-                styleHomeWeeklyGoalChip()
-                binding.weeklyGoalSummary.visibility = View.VISIBLE
-            } catch (e: Exception) {
-                android.util.Log.e("MainActivity", "Error loading weekly goal chip", e)
-                binding.weeklyGoalSummary.visibility = View.GONE
-            }
-        }
-    }
-
-    private fun formatHomeWeeklyGoalChip(progress: WeeklyGoalProgress): String {
-        val separator = getString(R.string.separator_bullet)
-        val remainingParts = homeWeeklyGoalRemainingParts(progress)
-        return when {
-            progress.isGoalMet -> getString(R.string.label_weekly_goal_met_this_week)
-            isLastGoalDay(progress) && remainingParts.isNotEmpty() -> getString(
-                R.string.format_home_weekly_goal_last_day,
-                remainingParts.joinToString(separator)
+    private fun setupHomeInsights() {
+        homeInsightsController = HomeInsightsController(
+            activity = this,
+            binding = binding.homeInsights,
+            registry = HomeInsightRegistry(
+                sharedPreferences = sharedPreferences,
+                workoutRepository = workoutRepository,
+                accentColorProvider = ::getAccentColor,
+                onEditWeeklyGoal = ::showWeeklyGoalEditor
             )
-            else -> getString(
-                R.string.format_home_weekly_goal_progress,
-                getString(R.string.label_this_week),
-                homeWeeklyGoalProgressParts(progress).joinToString(separator)
-            )
-        }
-    }
-
-    private fun homeWeeklyGoalProgressParts(progress: WeeklyGoalProgress): List<String> {
-        val parts = mutableListOf<String>()
-        if (progress.settings.tracksWorkouts) {
-            parts.add(
-                getString(
-                    R.string.format_weekly_goal_summary_workouts,
-                    progress.completedWorkouts,
-                    progress.settings.targetWorkouts
-                )
-            )
-        }
-        if (progress.settings.tracksMinutes) {
-            parts.add(
-                getString(
-                    R.string.format_weekly_goal_summary_minutes,
-                    progress.completedMinutes,
-                    progress.settings.targetMinutes
-                )
-            )
-        }
-        return parts
-    }
-
-    private fun homeWeeklyGoalRemainingParts(progress: WeeklyGoalProgress): List<String> {
-        val parts = mutableListOf<String>()
-        if (progress.settings.tracksWorkouts) {
-            val remaining = (progress.settings.targetWorkouts - progress.completedWorkouts)
-                .coerceAtLeast(0)
-            if (remaining > 0) {
-                parts.add(
-                    resources.getQuantityString(
-                        R.plurals.format_weekly_goal_workouts_remaining,
-                        remaining,
-                        remaining
-                    )
-                )
-            }
-        }
-        if (progress.settings.tracksMinutes) {
-            val remaining = (progress.settings.targetMinutes - progress.completedMinutes)
-                .coerceAtLeast(0)
-            if (remaining > 0) {
-                parts.add(
-                    resources.getQuantityString(
-                        R.plurals.format_weekly_goal_minutes_remaining,
-                        remaining,
-                        remaining
-                    )
-                )
-            }
-        }
-        return parts
-    }
-
-    private fun isLastGoalDay(progress: WeeklyGoalProgress): Boolean {
-        val weekEndMillis = runCatching {
-            SimpleDateFormat(WEEK_DATE_PATTERN, Locale.US).parse(progress.dateRange.endDate)?.time
-        }.getOrNull() ?: return false
-        val weekEndExclusive = Calendar.getInstance().apply {
-            timeInMillis = weekEndMillis
-            add(Calendar.DAY_OF_MONTH, 1)
-        }.timeInMillis
-        val remainingMillis = weekEndExclusive - System.currentTimeMillis()
-        return remainingMillis in 1..MILLIS_PER_DAY
-    }
-
-    private fun styleHomeWeeklyGoalChip() {
-        val accentColor = getAccentColor()
-        binding.weeklyGoalSummary.setTextColor(accentColor)
-        binding.weeklyGoalSummary.background = GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            cornerRadius = dpToPx(HOME_WEEKLY_CHIP_CORNER_RADIUS_DP).toFloat()
-            setColor(colorWithAlpha(accentColor, HOME_WEEKLY_CHIP_BACKGROUND_ALPHA))
-            setStroke(
-                dpToPx(HOME_WEEKLY_CHIP_STROKE_WIDTH_DP),
-                colorWithAlpha(accentColor, HOME_WEEKLY_CHIP_STROKE_ALPHA)
-            )
-        }
-    }
-
-    private fun colorWithAlpha(color: Int, alpha: Float): Int {
-        return Color.argb(
-            (alpha * COLOR_CHANNEL_MAX).toInt(),
-            Color.red(color),
-            Color.green(color),
-            Color.blue(color)
         )
-    }
-
-    private fun dpToPx(dp: Int): Int {
-        return (dp * resources.displayMetrics.density).toInt()
     }
 
     private fun showWeeklyGoalEditor() {
@@ -878,22 +745,22 @@ open class MainActivity : AppCompatActivity() {
             activity = this,
             sharedPreferences = sharedPreferences,
             accentColorProvider = ::getAccentColor,
-            onSaved = ::loadHomeWeeklyGoalChip
+            onSaved = { homeInsightsController.load() }
         ).show()
     }
 
     private fun setupSettingsButton() {
-        binding.settingsButton.setOnClickListener { view ->
+        homeActions.settingsButton.setOnClickListener { view ->
             hapticSelection(view)
             showSettingsDialog()
         }
     }
 
     private fun setupFormulaSpinner() {
-        binding.formulaButton.text = currentFormula.name
+        homeWorkoutSetup.formulaButton.text = currentFormula.name
         updateFormulaDetails()
         
-        binding.formulaButton.setOnClickListener { view ->
+        homeWorkoutSetup.formulaButton.setOnClickListener { view ->
             hapticSelection(view)
             showFormulaSelectorDialog()
         }
@@ -950,7 +817,7 @@ open class MainActivity : AppCompatActivity() {
                     }
                     if (currentFormula != formula) {
                         currentFormula = formula
-                        binding.formulaButton.text = formula.name
+                        homeWorkoutSetup.formulaButton.text = formula.name
                         updateFormulaDetails()
                         resetTimer()
                     }
@@ -1601,7 +1468,7 @@ open class MainActivity : AppCompatActivity() {
             val toUse = ctx.customFormula.copy(name = name)
             saveCustomFormula(toUse, ctx.isCircuitMode, ctx.circuitPattern)
             currentFormula = toUse
-            binding.formulaButton.text = toUse.name
+            homeWorkoutSetup.formulaButton.text = toUse.name
             updateFormulaDetails()
             resetTimer()
         }
@@ -1625,7 +1492,7 @@ open class MainActivity : AppCompatActivity() {
         // intentionally left untouched so "use without saving" preserves its prior state.
         saveCustomFormula(ctx.customFormula, ctx.isCircuitMode, ctx.circuitPattern)
         currentFormula = ctx.customFormula
-        binding.formulaButton.text = ctx.customFormula.name
+        homeWorkoutSetup.formulaButton.text = ctx.customFormula.name
         updateFormulaDetails()
         resetTimer()
         ctx.saveDialog.dismiss()
@@ -2452,9 +2319,9 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun setupControls() {
-        binding.startPauseButton.setOnClickListener { view ->
+        homeActions.startPauseButton.setOnClickListener { view ->
             hapticSuccess(view)
-            animateControlPress(binding.startPauseButton)
+            animateControlPress(homeActions.startPauseButton)
             if (isPreStartCountdownActive) {
                 cancelPreStartCountdown(startImmediately = true)
             } else if (intervalTimer?.state?.value?.isRunning == true) {
@@ -2464,9 +2331,9 @@ open class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.resetButton.setOnClickListener { view ->
+        homeActions.resetButton.setOnClickListener { view ->
             performHapticFeedback(view)
-            animateControlPress(binding.resetButton)
+            animateControlPress(homeActions.resetButton)
             cancelPreStartCountdown()
             resetTimer()
         }
@@ -2539,9 +2406,11 @@ open class MainActivity : AppCompatActivity() {
 
     private fun applyAccentStyling() {
         val accentColor = getAccentColor()
-        binding.startPauseButton.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
-        binding.workoutProgress.progressTintList = android.content.res.ColorStateList.valueOf(accentColor)
-        styleHomeWeeklyGoalChip()
+        homeActions.startPauseButton.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
+        homeSession.workoutProgress.progressTintList = android.content.res.ColorStateList.valueOf(accentColor)
+        if (::homeInsightsController.isInitialized) {
+            homeInsightsController.applyAccentColor()
+        }
     }
 
     /**
@@ -2758,8 +2627,8 @@ open class MainActivity : AppCompatActivity() {
             binding.confettiView.launch()
         }
         
-        binding.timeDisplay.text = formatTime(newTime)
-        binding.intervalCounter.text = formatIntervalCounter(state.currentInterval, state.totalIntervals)
+        homeSession.timeDisplay.text = formatTime(newTime)
+        homeSession.intervalCounter.text = formatIntervalCounter(state.currentInterval, state.totalIntervals)
         updatePhaseDisplay(state.currentPhase)
         updateWorkoutProgress(state)
         updateButtonStates()
@@ -2771,7 +2640,7 @@ open class MainActivity : AppCompatActivity() {
         // Subtle scale animation for countdown updates
         val scaleX = PropertyValuesHolder.ofFloat("scaleX", 1.0f, 1.05f, 1.0f)
         val scaleY = PropertyValuesHolder.ofFloat("scaleY", 1.0f, 1.05f, 1.0f)
-        val animator = ObjectAnimator.ofPropertyValuesHolder(binding.timeDisplay, scaleX, scaleY)
+        val animator = ObjectAnimator.ofPropertyValuesHolder(homeSession.timeDisplay, scaleX, scaleY)
         animator.duration = 300
         animator.interpolator = DecelerateInterpolator()
         animator.start()
@@ -2785,19 +2654,25 @@ open class MainActivity : AppCompatActivity() {
 
         when (phase) {
             is IntervalPhase.Slow -> {
-                binding.phaseLabel.text = getString(R.string.format_phase_slow, getString(R.string.label_phase_slow))
-                binding.phaseLabel.setTextColor(getSlowColor())
-                binding.phaseLabel.setTypeface(null, Typeface.BOLD)
+                phaseLabel.text = getString(
+                    R.string.format_phase_slow,
+                    getString(R.string.label_phase_slow)
+                )
+                phaseLabel.setTextColor(getSlowColor())
+                phaseLabel.setTypeface(null, Typeface.BOLD)
             }
             is IntervalPhase.Fast -> {
-                binding.phaseLabel.text = getString(R.string.format_phase_fast, getString(R.string.label_phase_fast))
-                binding.phaseLabel.setTextColor(getFastColor())
-                binding.phaseLabel.setTypeface(null, Typeface.BOLD)
+                phaseLabel.text = getString(
+                    R.string.format_phase_fast,
+                    getString(R.string.label_phase_fast)
+                )
+                phaseLabel.setTextColor(getFastColor())
+                phaseLabel.setTypeface(null, Typeface.BOLD)
             }
             is IntervalPhase.Completed -> {
-                binding.phaseLabel.text = getString(R.string.label_completed)
-                binding.phaseLabel.setTextColor(getAccentColor())
-                binding.phaseLabel.setTypeface(null, Typeface.BOLD)
+                phaseLabel.text = getString(R.string.label_completed)
+                phaseLabel.setTextColor(getAccentColor())
+                phaseLabel.setTypeface(null, Typeface.BOLD)
             }
         }
     }
@@ -2806,7 +2681,7 @@ open class MainActivity : AppCompatActivity() {
         val phaseScaleX = PropertyValuesHolder.ofFloat("scaleX", 0.96f, 1.0f)
         val phaseScaleY = PropertyValuesHolder.ofFloat("scaleY", 0.96f, 1.0f)
         val phaseAlpha = PropertyValuesHolder.ofFloat("alpha", 0.7f, 1.0f)
-        ObjectAnimator.ofPropertyValuesHolder(binding.phaseLabel, phaseScaleX, phaseScaleY, phaseAlpha).apply {
+        ObjectAnimator.ofPropertyValuesHolder(homeSession.phaseLabel, phaseScaleX, phaseScaleY, phaseAlpha).apply {
             duration = 180
             interpolator = DecelerateInterpolator()
             start()
@@ -2814,7 +2689,7 @@ open class MainActivity : AppCompatActivity() {
 
         val timeScaleX = PropertyValuesHolder.ofFloat("scaleX", 0.98f, 1.0f)
         val timeScaleY = PropertyValuesHolder.ofFloat("scaleY", 0.98f, 1.0f)
-        ObjectAnimator.ofPropertyValuesHolder(binding.timeDisplay, timeScaleX, timeScaleY).apply {
+        ObjectAnimator.ofPropertyValuesHolder(homeSession.timeDisplay, timeScaleX, timeScaleY).apply {
             duration = 180
             interpolator = DecelerateInterpolator()
             start()
@@ -2825,18 +2700,18 @@ open class MainActivity : AppCompatActivity() {
         val totalDuration = currentFormula.totalDurationSeconds
         if (totalDuration > 0) {
             val progress = ((state.elapsedSeconds.toFloat() / totalDuration) * 100).toInt().coerceIn(0, 100)
-            binding.workoutProgress.progress = progress
+            homeSession.workoutProgress.progress = progress
             
             // Update elapsed and remaining time displays
             val elapsedSeconds = state.elapsedSeconds.coerceAtMost(totalDuration)
             val remainingSeconds = (totalDuration - elapsedSeconds).coerceAtLeast(0)
             
-            binding.elapsedTime.text = formatTime(elapsedSeconds)
-            binding.remainingTime.text = formatTime(remainingSeconds)
+            homeSession.elapsedTime.text = formatTime(elapsedSeconds)
+            homeSession.remainingTime.text = formatTime(remainingSeconds)
         } else {
-            binding.workoutProgress.progress = 0
-            binding.elapsedTime.text = formatTime(0)
-            binding.remainingTime.text = formatTime(0)
+            homeSession.workoutProgress.progress = 0
+            homeSession.elapsedTime.text = formatTime(0)
+            homeSession.remainingTime.text = formatTime(0)
         }
     }
 
@@ -2851,8 +2726,8 @@ open class MainActivity : AppCompatActivity() {
                 elapsedSeconds = 0
             )
         }
-        binding.timeDisplay.text = formatTime(state.timeRemainingSeconds)
-        binding.intervalCounter.text = formatIntervalCounter(0, currentFormula.totalIntervals)
+        homeSession.timeDisplay.text = formatTime(state.timeRemainingSeconds)
+        homeSession.intervalCounter.text = formatIntervalCounter(0, currentFormula.totalIntervals)
         updatePhaseDisplay(state.currentPhase) // Fixed: Update phase label based on current formula
         updateWorkoutProgress(state)
         updateFormulaDetails()
@@ -2948,13 +2823,13 @@ open class MainActivity : AppCompatActivity() {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         
-        binding.formulaDetails.text = spannable
+        homeWorkoutSetup.formulaDetails.text = spannable
     }
 
     private fun updateButtonStates() {
         val state = intervalTimer?.state?.value
         val isRunning = state?.isRunning == true
-        binding.startPauseButton.text = when {
+        homeActions.startPauseButton.text = when {
             isRunning -> getString(R.string.action_pause)
             state != null && state.elapsedSeconds > 0 && state.currentPhase !is IntervalPhase.Completed ->
                 getString(R.string.action_resume)
@@ -2991,7 +2866,7 @@ open class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 try {
                     workoutRepository.recordWorkout(minutes, workoutType)
-                    loadHomeWeeklyGoalChip()
+                    homeInsightsController.load()
                     WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
                     android.util.Log.d("MainActivity", "Workout recorded: $minutes minutes, type: $workoutType")
                 } catch (e: Exception) {

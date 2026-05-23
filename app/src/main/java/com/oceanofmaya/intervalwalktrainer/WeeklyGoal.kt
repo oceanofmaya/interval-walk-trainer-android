@@ -56,6 +56,20 @@ data class WeeklyGoalProgress(
             return workoutsMet && minutesMet
         }
 
+    val displayedCompletedWorkouts: Int
+        get() = if (settings.tracksWorkouts) {
+            completedWorkouts.coerceAtMost(settings.targetWorkouts)
+        } else {
+            0
+        }
+
+    val displayedCompletedMinutes: Int
+        get() = if (settings.tracksMinutes) {
+            completedMinutes.coerceAtMost(settings.targetMinutes)
+        } else {
+            0
+        }
+
     val hasAnyTarget: Boolean
         get() = settings.tracksWorkouts || settings.tracksMinutes
 

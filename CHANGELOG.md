@@ -2,6 +2,14 @@
 
 ## Version 1
 
+### 1.3.4 - 2026-05-23
+
+#### UI/UX Improvements
+
+- **Home screen layout:** Reorganized the timer screen into grouped sections — a unified workout setup card, an insights carousel for weekly goal progress, the session timer stack, and action controls — with consistent spacing and room for future insight cards.
+- **Weekly goal on home:** Replaced the compact chip with a tappable **Weekly Goal** insight card using an icon status badge, radial progress rings, and subdued card styling on the timer screen.
+- Store screenshots and promo images updated to reflect the redesigned home screen layout.
+
 ### 1.3.3 - 2026-05-22
 
 #### UI/UX Improvements

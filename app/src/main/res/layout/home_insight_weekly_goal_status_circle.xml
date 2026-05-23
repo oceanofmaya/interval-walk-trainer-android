@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/home_insight_ring_container_size"
+    android:layout_height="@dimen/home_insight_ring_container_size"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <FrameLayout
+        android:layout_width="@dimen/home_insight_ring_size"
+        android:layout_height="@dimen/home_insight_ring_size"
+        android:layout_gravity="center">
+
+        <View
+            android:id="@+id/weeklyGoalStatusCircleFill"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no" />
+
+        <ImageView
+            android:id="@+id/weeklyGoalStatusCircleIcon"
+            android:layout_width="@dimen/home_insight_status_icon_size"
+            android:layout_height="@dimen/home_insight_status_icon_size"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            android:scaleType="centerInside"
+            android:src="@drawable/outline_directions_walk_24" />
+
+    </FrameLayout>
+
+</FrameLayout>
