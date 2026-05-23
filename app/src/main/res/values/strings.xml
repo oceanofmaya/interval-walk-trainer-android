@@ -160,6 +160,7 @@
     <string name="label_workouts_short">workouts</string>
     <string name="format_home_weekly_goal_insight_detail">%1$s. %2$s</string>
     <string name="desc_home_weekly_goal_insight">Weekly goal, %1$s. Double tap to edit.</string>
+    <string name="desc_home_weekly_goal_insight_off">Weekly goal not set. 0 of 0 workouts and 0 of 0 minutes. Double tap to set up.</string>
     <string name="separator_bullet">\u2002•\u2002</string>
     <string name="title_settings">Settings</string>
     <string name="label_about">About</string>
@@ -226,7 +227,7 @@
     <string name="faq_question_workout_history">How does workout history work?</string>
     <string name="faq_answer_workout_history">When Save Workouts is on (in Settings or Workout History), we save each workout you complete. You’ll get a calendar, totals, streaks, and per-day details. You can turn saving off anytime, delete individual workouts from a day’s detail, or clear all history from the Workout History screen. It’s all up to you.</string>
     <string name="faq_question_weekly_goals">How do weekly goals and reminders work?</string>
-    <string name="faq_answer_weekly_goals">In Workout History or Settings, tap Weekly Goal to set weekly workout and minute targets. You can leave either target at 0 if you only want to track the other one. When a goal is active, the timer screen shows a tappable Weekly Goal insight card in the insights area; Workout History shows the detailed progress card. The app uses only completed workouts saved on this device. Optional reminders repeat on the days and time you choose, can pause once you meet the week’s goal, and may request Android notification and Alarms &amp; reminders access so they can appear at the exact time you set.</string>
+    <string name="faq_answer_weekly_goals">In Workout History or Settings, tap Weekly Goal to set weekly workout and minute targets. You can leave either target at 0 if you only want to track the other one. The timer screen always shows a tappable Weekly Goal insight card in the insights area: when a goal is active it shows quick progress rings, and when no goal is set it shows a grayed-out preview with 0/0 workouts and minutes. Workout History shows the detailed progress card. The app uses only completed workouts saved on this device. Optional reminders repeat on the days and time you choose, can pause once you meet the week’s goal, and may request Android notification and Alarms &amp; reminders access so they can appear at the exact time you set.</string>
     <string name="faq_question_data_shared">Is my data stored or shared online?</string>
     <string name="faq_answer_data_shared">Nope. Everything stays on your device, including your workout history. No accounts, no cloud sync, and we don’t share anything with anyone. For the full picture, check out our Privacy Policy.</string>
     <string name="faq_question_physical_activity_permission">Why does the app ask for \"Physical activity\" or notifications?</string>

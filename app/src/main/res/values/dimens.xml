@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="home_page_padding_horizontal">24dp</dimen>
-    <dimen name="home_page_padding_top">14dp</dimen>
-    <dimen name="home_page_padding_bottom">32dp</dimen>
-    <dimen name="home_section_gap">24dp</dimen>
+    <dimen name="home_page_padding_top">10dp</dimen>
+    <dimen name="home_page_padding_bottom">16dp</dimen>
+    <dimen name="home_section_gap">16dp</dimen>
     <dimen name="home_card_padding">16dp</dimen>
     <dimen name="home_card_corner_radius">12dp</dimen>
     <dimen name="home_card_inner_gap">8dp</dimen>
     <dimen name="home_setup_button_min_height">52dp</dimen>
     <dimen name="home_branding_to_setup_gap">8dp</dimen>
-    <dimen name="home_session_phase_margin_top">24dp</dimen>
-    <dimen name="home_session_phase_to_timer_gap">20dp</dimen>
-    <dimen name="home_session_timer_to_progress_gap">28dp</dimen>
-    <dimen name="home_session_progress_to_interval_gap">20dp</dimen>
+    <dimen name="home_session_phase_margin_top">8dp</dimen>
+    <dimen name="home_session_phase_to_timer_gap">12dp</dimen>
+    <dimen name="home_session_timer_to_progress_gap">16dp</dimen>
+    <dimen name="home_session_progress_to_interval_gap">12dp</dimen>
     <dimen name="home_session_interval_to_metrics_gap">12dp</dimen>
-    <dimen name="home_session_to_controls_gap">36dp</dimen>
-    <dimen name="home_controls_to_actions_gap">28dp</dimen>
+    <dimen name="home_session_to_controls_gap">24dp</dimen>
     <dimen name="home_insight_card_min_height">140dp</dimen>
     <dimen name="home_insight_ring_size">64dp</dimen>
     <dimen name="home_insight_ring_container_size">68dp</dimen>

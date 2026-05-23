@@ -16,6 +16,64 @@
         android:background="@drawable/bottom_sheet_drag_handle" />
 
     <FrameLayout
+        android:id="@+id/overflowWorkoutHistory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="56dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:foreground="?attr/selectableItemBackground">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="start|center_vertical"
+            android:src="@drawable/outline_bar_chart_24"
+            app:tint="@color/text_secondary"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="40dp"
+            android:text="@string/title_workout_history"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/overflowSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:focusable="true"
+        android:minHeight="56dp"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:foreground="?attr/selectableItemBackground">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="start|center_vertical"
+            android:src="@drawable/baseline_settings_24"
+            app:tint="@color/text_secondary"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="40dp"
+            android:text="@string/title_settings"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary" />
+    </FrameLayout>
+
+    <FrameLayout
         android:id="@+id/overflowHelp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

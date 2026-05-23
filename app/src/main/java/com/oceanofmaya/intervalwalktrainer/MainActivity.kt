@@ -107,8 +107,8 @@ open class MainActivity : AppCompatActivity() {
     private lateinit var homeInsightsController: HomeInsightsController
 
     private val homeWorkoutSetup get() = binding.homeWorkoutSetup
-    private val homeSession get() = binding.homeSession
-    private val homeActions get() = binding.homeActions
+    private val homeSession get() = binding.homeSessionPanel.homeSession
+    private val homeActions get() = binding.homeSessionPanel.homeActions
     private val phaseLabel get() = homeSession.phaseLabel
 
     companion object {
@@ -265,8 +265,6 @@ open class MainActivity : AppCompatActivity() {
         setupControls()
         applyAccentStyling()
         setupOverflowMenuButton()
-        setupWorkoutHistoryButton()
-        setupSettingsButton()
         setupHomeInsights()
         lifecycleScope.launch(Dispatchers.IO) {
             WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
@@ -320,7 +318,7 @@ open class MainActivity : AppCompatActivity() {
     
     /**
      * Sets up window insets to handle safe areas for edge-to-edge screens.
-     * Applies top padding to account for status bar overlap.
+     * Applies system bar insets to the scroll area.
      */
     @SuppressLint("InlinedApi")
     private fun setupEdgeToEdge() {
@@ -701,6 +699,16 @@ open class MainActivity : AppCompatActivity() {
         bottomSheetDialog.setContentView(view)
         configureBottomSheet(bottomSheetDialog, view)
 
+        view.findViewById<View>(R.id.overflowWorkoutHistory).setOnClickListener {
+            hapticSelection(it)
+            bottomSheetDialog.dismiss()
+            openWorkoutHistory()
+        }
+        view.findViewById<View>(R.id.overflowSettings).setOnClickListener {
+            hapticSelection(it)
+            bottomSheetDialog.dismiss()
+            showSettingsDialog()
+        }
         view.findViewById<View>(R.id.overflowHelp).setOnClickListener {
             hapticSelection(it)
             bottomSheetDialog.dismiss()
@@ -720,11 +728,8 @@ open class MainActivity : AppCompatActivity() {
         bottomSheetDialog.show()
     }
 
-    private fun setupWorkoutHistoryButton() {
-        homeActions.workoutHistoryButton.setOnClickListener { view ->
-            hapticSelection(view)
-            startActivity(Intent(this, StatsActivity::class.java))
-        }
+    private fun openWorkoutHistory() {
+        startActivity(Intent(this, StatsActivity::class.java))
     }
 
     private fun setupHomeInsights() {
@@ -747,13 +752,6 @@ open class MainActivity : AppCompatActivity() {
             accentColorProvider = ::getAccentColor,
             onSaved = { homeInsightsController.load() }
         ).show()
-    }
-
-    private fun setupSettingsButton() {
-        homeActions.settingsButton.setOnClickListener { view ->
-            hapticSelection(view)
-            showSettingsDialog()
-        }
     }
 
     private fun setupFormulaSpinner() {

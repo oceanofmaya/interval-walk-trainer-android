@@ -8,7 +8,7 @@
       "position": 1,
       "source": "phone/slow-light.png",
       "promo": "promo/01-slow-light-promo.png",
-      "feature_message": "Clear slow-phase pacing with large, readable timing",
+      "feature_message": "Clear slow-phase pacing with large, readable timing; weekly goal insight shown in disabled (grayed 0/0) state for a subtle intro",
       "caption": {
         "headline": "Walk Smarter, Not Harder",
         "supporting_text": "Includes the Japanese 3-3 Interval Walking Training Method",
@@ -19,10 +19,10 @@
       "position": 2,
       "source": "phone/fast-light.png",
       "promo": "promo/02-fast-light-promo.png",
-      "feature_message": "Fast-phase cues with voice and vibration support",
+      "feature_message": "Fast-phase cues with weekly goal insight in enabled state on the timer screen",
       "caption": {
         "headline": "Never Miss a Beat",
-        "supporting_text": "Clear Phase Cues & Vibration Alerts",
+        "supporting_text": "See your weekly progress with every walk",
         "callouts": ["Clear Phase Cues", "Vibration Alerts"]
       }
     },
@@ -74,7 +74,7 @@
       "position": 7,
       "source": "phone/weekly-goal-reminders-light.png",
       "promo": "promo/07-weekly-goal-reminders-light-promo.png",
-      "feature_message": "Weekly goals, streaks, and local workout history",
+      "feature_message": "Configure weekly workout and minute targets with optional reminder days and time",
       "caption": {
         "headline": "Stay On Track Each Week",
         "supporting_text": "Set weekly targets for workouts and minutes with reminders",
@@ -85,7 +85,7 @@
       "position": 8,
       "source": "phone/complete-light.png",
       "promo": "promo/08-complete-light-promo.png",
-      "feature_message": "Finish sessions with clear completion and summary feedback",
+      "feature_message": "Finish sessions with clear completion and summary feedback; weekly goal insight in enabled state",
       "caption": {
         "headline": "Zero Distractions",
         "supporting_text": "Ad-free, subscription-free, pure focus",
