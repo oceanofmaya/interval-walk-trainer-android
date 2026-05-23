@@ -2,6 +2,16 @@
 
 ## Version 1
 
+### 1.3.5 - 2026-05-23
+
+#### UI/UX Improvements
+
+- **Home screen compaction:** Tightened the session timer typography and spacing to reduce vertical scroll on the main screen.
+- **Session panel:** Grouped the session timer and workout controls in a bordered card so the active workout area reads as one unit.
+- **Overflow menu:** Workout History and Settings moved into the overflow menu (⋮) beside the primary workout controls for thumb-reachable secondary navigation.
+- **Weekly goal on home:** The **Weekly Goal** insight card is always shown on the timer screen. When a goal is active it uses an icon status badge and radial progress rings; when no goal is set it appears grayed out with 0/0 workouts and minutes as a quick placeholder.
+- Store screenshots and promo images updated for the home screen layout, weekly goal insight card, and promo copy.
+
 ### 1.3.4 - 2026-05-23
 
 #### UI/UX Improvements

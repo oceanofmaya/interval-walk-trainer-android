@@ -60,10 +60,10 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - Progress tracking: current interval and total intervals
 - Visual progress bar showing overall workout completion
 - Elapsed and remaining time displays for clear progress feedback
-- Icon buttons for Workout History and Settings; overflow menu (⋮) for Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional language-based picker for notification TTS
+- Start/Pause/Reset controls and an overflow menu (⋮) for Workout History, Settings, Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional language-based picker for notification TTS
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
 - **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
-- **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and show a tappable **Weekly Goal** insight card on the timer screen when a goal is active
+- **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and use the tappable **Weekly Goal** insight card on the timer screen for a quick weekly snapshot
 - **Workout reminders**: Schedule exact recurring reminder notifications for selected days and time, with an option to pause reminders once the weekly goal is met
 - **TTS languages:** Voice announcements (e.g. “Slow walk”, “Fast walk”, “Workout complete”) are spoken in the selected notification language when supported. Supported locales:
   - Arabic, Danish, Dutch, Filipino, French, German, Hindi, Indonesian, Italian, Japanese, Kannada, Korean, Malayalam, Polish, Portuguese (Brazil and Portugal), Russian, Simplified Chinese (China), Spanish, Swedish, Tagalog, Tamil, Telugu, Thai, Traditional Chinese (Hong Kong), Turkish, Urdu, Vietnamese
@@ -114,7 +114,7 @@ Three pre-configured presets cover the main training patterns. **My saved preset
 1. Tap the formula button to open the picker and choose a preset
    - Select from three pre-configured presets, pick a row under **My saved presets**, or
    - Tap the sticky **Design Your Own** button at the bottom to build a custom interval or circuit workout (then Save & use, Use without saving, or Save only)
-2. Tap the **Settings** icon to manage app options:
+2. Open the overflow menu (⋮) next to the workout controls to manage app options in **Settings**:
    - Vibration and voice toggles for in-workout cues
    - Notifications permission and app notification state
    - Keep Screen Awake (foreground-only behavior)
@@ -122,12 +122,12 @@ Three pre-configured presets cover the main training patterns. **My saved preset
    - Save Workouts toggle and theme selection (System, Light, Dark) with compact swatches
    - Accent selection (Blue, Teal, Purple, Amber, Magenta) for interactive UI highlights
    - Links to Privacy Policy, and Terms of Service
-3. Use the overflow menu (⋮) for **Help**, **Rate App**, and **Report Issue**
+3. The overflow menu (⋮) also provides **Workout History**, **Help**, **Rate App**, and **Report Issue**
 4. Tap **Start** to begin (a short countdown appears if enabled)
 5. Monitor progress using the progress bar and elapsed/remaining time displays
 6. Use **Pause** (button shows **Resume** when paused) or **Reset** as needed
 7. The timer continues running even when the phone is locked
-8. View workout history and statistics by tapping the **Workout History** (stats) icon
+8. View workout history and statistics from **Workout History** in the overflow menu (⋮)
 9. Tap **Weekly Goal** in Workout History, Settings, or the **Weekly Goal** insight card on the timer screen to set weekly targets and optional recurring reminders
 10. Tap a day in the calendar to see workout details; delete individual workouts from the detail sheet or clear all history from the Stats screen
 
@@ -135,9 +135,9 @@ Three pre-configured presets cover the main training patterns. **My saved preset
 
 Weekly Goals are local planning targets. You can track workouts per week, minutes per week, or both. Only completed workouts that are saved to Workout History count toward the current week.
 
-The timer screen is organized into grouped sections: a workout setup card for formula selection, an insights area (including weekly goal progress when enabled), the session timer, and action controls.
+The timer screen is organized into grouped sections: a workout setup card for formula selection, an insights area with the weekly goal card (active progress or a grayed-out placeholder when no goal is set), and a bordered session panel that combines the timer with Start, Pause, Reset, and the overflow menu.
 
-When a weekly goal is active, the insights area shows a **Weekly Goal** card with an icon status badge and radial progress rings for the enabled targets. The card stays hidden when no goal is set, shows current progress during the week, and switches the status icon once all enabled targets are complete. Tap the card to edit the goal. The full Weekly Goal card in Workout History keeps the detailed status pill, progress bars, remaining-target text, and reminder summary.
+When a weekly goal is active, the insight card shows an icon status badge and radial progress rings for the enabled targets. When no goal is set, the card stays visible as a grayed-out preview with 0/0 workouts and minutes. Tap the card to edit the goal. The full Weekly Goal card in Workout History keeps the detailed status pill, progress bars, remaining-target text, and reminder summary.
 
 Optional reminders repeat on the selected days at the selected time. Reminder notifications open the timer screen, respect Android notification permission, and can pause automatically once the weekly goal is met. On Android 12+, the app may ask for **Alarms & reminders** access so reminders can fire at the exact time you choose.
 

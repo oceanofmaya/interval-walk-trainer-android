@@ -117,6 +117,10 @@ class WeeklyGoalUiFormatter(
         )
     }
 
+    fun homeInactiveContentDescription(): String {
+        return context.getString(R.string.desc_home_weekly_goal_insight_off)
+    }
+
     fun styleStatusPill(view: TextView, color: Int) {
         view.setTextColor(color)
         view.background = GradientDrawable().apply {

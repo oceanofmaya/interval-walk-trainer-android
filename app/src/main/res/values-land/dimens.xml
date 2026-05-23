@@ -7,6 +7,5 @@
     <dimen name="home_session_phase_to_timer_gap">12dp</dimen>
     <dimen name="home_session_timer_to_progress_gap">16dp</dimen>
     <dimen name="home_session_progress_to_interval_gap">12dp</dimen>
-    <dimen name="home_session_to_controls_gap">26dp</dimen>
-    <dimen name="home_controls_to_actions_gap">22dp</dimen>
+    <dimen name="home_session_to_controls_gap">0dp</dimen>
 </resources>
