@@ -6,338 +6,113 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-<androidx.core.widget.NestedScrollView
-    android:id="@+id/mainScrollView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true">
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/mainScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingStart="24dp"
-    android:paddingEnd="24dp"
-    android:paddingTop="14dp"
-    android:paddingBottom="32dp">
-
-    <LinearLayout
-        android:id="@+id/appBrandingContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/appBranding"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textSize="13sp"
-            android:textColor="@color/text_secondary"
-            android:letterSpacing="0.02"
-            android:gravity="center" />
-    </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/formulaButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/action_select_formula"
-        android:textSize="16sp"
-        android:textColor="@color/text_primary"
-        android:textStyle="normal"
-        android:textAllCaps="false"
-        android:maxLines="1"
-        android:ellipsize="end"
-        android:fontFamily="sans-serif-medium"
-        android:letterSpacing="0.01"
-        android:gravity="center"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:paddingTop="18dp"
-        android:paddingBottom="18dp"
-        android:minHeight="60dp"
-        app:icon="@android:drawable/arrow_down_float"
-        app:iconGravity="end"
-        app:iconTint="@color/text_secondary"
-        app:iconPadding="8dp"
-        app:cornerRadius="16dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="@color/stroke_light"
-        app:backgroundTint="@color/surface"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/appBrandingContainer" />
-
-    <LinearLayout
-        android:id="@+id/formulaInfoContainer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginTop="12dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/formulaButton">
-
-        <TextView
-            android:id="@+id/formulaDetails"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="@color/text_secondary"
-            android:gravity="center"
-            android:lineSpacingMultiplier="1.25"
-            android:letterSpacing="0.02"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:breakStrategy="simple" />
+            android:paddingStart="@dimen/home_page_padding_horizontal"
+            android:paddingEnd="@dimen/home_page_padding_horizontal"
+            android:paddingTop="@dimen/home_page_padding_top"
+            android:paddingBottom="@dimen/home_page_padding_bottom">
+
+            <LinearLayout
+                android:id="@+id/appBrandingContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/appBranding"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:letterSpacing="0.02"
+                    android:text="@string/app_name"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <include
+                android:id="@+id/homeWorkoutSetup"
+                layout="@layout/home_section_workout_setup"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/home_branding_to_setup_gap"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/appBrandingContainer" />
+
+            <include
+                android:id="@+id/homeInsights"
+                layout="@layout/home_section_insights"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/home_section_gap"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/homeWorkoutSetup" />
+
+            <include
+                android:id="@+id/homeSession"
+                layout="@layout/home_section_session"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/homeInsights" />
+
+            <include
+                android:id="@+id/homeActions"
+                layout="@layout/home_section_actions"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/homeSession" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <FrameLayout
+        android:id="@+id/preStartOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
 
         <TextView
-            android:id="@+id/weeklyGoalSummary"
+            android:id="@+id/preStartCountdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:clickable="true"
-            android:ellipsize="end"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
-            android:gravity="center"
-            android:maxLines="1"
-            android:minHeight="28dp"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:textColor="@color/button_primary"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/phaseLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/label_phase_slow"
-        android:textSize="28sp"
-        android:textColor="@color/slow_phase"
-        android:textStyle="bold"
-        android:letterSpacing="0.05"
-        android:layout_marginTop="30dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/formulaInfoContainer" />
-
-    <TextView
-        android:id="@+id/timeDisplay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/placeholder_time_display"
-        android:textSize="80sp"
-        android:textColor="@color/text_primary"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif-light"
-        android:letterSpacing="0.1"
-        android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/phaseLabel" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/workoutTimeContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="48dp"
-        android:layout_marginEnd="48dp"
-        android:layout_marginTop="28dp"
-        android:minHeight="20dp"
-        app:layout_constraintEnd_toEndOf="@id/timeDisplay"
-        app:layout_constraintStart_toStartOf="@id/timeDisplay"
-        app:layout_constraintTop_toBottomOf="@id/timeDisplay">
-
-        <TextView
-            android:id="@+id/elapsedTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/placeholder_time_short"
-            android:textSize="14sp"
-            android:textColor="@color/text_secondary"
-            android:letterSpacing="0.02"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <ProgressBar
-            android:id="@+id/workoutProgress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="0dp"
-            android:layout_height="8dp"
-            android:minHeight="8dp"
-            android:max="100"
-            android:progress="0"
-            android:progressDrawable="@drawable/progress_bar_stroke"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:visibility="visible"
-            app:layout_constraintStart_toEndOf="@id/elapsedTime"
-            app:layout_constraintEnd_toStartOf="@id/remainingTime"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintWidth_min="120dp" />
-
-        <TextView
-            android:id="@+id/remainingTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/placeholder_time_short"
-            android:textSize="14sp"
-            android:textColor="@color/text_secondary"
-            android:letterSpacing="0.02"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <TextView
-        android:id="@+id/intervalCounter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/placeholder_interval_counter"
-        android:textSize="16sp"
-        android:textColor="@color/text_secondary"
-        android:letterSpacing="0.02"
-        android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/workoutTimeContainer" />
-
-    <LinearLayout
-        android:id="@+id/controlButtons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="42dp"
-        android:gravity="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/intervalCounter">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/resetButton"
-            android:layout_width="wrap_content"
-            android:layout_height="56dp"
-            android:text="@string/action_reset"
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_marginEnd="24dp"
-            android:minWidth="80dp" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/startPauseButton"
-            android:layout_width="wrap_content"
-            android:layout_height="56dp"
-            android:text="@string/action_start"
+            android:layout_gravity="center"
+            android:letterSpacing="0.05"
+            android:text="@string/placeholder_countdown_initial"
             android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:backgroundTint="@color/button_primary"
-            app:cornerRadius="28dp"
-            style="@style/Widget.MaterialComponents.Button"
-            android:minWidth="140dp" />
+            android:textSize="96sp"
+            android:textStyle="bold" />
+    </FrameLayout>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/quickActionIcons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="36dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/controlButtons">
-
-        <ImageButton
-            android:id="@+id/workoutHistoryButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="24dp"
-            android:src="@drawable/outline_bar_chart_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/title_workout_history"
-            app:tint="@color/text_secondary"
-            android:padding="8dp" />
-
-        <ImageButton
-            android:id="@+id/settingsButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="24dp"
-            android:src="@drawable/baseline_settings_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/title_settings"
-            app:tint="@color/text_secondary"
-            android:padding="8dp" />
-
-        <ImageButton
-            android:id="@+id/overflowMenuButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/baseline_more_vert_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/desc_menu"
-            app:tint="@color/text_secondary"
-            android:padding="8dp" />
-
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.core.widget.NestedScrollView>
-
-<FrameLayout
-    android:id="@+id/preStartOverlay"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#CC000000"
-    android:visibility="gone"
-    android:clickable="true"
-    android:focusable="true">
-
-    <TextView
-        android:id="@+id/preStartCountdown"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/placeholder_countdown_initial"
-        android:textSize="96sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        android:layout_gravity="center"
-        android:letterSpacing="0.05" />
-</FrameLayout>
-
-<com.oceanofmaya.intervalwalktrainer.ConfettiView
-    android:id="@+id/confettiView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clickable="false"
-    android:focusable="false"
-    android:importantForAccessibility="no"
-    android:elevation="8dp"
-    android:visibility="gone" />
+    <com.oceanofmaya.intervalwalktrainer.ConfettiView
+        android:id="@+id/confettiView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:elevation="8dp"
+        android:focusable="false"
+        android:importantForAccessibility="no"
+        android:visibility="gone" />
 
 </FrameLayout>
-
