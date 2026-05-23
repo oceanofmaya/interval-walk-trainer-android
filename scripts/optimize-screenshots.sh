@@ -2,6 +2,10 @@
 # Script to optimize screenshots (reduce file size while maintaining quality)
 # Requires ImageMagick: brew install imagemagick
 
+if [ -z "${BASH_VERSION:-}" ]; then
+    exec /bin/bash "$0" "$@"
+fi
+
 set -euo pipefail
 
 SCREENSHOT_DIR="assets/store/screenshots/phone"
@@ -46,15 +50,20 @@ if [[ "$MODE" == "--all" ]]; then
     done
     shopt -u nullglob
 else
-    while IFS= read -r img; do
-        SCREENSHOTS+=("$img")
-    done < <(
+    changed_list=$(
         {
             git diff --name-only -- "$SCREENSHOT_DIR"
             git diff --cached --name-only -- "$SCREENSHOT_DIR"
             git ls-files --others --exclude-standard -- "$SCREENSHOT_DIR"
         } | awk '/\.png$/ && !seen[$0]++' | sort
     )
+    if [[ -n "$changed_list" ]]; then
+        while IFS= read -r img; do
+            [[ -n "$img" ]] && SCREENSHOTS+=("$img")
+        done <<EOF
+$changed_list
+EOF
+    fi
 fi
 
 if [[ ${#SCREENSHOTS[@]} -eq 0 ]]; then
