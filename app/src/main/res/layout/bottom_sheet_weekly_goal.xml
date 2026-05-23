@@ -278,33 +278,31 @@
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:gravity="center_vertical"
+                android:gravity="center_horizontal"
                 android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/reminderSundayLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:clickable="false"
-                    android:focusable="false"
-                    android:gravity="start|center_vertical"
-                    android:minHeight="48dp"
-                    android:paddingStart="6dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="0dp"
-                    android:paddingBottom="12dp"
-                    android:text="@string/day_sunday_short"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp">
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/reminderSunday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="0dp"
+                    android:layout_gravity="center_horizontal"
                     android:contentDescription="@string/day_sunday" />
+
+                <TextView
+                    android:id="@+id/reminderSundayLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/day_sunday_short"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -315,33 +313,31 @@
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:gravity="center_vertical"
+                android:gravity="center_horizontal"
                 android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/reminderMondayLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:clickable="false"
-                    android:focusable="false"
-                    android:gravity="start|center_vertical"
-                    android:minHeight="48dp"
-                    android:paddingStart="6dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="0dp"
-                    android:paddingBottom="12dp"
-                    android:text="@string/day_monday_short"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp">
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/reminderMonday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="0dp"
+                    android:layout_gravity="center_horizontal"
                     android:contentDescription="@string/day_monday" />
+
+                <TextView
+                    android:id="@+id/reminderMondayLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/day_monday_short"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -352,33 +348,31 @@
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:gravity="center_vertical"
+                android:gravity="center_horizontal"
                 android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/reminderTuesdayLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:clickable="false"
-                    android:focusable="false"
-                    android:gravity="start|center_vertical"
-                    android:minHeight="48dp"
-                    android:paddingStart="6dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="0dp"
-                    android:paddingBottom="12dp"
-                    android:text="@string/day_tuesday_short"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp">
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/reminderTuesday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="0dp"
+                    android:layout_gravity="center_horizontal"
                     android:contentDescription="@string/day_tuesday" />
+
+                <TextView
+                    android:id="@+id/reminderTuesdayLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/day_tuesday_short"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -389,33 +383,31 @@
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:gravity="center_vertical"
+                android:gravity="center_horizontal"
                 android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/reminderWednesdayLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:clickable="false"
-                    android:focusable="false"
-                    android:gravity="start|center_vertical"
-                    android:minHeight="48dp"
-                    android:paddingStart="6dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="0dp"
-                    android:paddingBottom="12dp"
-                    android:text="@string/day_wednesday_short"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp">
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/reminderWednesday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="0dp"
+                    android:layout_gravity="center_horizontal"
                     android:contentDescription="@string/day_wednesday" />
+
+                <TextView
+                    android:id="@+id/reminderWednesdayLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/day_wednesday_short"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             </LinearLayout>
@@ -433,33 +425,31 @@
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:gravity="center_vertical"
+                android:gravity="center_horizontal"
                 android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/reminderThursdayLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:clickable="false"
-                    android:focusable="false"
-                    android:gravity="start|center_vertical"
-                    android:minHeight="48dp"
-                    android:paddingStart="6dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="0dp"
-                    android:paddingBottom="12dp"
-                    android:text="@string/day_thursday_short"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp">
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/reminderThursday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="0dp"
+                    android:layout_gravity="center_horizontal"
                     android:contentDescription="@string/day_thursday" />
+
+                <TextView
+                    android:id="@+id/reminderThursdayLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/day_thursday_short"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -470,33 +460,31 @@
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:gravity="center_vertical"
+                android:gravity="center_horizontal"
                 android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/reminderFridayLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:clickable="false"
-                    android:focusable="false"
-                    android:gravity="start|center_vertical"
-                    android:minHeight="48dp"
-                    android:paddingStart="6dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="0dp"
-                    android:paddingBottom="12dp"
-                    android:text="@string/day_friday_short"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp">
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/reminderFriday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="0dp"
+                    android:layout_gravity="center_horizontal"
                     android:contentDescription="@string/day_friday" />
+
+                <TextView
+                    android:id="@+id/reminderFridayLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/day_friday_short"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -507,33 +495,31 @@
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:gravity="center_vertical"
+                android:gravity="center_horizontal"
                 android:minHeight="48dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/reminderSaturdayLabel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:clickable="false"
-                    android:focusable="false"
-                    android:gravity="start|center_vertical"
-                    android:minHeight="48dp"
-                    android:paddingStart="6dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="0dp"
-                    android:paddingBottom="12dp"
-                    android:text="@string/day_saturday_short"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="8dp">
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/reminderSaturday"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="0dp"
+                    android:layout_gravity="center_horizontal"
                     android:contentDescription="@string/day_saturday" />
+
+                <TextView
+                    android:id="@+id/reminderSaturdayLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="@string/day_saturday_short"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <Space

@@ -2,6 +2,17 @@
 
 ## Version 1
 
+### 1.3.3 - 2026-05-22
+
+#### UI/UX Improvements
+
+- **Weekly goal reminder days:** Stacked each reminder-day checkbox above its label in the compact grid so day names stay on one line on narrow phones.
+- Store screenshots and promo images updated to reflect the weekly goal reminder-days layout change.
+
+#### Chore
+
+- **Screenshot tooling:** Fixed `optimize-screenshots.sh` failing under `sh` with a syntax error when collecting changed PNG files.
+
 ### 1.3.2 - 2026-05-22
 
 #### UI/UX Improvements
