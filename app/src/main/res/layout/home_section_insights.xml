@@ -75,7 +75,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/home_insight_page_indicator_margin_top"
         android:visibility="gone"
         app:tabBackground="@drawable/home_insight_page_indicator"
         app:tabGravity="center"

@@ -16,8 +16,8 @@ android {
         applicationId = "com.oceanofmaya.intervalwalktrainer"
         minSdk = 24
         targetSdk = 36
-        versionCode = 66
-        versionName = "1.4.0"
+        versionCode = 67
+        versionName = "1.4.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

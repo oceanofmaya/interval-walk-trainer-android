@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.4.1 - 2026-05-24
+
+#### UI/UX Improvements
+
+- **Home screen:** Slightly tighter vertical spacing above the preset selector and between home sections, without changing the session timer or control layout.
+- **Picker bottom sheets:** Shared header spacing tokens for insight cards, preset selection, and voice language pickers so choice lists start closer to the sheet title.
+
 ### 1.4.0 - 2026-05-24
 
 #### Features

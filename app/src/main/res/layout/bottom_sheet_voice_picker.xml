@@ -4,15 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="6dp">
+    android:paddingTop="@dimen/bottom_sheet_padding_top">
 
     <View
         android:id="@+id/voice_picker_drag_handle"
         android:layout_width="36dp"
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="@dimen/bottom_sheet_handle_margin_top"
+        android:layout_marginBottom="@dimen/bottom_sheet_handle_margin_bottom"
         android:background="@drawable/bottom_sheet_drag_handle" />
 
     <TextView
@@ -25,8 +25,8 @@
         android:gravity="center"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp" />
+        android:paddingTop="@dimen/bottom_sheet_title_padding_top"
+        android:paddingBottom="@dimen/bottom_sheet_title_padding_bottom" />
 
     <ListView
         android:id="@+id/voicePickerList"

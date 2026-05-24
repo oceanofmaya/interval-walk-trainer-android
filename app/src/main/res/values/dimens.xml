@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="home_page_padding_horizontal">24dp</dimen>
-    <dimen name="home_page_padding_top">10dp</dimen>
+    <dimen name="home_page_padding_top">8dp</dimen>
     <dimen name="home_page_padding_bottom">16dp</dimen>
-    <dimen name="home_section_gap">16dp</dimen>
+    <dimen name="home_section_gap">14dp</dimen>
     <dimen name="home_card_padding">16dp</dimen>
+    <dimen name="home_setup_card_padding_top">12dp</dimen>
     <dimen name="home_card_corner_radius">12dp</dimen>
     <dimen name="home_card_inner_gap">8dp</dimen>
-    <dimen name="home_setup_button_min_height">52dp</dimen>
-    <dimen name="home_branding_to_setup_gap">8dp</dimen>
+    <dimen name="home_setup_button_min_height">48dp</dimen>
+    <dimen name="home_setup_button_padding_vertical">12dp</dimen>
+    <dimen name="home_branding_to_setup_gap">6dp</dimen>
+    <dimen name="home_branding_margin_top">2dp</dimen>
     <dimen name="home_session_phase_margin_top">8dp</dimen>
     <dimen name="home_session_phase_to_timer_gap">12dp</dimen>
     <dimen name="home_session_timer_to_progress_gap">16dp</dimen>
@@ -25,5 +28,13 @@
     <dimen name="home_insight_status_icon_size">24dp</dimen>
     <dimen name="home_insight_page_peek">12dp</dimen>
     <dimen name="home_insight_section_edit_size">36dp</dimen>
-    <dimen name="home_insight_pager_margin_top">6dp</dimen>
+    <dimen name="home_insight_pager_margin_top">4dp</dimen>
+    <dimen name="home_insight_page_indicator_margin_top">6dp</dimen>
+
+    <dimen name="bottom_sheet_padding_top">6dp</dimen>
+    <dimen name="bottom_sheet_handle_margin_top">4dp</dimen>
+    <dimen name="bottom_sheet_handle_margin_bottom">6dp</dimen>
+    <dimen name="bottom_sheet_title_padding_top">8dp</dimen>
+    <dimen name="bottom_sheet_title_padding_bottom">8dp</dimen>
+    <dimen name="bottom_sheet_helper_padding_bottom">8dp</dimen>
 </resources>
