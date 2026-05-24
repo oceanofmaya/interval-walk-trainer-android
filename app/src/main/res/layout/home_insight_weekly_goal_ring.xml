@@ -28,13 +28,16 @@
 
         <TextView
             android:id="@+id/weeklyGoalRingFraction"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:maxLines="1"
             android:textColor="@color/text_primary"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:autoSizeMaxTextSize="12sp"
+            app:autoSizeMinTextSize="8sp"
+            app:autoSizeStepGranularity="1sp"
+            app:autoSizeTextType="uniform" />
 
         <TextView
             android:id="@+id/weeklyGoalRingCaption"
@@ -43,7 +46,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:textColor="@color/text_secondary"
-            android:textSize="10sp" />
+            android:textSize="9sp" />
 
     </LinearLayout>
 

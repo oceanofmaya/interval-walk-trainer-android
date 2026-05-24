@@ -2,13 +2,13 @@
   "platform": "android-play-store",
   "device": "phone",
   "manual_composition": true,
-  "last_updated": "2026-05-23",
+  "last_updated": "2026-05-24",
   "items": [
     {
       "position": 1,
       "source": "phone/slow-light.png",
       "promo": "promo/01-slow-light-promo.png",
-      "feature_message": "Clear slow-phase pacing with large, readable timing; weekly goal insight shown in disabled (grayed 0/0) state for a subtle intro",
+      "feature_message": "Clear slow-phase pacing with large, readable timing; Insights section shown with no cards chosen (empty placeholder) to keep focus on the workout",
       "caption": {
         "headline": "Walk Smarter, Not Harder",
         "supporting_text": "Includes the Japanese 3-3 Interval Walking Training Method",
@@ -19,7 +19,7 @@
       "position": 2,
       "source": "phone/fast-light.png",
       "promo": "promo/02-fast-light-promo.png",
-      "feature_message": "Fast-phase cues with weekly goal insight in enabled state on the timer screen",
+      "feature_message": "Fast-phase cues with weekly goal insight in enabled state on the home screen",
       "caption": {
         "headline": "Never Miss a Beat",
         "supporting_text": "See your weekly progress with every walk",

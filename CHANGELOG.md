@@ -2,6 +2,20 @@
 
 ## Version 1
 
+### 1.4.0 - 2026-05-24
+
+#### Features
+
+- **Insight cards:** Choose which insight cards appear on the home screen — up to five — from **Settings → Insight cards** or the edit icon beside **Insights**.
+
+#### UI/UX Improvements
+
+- **Insights section:** The home screen **Insights** area now has a distinct section title, an edit control to open the card picker, and a recessed placeholder card when none are selected.
+- **Insight cards:** Slightly more compact card layout on the home screen to balance the new Insights header.
+- **Weekly goal insight:** The Weekly Goal card remains available in the picker; when selected but no goal is set, it still shows the grayed-out preview with 0/0 workouts and minutes.
+- In-app FAQ, README, and store listing copy now refer to the **home screen** instead of the timer screen.
+- Store screenshots updated: promo 01 uses the Insights empty placeholder (no cards chosen) so the first frame stays focused on pacing.
+
 ### 1.3.7 - 2026-05-24
 
 #### UI/UX Improvements
@@ -24,15 +38,15 @@
 - **Home screen compaction:** Tightened the session timer typography and spacing to reduce vertical scroll on the main screen.
 - **Session panel:** Grouped the session timer and workout controls in a bordered card so the active workout area reads as one unit.
 - **Overflow menu:** Workout History and Settings moved into the overflow menu (⋮) beside the primary workout controls for thumb-reachable secondary navigation.
-- **Weekly goal on home:** The **Weekly Goal** insight card is always shown on the timer screen. When a goal is active it uses an icon status badge and radial progress rings; when no goal is set it appears grayed out with 0/0 workouts and minutes as a quick placeholder.
+- **Weekly goal on home:** The **Weekly Goal** insight card is always shown on the home screen. When a goal is active it uses an icon status badge and radial progress rings; when no goal is set it appears grayed out with 0/0 workouts and minutes as a quick placeholder.
 - Store screenshots and promo images updated for the home screen layout, weekly goal insight card, and promo copy.
 
 ### 1.3.4 - 2026-05-23
 
 #### UI/UX Improvements
 
-- **Home screen layout:** Reorganized the timer screen into grouped sections — a unified workout setup card, an insights carousel for weekly goal progress, the session timer stack, and action controls — with consistent spacing and room for future insight cards.
-- **Weekly goal on home:** Replaced the compact chip with a tappable **Weekly Goal** insight card using an icon status badge, radial progress rings, and subdued card styling on the timer screen.
+- **Home screen layout:** Reorganized the home screen into grouped sections — a unified workout setup card, an insights carousel for weekly goal progress, the session timer stack, and action controls — with consistent spacing and room for future insight cards.
+- **Weekly goal on home:** Replaced the compact chip with a tappable **Weekly Goal** insight card using an icon status badge, radial progress rings, and subdued card styling on the home screen.
 - Store screenshots and promo images updated to reflect the redesigned home screen layout.
 
 ### 1.3.3 - 2026-05-22
@@ -50,7 +64,7 @@
 
 #### UI/UX Improvements
 
-- **Home screen weekly goal:** Replaced the extra weekly-goal summary line with a tappable compact chip and tightened timer-screen spacing so controls stay clear on shorter phones.
+- **Home screen weekly goal:** Replaced the extra weekly-goal summary line with a tappable compact chip and tightened home-screen spacing so controls stay clear on shorter phones.
 
 ### 1.3.1 - 2026-05-22
 
@@ -68,7 +82,7 @@
 #### UI/UX Improvements
 
 - **Weekly progress card:** Workout History now shows this week’s progress alongside the existing overview stats.
-- **Main-screen status:** The timer screen shows a compact “This week” goal summary when weekly goals are enabled.
+- **Main-screen status:** The home screen shows a compact “This week” goal summary when weekly goals are enabled.
 - Store screenshots and promo images updated for Weekly Goals and reminders.
 
 #### Chore

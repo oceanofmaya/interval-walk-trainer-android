@@ -91,15 +91,15 @@ Google Play allows up to 8 phone screenshots. Keep these in `promo/` as the acti
 
 This sequence tells a clear story: pace -> intensity -> setup -> personalize workout -> track progress -> personalize look -> plan weekly goals -> complete.
 
-## Weekly Goal Insight in Phone Captures
+## Insights in Phone Captures
 
-Timer-screen sources (`slow-light`, `fast-light`, `complete-light`, `home-light`) include the home **Weekly Goal** insight card.
+Home-screen sources (`slow-light`, `fast-light`, `complete-light`, `home-light`) include the **Insights** section at the bottom of the home screen.
 
-- **`slow-light` / promo 01:** Capture with weekly goal **disabled** — grayed-out card with 0/0 rings. Keeps the first impression focused on pacing while subtly introducing the feature.
-- **Other timer-screen captures:** Use weekly goal **enabled** with active progress rings so users see the card doing real work.
+- **`slow-light` / promo 01:** Capture with **no insight cards chosen** — recessed placeholder and “Choose insight cards to show here.” Keeps the first impression focused on slow-phase pacing without a weekly-goal preview.
+- **Other home-screen captures (`fast-light`, `complete-light`, `home-light`):** Use weekly goal **enabled** in Insight cards with active progress rings so users see the card doing real work.
 - **Promo 07 (`weekly-goal-reminders-light`):** Stays on the editor sheet for setup and reminders, not the home insight card.
 
-When rebuilding promo images, match this intent: promo 01 = subtle disabled card; promos 02 and 08 (and any other enabled timer captures) = active rings.
+When rebuilding promo images, match this intent: promo 01 = empty Insights placeholder; promos 02 and 08 (and other enabled home-screen captures) = active weekly goal rings.
 
 ## What to Keep vs. Remove in `phone/`
 

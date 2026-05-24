@@ -52,6 +52,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.oceanofmaya.intervalwalktrainer.databinding.ActivityMainBinding
 import com.oceanofmaya.intervalwalktrainer.home.HomeInsightRegistry
 import com.oceanofmaya.intervalwalktrainer.home.HomeInsightsController
+import com.oceanofmaya.intervalwalktrainer.home.InsightCardsEditor
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
@@ -105,6 +106,7 @@ open class MainActivity : AppCompatActivity() {
     private var completionAtMillis: Long? = null
     private var completionAutoResetRunnable: Runnable? = null
     private lateinit var homeInsightsController: HomeInsightsController
+    private lateinit var homeInsightRegistry: HomeInsightRegistry
 
     private val homeWorkoutSetup get() = binding.homeWorkoutSetup
     private val homeSession get() = binding.homeSessionPanel.homeSession
@@ -124,6 +126,7 @@ open class MainActivity : AppCompatActivity() {
             FaqEntry(R.string.faq_question_pause_reset, R.string.faq_answer_pause_reset),
             FaqEntry(R.string.faq_question_workout_history, R.string.faq_answer_workout_history),
             FaqEntry(R.string.faq_question_weekly_goals, R.string.faq_answer_weekly_goals),
+            FaqEntry(R.string.faq_question_insight_cards, R.string.faq_answer_insight_cards),
             FaqEntry(R.string.faq_question_data_shared, R.string.faq_answer_data_shared),
             FaqEntry(R.string.faq_question_notifications, R.string.faq_answer_notifications),
             FaqEntry(R.string.faq_question_voice, R.string.faq_answer_voice),
@@ -733,16 +736,29 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun setupHomeInsights() {
+        homeInsightRegistry = HomeInsightRegistry(
+            sharedPreferences = sharedPreferences,
+            workoutRepository = workoutRepository,
+            accentColorProvider = ::getAccentColor,
+            onEditWeeklyGoal = ::showWeeklyGoalEditor
+        )
         homeInsightsController = HomeInsightsController(
             activity = this,
             binding = binding.homeInsights,
-            registry = HomeInsightRegistry(
-                sharedPreferences = sharedPreferences,
-                workoutRepository = workoutRepository,
-                accentColorProvider = ::getAccentColor,
-                onEditWeeklyGoal = ::showWeeklyGoalEditor
-            )
+            registry = homeInsightRegistry,
+            sharedPreferences = sharedPreferences,
+            onEditInsightCards = ::showInsightCardsEditor
         )
+    }
+
+    private fun showInsightCardsEditor() {
+        InsightCardsEditor(
+            activity = this,
+            sharedPreferences = sharedPreferences,
+            registry = homeInsightRegistry,
+            accentColorProvider = ::getAccentColor,
+            onSaved = { homeInsightsController.load() }
+        ).show()
     }
 
     private fun showWeeklyGoalEditor() {
@@ -2122,6 +2138,13 @@ open class MainActivity : AppCompatActivity() {
                 hapticSelection(btn)
                 bottomSheetDialog.dismiss()
                 showWeeklyGoalEditor()
+            }
+
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.insightCardsSettingsButton)
+            .setOnClickListener { btn ->
+                hapticSelection(btn)
+                bottomSheetDialog.dismiss()
+                showInsightCardsEditor()
             }
 
         // Vibration toggle switch
