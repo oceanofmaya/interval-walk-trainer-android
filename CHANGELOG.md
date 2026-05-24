@@ -2,6 +2,13 @@
 
 ## Version 1
 
+### 1.3.6 - 2026-05-23
+
+#### UI/UX Improvements
+
+- **Weekly goal reminders:** Reminder controls in the Weekly Goal editor are disabled when the weekly goal is off or has no targets, matching when reminders can actually fire. Saved reminder preferences are kept and restored when the goal is re-enabled.
+- **Weekly goal reminders:** Notification and exact-alarm permission prompts no longer appear when reminders cannot be used.
+
 ### 1.3.5 - 2026-05-23
 
 #### UI/UX Improvements

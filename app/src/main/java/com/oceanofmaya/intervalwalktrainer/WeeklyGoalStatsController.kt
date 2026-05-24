@@ -44,7 +44,7 @@ class WeeklyGoalStatsController(
             runCatching {
                 val settings = WeeklyGoalPreferences.loadGoalSettings(sharedPreferences)
                 val reminderSettings = WeeklyGoalPreferences.loadReminderSettings(sharedPreferences)
-                if (!settings.enabled || !settings.hasAnyTarget) {
+                if (!settings.remindersAvailable()) {
                     showDisabled(reminderSettings)
                 } else {
                     showProgress(workoutRepository.getWeeklyGoalProgress(settings), reminderSettings)
