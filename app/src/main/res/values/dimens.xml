@@ -15,11 +15,15 @@
     <dimen name="home_session_progress_to_interval_gap">12dp</dimen>
     <dimen name="home_session_interval_to_metrics_gap">12dp</dimen>
     <dimen name="home_session_to_controls_gap">24dp</dimen>
-    <dimen name="home_insight_card_min_height">140dp</dimen>
-    <dimen name="home_insight_ring_size">64dp</dimen>
-    <dimen name="home_insight_ring_container_size">68dp</dimen>
+    <dimen name="home_insight_card_min_height">118dp</dimen>
+    <dimen name="home_insight_card_padding">12dp</dimen>
+    <dimen name="home_insight_rings_margin_top">6dp</dimen>
+    <dimen name="home_insight_ring_size">56dp</dimen>
+    <dimen name="home_insight_ring_container_size">60dp</dimen>
     <dimen name="home_insight_ring_stroke">4dp</dimen>
-    <dimen name="home_insight_ring_gap">20dp</dimen>
-    <dimen name="home_insight_status_icon_size">28dp</dimen>
+    <dimen name="home_insight_ring_gap">14dp</dimen>
+    <dimen name="home_insight_status_icon_size">24dp</dimen>
     <dimen name="home_insight_page_peek">12dp</dimen>
+    <dimen name="home_insight_section_edit_size">36dp</dimen>
+    <dimen name="home_insight_pager_margin_top">6dp</dimen>
 </resources>

@@ -1,5 +1,6 @@
 package com.oceanofmaya.intervalwalktrainer.home
 
+import android.content.SharedPreferences
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -14,7 +15,9 @@ import kotlinx.coroutines.launch
 class HomeInsightsController(
     private val activity: AppCompatActivity,
     private val binding: HomeSectionInsightsBinding,
-    registry: HomeInsightRegistry
+    registry: HomeInsightRegistry,
+    private val sharedPreferences: SharedPreferences,
+    private val onEditInsightCards: () -> Unit
 ) {
     private val registryCards = registry.all()
     private val adapter = HomeInsightsAdapter()
@@ -24,19 +27,49 @@ class HomeInsightsController(
     init {
         binding.homeInsightsPager.adapter = adapter
         binding.homeInsightsPager.offscreenPageLimit = 1
+        binding.homeInsightsEditButton.setOnClickListener { view ->
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+            onEditInsightCards()
+        }
+        binding.homeInsightsEmptyCard.setOnClickListener { view ->
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+            onEditInsightCards()
+        }
     }
 
     fun load() {
         activity.lifecycleScope.launch {
-            eligibleCards = registryCards.filter { card ->
-                runCatching { card.isEligible() }.getOrDefault(false)
-            }
-            if (eligibleCards.isEmpty()) {
-                binding.homeInsightsSection.visibility = View.GONE
+            val enabledCardIds = HomeInsightPreferences.loadEnabledCardIdsOrdered(sharedPreferences)
+            val selectionState = HomeInsightSelection.resolveSelectionState(enabledCardIds)
+            val selectedCards = HomeInsightSelection.resolveSelectedCards(registryCards, enabledCardIds)
+
+            binding.homeInsightsSection.visibility = View.VISIBLE
+            binding.homeInsightsSectionTitle.visibility = View.VISIBLE
+            binding.homeInsightsEmptyCard.visibility =
+                if (selectionState.showEmptyNote) View.VISIBLE else View.GONE
+
+            if (selectedCards.isEmpty()) {
+                eligibleCards = emptyList()
+                binding.homeInsightsPager.visibility = View.GONE
+                adapter.submitCards(emptyList())
+                configurePagerBehavior(0)
                 return@launch
             }
 
-            binding.homeInsightsSection.visibility = View.VISIBLE
+            binding.homeInsightsEmptyCard.visibility = View.GONE
+            binding.homeInsightsPager.visibility = View.VISIBLE
+            eligibleCards = selectedCards.filter { card ->
+                runCatching { card.isEligible() }.getOrDefault(false)
+            }
+
+            if (eligibleCards.isEmpty()) {
+                binding.homeInsightsPager.visibility = View.GONE
+                binding.homeInsightsEmptyCard.visibility = View.GONE
+                adapter.submitCards(emptyList())
+                configurePagerBehavior(0)
+                return@launch
+            }
+
             adapter.submitCards(eligibleCards)
             configurePagerBehavior(eligibleCards.size)
         }

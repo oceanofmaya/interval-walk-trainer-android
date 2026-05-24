@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/home_card_padding">
+        android:padding="@dimen/home_insight_card_padding">
 
         <TextView
             android:id="@+id/weeklyGoalInsightTitle"
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:text="@string/title_weekly_goal"
             android:textColor="@color/text_primary"
-            android:textSize="14sp"
+            android:textSize="13sp"
             android:textStyle="bold" />
 
         <TextView
@@ -39,7 +39,7 @@
             android:id="@+id/weeklyGoalInsightRingsRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/home_insight_rings_margin_top"
             android:baselineAligned="false"
             android:clipChildren="false"
             android:clipToPadding="false"

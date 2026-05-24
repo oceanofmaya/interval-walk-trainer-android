@@ -20,6 +20,9 @@ class WeeklyGoalHomeInsight(
     private val accentColorProvider: () -> Int,
     private val onEditWeeklyGoal: () -> Unit
 ) : HomeInsightCard {
+    override val id: String = HomeInsightCardIds.WEEKLY_GOAL
+    override val settingsLabelResId: Int = R.string.title_weekly_goal
+    override val settingsDescriptionResId: Int = R.string.body_insight_card_weekly_goal_description
     override val layoutResId: Int = R.layout.home_insight_card_weekly_goal
 
     private sealed class InsightState {

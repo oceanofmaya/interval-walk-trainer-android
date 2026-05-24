@@ -5,14 +5,69 @@
     android:layout_width="0dp"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:visibility="gone">
+    android:visibility="visible">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/homeInsightsSectionTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/group_home_insights"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/homeInsightsEditButton"
+            android:layout_width="@dimen/home_insight_section_edit_size"
+            android:layout_height="@dimen/home_insight_section_edit_size"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/desc_edit_insight_cards"
+            android:src="@drawable/outline_edit_24"
+            app:tint="@color/text_secondary" />
+    </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/homeInsightsEmptyCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/home_insight_pager_margin_top"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:minHeight="@dimen/home_insight_card_min_height"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/formula_details_bg"
+        app:cardCornerRadius="@dimen/home_card_corner_radius"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/stroke_light"
+        app:strokeWidth="1dp">
+
+        <TextView
+            android:id="@+id/homeInsightsEmptyNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:padding="@dimen/home_insight_card_padding"
+            android:text="@string/body_home_insights_empty"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/homeInsightsPager"
         android:layout_width="match_parent"
         android:layout_height="@dimen/home_insight_card_min_height"
-        android:clipToPadding="false"
+        android:layout_marginTop="@dimen/home_insight_pager_margin_top"
         android:clipChildren="false"
+        android:clipToPadding="false"
         android:overScrollMode="never" />
 
     <com.google.android.material.tabs.TabLayout
