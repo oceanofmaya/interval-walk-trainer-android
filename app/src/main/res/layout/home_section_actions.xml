@@ -30,15 +30,4 @@
         app:backgroundTint="@color/button_primary"
         app:cornerRadius="26dp" />
 
-    <ImageButton
-        android:id="@+id/overflowMenuButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="16dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/desc_menu"
-        android:padding="12dp"
-        android:src="@drawable/baseline_more_vert_24"
-        app:tint="@color/text_secondary" />
-
 </LinearLayout>

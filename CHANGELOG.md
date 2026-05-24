@@ -2,6 +2,14 @@
 
 ## Version 1
 
+### 1.3.7 - 2026-05-24
+
+#### UI/UX Improvements
+
+- **Home screen layout:** Moved the session timer card directly under workout setup so the timer occupies prime screen space; the Weekly Goal insight card moves to the bottom.
+- **Overflow menu:** Moved the overflow menu (⋮) to the top-right corner of the timer card, separate from the Reset and Start/Pause controls.
+- Store screenshots and promo images updated to reflect the new home screen layout.
+
 ### 1.3.6 - 2026-05-23
 
 #### UI/UX Improvements

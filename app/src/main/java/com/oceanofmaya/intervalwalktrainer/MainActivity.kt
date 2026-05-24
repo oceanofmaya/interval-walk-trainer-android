@@ -687,7 +687,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun setupOverflowMenuButton() {
-        homeActions.overflowMenuButton.setOnClickListener { view ->
+        binding.homeSessionPanel.overflowMenuButton.setOnClickListener { view ->
             hapticSelection(view)
             showOverflowBottomSheet()
         }
