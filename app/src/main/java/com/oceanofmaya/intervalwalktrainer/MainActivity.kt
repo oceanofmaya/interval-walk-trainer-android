@@ -3367,8 +3367,10 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun requestExactAlarmAccessForWeeklyRemindersIfNeeded() {
+        val goalSettings = WeeklyGoalPreferences.loadGoalSettings(sharedPreferences)
         val reminderSettings = WeeklyGoalPreferences.loadReminderSettings(sharedPreferences)
         val shouldRequest = reminderSettings.enabled &&
+            goalSettings.remindersAvailable() &&
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
             !WeeklyReminderScheduler(this).canScheduleExactReminders()
         if (shouldRequest) {

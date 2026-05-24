@@ -57,7 +57,7 @@ class WeeklyGoalEditor(
         applyAccentTints(sheetViews)
         val updateSheetValues = { updateSheetValues(sheetViews, state) }
 
-        wireGoalSwitches(sheetViews, state)
+        wireGoalSwitches(sheetViews, state, updateSheetValues)
         wireDayChecks(sheetViews, state, updateSheetValues)
         wireTargetButtons(sheetViews, state, updateSheetValues)
         wireReminderTimeButtons(sheetViews, state, updateSheetValues)
@@ -114,11 +114,13 @@ class WeeklyGoalEditor(
 
     private fun wireGoalSwitches(
         sheetViews: WeeklyGoalSheetViews,
-        state: WeeklyGoalSheetState
+        state: WeeklyGoalSheetState,
+        updateSheetValues: () -> Unit
     ) {
         sheetViews.goalSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             hapticSelection(buttonView)
             state.goalSettings = state.goalSettings.copy(enabled = isChecked)
+            updateSheetValues()
         }
         sheetViews.reminderSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
             hapticSelection(buttonView)
@@ -236,9 +238,10 @@ class WeeklyGoalEditor(
             hapticSuccess(button)
             WeeklyGoalPreferences.saveGoalSettings(sharedPreferences, state.goalSettings)
             WeeklyGoalPreferences.saveReminderSettings(sharedPreferences, state.reminderSettings)
-            val requestedNotificationPermission = requestPostNotificationsForRemindersIfNeeded(state.reminderSettings)
+            val remindersCanBeUsed = state.goalSettings.remindersAvailable() && state.reminderSettings.enabled
+            val requestedNotificationPermission = requestPostNotificationsForRemindersIfNeeded(remindersCanBeUsed)
             if (!requestedNotificationPermission) {
-                requestExactAlarmAccessForRemindersIfNeeded(state.reminderSettings)
+                requestExactAlarmAccessForRemindersIfNeeded(remindersCanBeUsed)
             }
             activity.lifecycleScope.launch {
                 WeeklyReminderScheduler(activity).scheduleNextReminder()
@@ -264,6 +267,29 @@ class WeeklyGoalEditor(
         sheetViews.dayChecks.forEach { (day, checkBox) ->
             checkBox.isChecked = day in state.reminderSettings.selectedDays
         }
+        updateWeeklyGoalTargetControlsEnabled(
+            targetWorkoutsRow = sheetViews.targetWorkoutsRow,
+            targetMinutesRow = sheetViews.targetMinutesRow,
+            workoutsDecrease = sheetViews.workoutsDecrease,
+            workoutsIncrease = sheetViews.workoutsIncrease,
+            minutesDecrease = sheetViews.minutesDecrease,
+            minutesIncrease = sheetViews.minutesIncrease,
+            enabled = state.goalSettings.enabled
+        )
+        updateWeeklyGoalReminderControlsEnabled(
+            reminderEnabledRow = sheetViews.reminderEnabledRow,
+            reminderPauseRow = sheetViews.reminderPauseRow,
+            reminderTimeRow = sheetViews.reminderTimeRow,
+            reminderDaysLabel = sheetViews.reminderDaysLabel,
+            reminderDaysContainer = sheetViews.reminderDaysContainer,
+            reminderSwitch = sheetViews.reminderSwitch,
+            pauseSwitch = sheetViews.pauseSwitch,
+            timeDecrease = sheetViews.timeDecrease,
+            timeIncrease = sheetViews.timeIncrease,
+            dayChecks = sheetViews.dayChecks.values,
+            dayRows = sheetViews.dayRows.values,
+            enabled = state.goalSettings.remindersAvailable()
+        )
     }
 
     private fun configureBottomSheet(dialog: BottomSheetDialog, contentView: View) {
@@ -301,8 +327,8 @@ class WeeklyGoalEditor(
         return SimpleDateFormat("h:mm a", Locale.US).format(calendar.time)
     }
 
-    private fun requestPostNotificationsForRemindersIfNeeded(settings: WeeklyReminderSettings): Boolean {
-        val shouldRequest = settings.enabled &&
+    private fun requestPostNotificationsForRemindersIfNeeded(remindersCanBeUsed: Boolean): Boolean {
+        val shouldRequest = remindersCanBeUsed &&
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(activity, Manifest.permission.POST_NOTIFICATIONS) !=
             PackageManager.PERMISSION_GRANTED
@@ -316,8 +342,8 @@ class WeeklyGoalEditor(
         return shouldRequest
     }
 
-    private fun requestExactAlarmAccessForRemindersIfNeeded(settings: WeeklyReminderSettings) {
-        val shouldRequest = settings.enabled &&
+    private fun requestExactAlarmAccessForRemindersIfNeeded(remindersCanBeUsed: Boolean) {
+        val shouldRequest = remindersCanBeUsed &&
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
             !WeeklyReminderScheduler(activity).canScheduleExactReminders()
         if (shouldRequest) {
@@ -360,11 +386,18 @@ class WeeklyGoalEditor(
 
     private data class WeeklyGoalSheetViews(
         val goalSwitch: SwitchMaterial,
+        val targetWorkoutsRow: View,
+        val targetMinutesRow: View,
         val workoutsValue: TextView,
         val minutesValue: TextView,
+        val reminderEnabledRow: View,
         val reminderSwitch: SwitchMaterial,
+        val reminderPauseRow: View,
         val timeValue: TextView,
         val pauseSwitch: SwitchMaterial,
+        val reminderTimeRow: View,
+        val reminderDaysLabel: TextView,
+        val reminderDaysContainer: View,
         val dayChecks: Map<Int, MaterialCheckBox>,
         val dayRows: Map<Int, View>,
         val workoutsDecrease: ImageButton,
@@ -380,11 +413,18 @@ class WeeklyGoalEditor(
             fun from(view: View): WeeklyGoalSheetViews {
                 return WeeklyGoalSheetViews(
                     goalSwitch = view.findViewById(R.id.weeklyGoalEnabledSwitch),
+                    targetWorkoutsRow = view.findViewById(R.id.weeklyGoalTargetWorkoutsRow),
+                    targetMinutesRow = view.findViewById(R.id.weeklyGoalTargetMinutesRow),
                     workoutsValue = view.findViewById(R.id.weeklyGoalWorkoutsValue),
                     minutesValue = view.findViewById(R.id.weeklyGoalMinutesValue),
+                    reminderEnabledRow = view.findViewById(R.id.weeklyReminderEnabledRow),
                     reminderSwitch = view.findViewById(R.id.weeklyReminderEnabledSwitch),
+                    reminderPauseRow = view.findViewById(R.id.weeklyReminderPauseRow),
                     timeValue = view.findViewById(R.id.weeklyReminderTimeValue),
                     pauseSwitch = view.findViewById(R.id.weeklyReminderPauseSwitch),
+                    reminderTimeRow = view.findViewById(R.id.weeklyReminderTimeRow),
+                    reminderDaysLabel = view.findViewById(R.id.weeklyReminderDaysLabel),
+                    reminderDaysContainer = view.findViewById(R.id.weeklyReminderDaysContainer),
                     dayChecks = reminderDayCheckboxes(view),
                     dayRows = reminderDayRows(view),
                     workoutsDecrease = view.findViewById(R.id.weeklyGoalWorkoutsDecrease),

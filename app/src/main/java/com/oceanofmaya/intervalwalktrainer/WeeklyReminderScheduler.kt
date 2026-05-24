@@ -25,15 +25,13 @@ class WeeklyReminderScheduler(private val context: Context) {
     suspend fun scheduleNextReminder(nowMillis: Long = System.currentTimeMillis()) {
         val reminderSettings = WeeklyGoalPreferences.loadReminderSettings(sharedPreferences)
         val goalSettings = WeeklyGoalPreferences.loadGoalSettings(sharedPreferences)
-        val shouldPauseForMetGoal = reminderSettings.pauseWhenGoalMet &&
-            goalSettings.enabled &&
-            isGoalMet(goalSettings, nowMillis)
-        val triggerAtMillis = if (goalSettings.enabled && !shouldPauseForMetGoal) {
+        val goalMet = goalSettings.remindersAvailable() && isGoalMet(goalSettings, nowMillis)
+        val triggerAtMillis = if (canScheduleWeeklyReminders(goalSettings, reminderSettings, goalMet)) {
             WeeklyGoalCalculator.nextReminderTimeMillis(reminderSettings, nowMillis)
         } else {
             null
         }
-        if (!reminderSettings.enabled || triggerAtMillis == null) {
+        if (triggerAtMillis == null) {
             cancelReminder()
         } else {
             val alarmManager = appContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -60,12 +58,8 @@ class WeeklyReminderScheduler(private val context: Context) {
     suspend fun showReminderIfAllowed(nowMillis: Long = System.currentTimeMillis()) {
         val reminderSettings = WeeklyGoalPreferences.loadReminderSettings(sharedPreferences)
         val goalSettings = WeeklyGoalPreferences.loadGoalSettings(sharedPreferences)
-        val shouldPauseForMetGoal = reminderSettings.pauseWhenGoalMet &&
-            goalSettings.enabled &&
-            isGoalMet(goalSettings, nowMillis)
-        val canShowReminder = reminderSettings.enabled &&
-            goalSettings.enabled &&
-            !shouldPauseForMetGoal &&
+        val goalMet = goalSettings.remindersAvailable() && isGoalMet(goalSettings, nowMillis)
+        val canShowReminder = canScheduleWeeklyReminders(goalSettings, reminderSettings, goalMet) &&
             canPostNotifications()
         if (canShowReminder) {
             createReminderChannel()

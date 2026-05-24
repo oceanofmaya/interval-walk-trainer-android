@@ -64,7 +64,7 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
 - **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
 - **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and use the tappable **Weekly Goal** insight card on the timer screen for a quick weekly snapshot
-- **Workout reminders**: Schedule exact recurring reminder notifications for selected days and time, with an option to pause reminders once the weekly goal is met
+- **Workout reminders**: Schedule exact recurring reminder notifications for selected days and time when a weekly goal is active, with an option to pause reminders once the weekly goal is met
 - **TTS languages:** Voice announcements (e.g. “Slow walk”, “Fast walk”, “Workout complete”) are spoken in the selected notification language when supported. Supported locales:
   - Arabic, Danish, Dutch, Filipino, French, German, Hindi, Indonesian, Italian, Japanese, Kannada, Korean, Malayalam, Polish, Portuguese (Brazil and Portugal), Russian, Simplified Chinese (China), Spanish, Swedish, Tagalog, Tamil, Telugu, Thai, Traditional Chinese (Hong Kong), Turkish, Urdu, Vietnamese
   - English is the default. Translations were AI-generated and may contain mistakes. Availability depends on installed voices and your device's TTS engine support.
@@ -139,7 +139,7 @@ The timer screen is organized into grouped sections: a workout setup card for fo
 
 When a weekly goal is active, the insight card shows an icon status badge and radial progress rings for the enabled targets. When no goal is set, the card stays visible as a grayed-out preview with 0/0 workouts and minutes. Tap the card to edit the goal. The full Weekly Goal card in Workout History keeps the detailed status pill, progress bars, remaining-target text, and reminder summary.
 
-Optional reminders repeat on the selected days at the selected time. Reminder notifications open the timer screen, respect Android notification permission, and can pause automatically once the weekly goal is met. On Android 12+, the app may ask for **Alarms & reminders** access so reminders can fire at the exact time you choose.
+Optional reminders repeat on the selected days at the selected time once a weekly goal is enabled with at least one target. Reminder options stay disabled in the editor until the goal is active. Reminder notifications open the timer screen, respect Android notification permission, and can pause automatically once the weekly goal is met. On Android 12+, the app may ask for **Alarms & reminders** access so reminders can fire at the exact time you choose.
 
 ### Creating Custom Formulas
 

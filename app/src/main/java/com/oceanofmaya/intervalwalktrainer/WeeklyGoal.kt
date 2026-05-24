@@ -23,6 +23,18 @@ data class WeeklyGoalSettings(
         get() = tracksWorkouts || tracksMinutes
 }
 
+fun WeeklyGoalSettings.remindersAvailable(): Boolean = enabled && hasAnyTarget
+
+fun canScheduleWeeklyReminders(
+    goalSettings: WeeklyGoalSettings,
+    reminderSettings: WeeklyReminderSettings,
+    isGoalMet: Boolean
+): Boolean {
+    return reminderSettings.enabled &&
+        goalSettings.remindersAvailable() &&
+        !(reminderSettings.pauseWhenGoalMet && isGoalMet)
+}
+
 data class WeeklyReminderSettings(
     val enabled: Boolean = false,
     val hourOfDay: Int = WeeklyGoalPreferences.DEFAULT_REMINDER_HOUR,
