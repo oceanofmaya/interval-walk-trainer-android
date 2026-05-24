@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipToPadding="false"
-    android:paddingTop="6dp"
+    android:paddingTop="@dimen/bottom_sheet_padding_top"
     android:paddingBottom="24dp">
 
     <LinearLayout
@@ -18,16 +18,16 @@
             android:layout_width="36dp"
             android:layout_height="4dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="@dimen/bottom_sheet_handle_margin_top"
+            android:layout_marginBottom="@dimen/bottom_sheet_handle_margin_bottom"
             android:background="@drawable/bottom_sheet_drag_handle" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingTop="12dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="@dimen/bottom_sheet_title_padding_top"
+            android:paddingBottom="@dimen/bottom_sheet_title_padding_bottom"
             android:text="@string/title_insight_cards"
             android:textColor="@color/text_primary"
             android:textSize="18sp"
@@ -37,7 +37,7 @@
             android:id="@+id/insightCardsHelperText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="12dp"
+            android:paddingBottom="@dimen/bottom_sheet_helper_padding_bottom"
             android:textColor="@color/text_secondary"
             android:textSize="13sp" />
 

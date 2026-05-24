@@ -4,15 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingTop="8dp"
+    android:paddingTop="@dimen/bottom_sheet_padding_top"
     android:paddingBottom="8dp">
 
     <View
         android:layout_width="36dp"
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="12dp"
+        android:layout_marginTop="@dimen/bottom_sheet_handle_margin_top"
+        android:layout_marginBottom="@dimen/bottom_sheet_handle_margin_bottom"
         android:background="@drawable/bottom_sheet_drag_handle" />
 
     <!-- Sheet title: centered to match every other bottom-sheet title in the app
@@ -24,8 +24,8 @@
         android:gravity="center"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="12dp"
+        android:paddingTop="@dimen/bottom_sheet_title_padding_top"
+        android:paddingBottom="@dimen/bottom_sheet_title_padding_bottom"
         android:text="@string/title_select_preset"
         android:textColor="@color/text_primary"
         android:textSize="18sp"
