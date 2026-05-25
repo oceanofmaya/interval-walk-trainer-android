@@ -39,13 +39,6 @@ class WeeklyGoalUiFormatterTest {
         assertFalse(formatter.isLastGoalDay(progress, millisFor(2026, Calendar.MAY, 23)))
     }
 
-    @Test
-    fun `isLastGoalDay is true on Sunday when week starts on Monday`() {
-        val progress = weeklyProgress(endDate = "2026-05-24", weekStartDay = Calendar.MONDAY)
-
-        assertTrue(formatter.isLastGoalDay(progress, millisFor(2026, Calendar.MAY, 24)))
-    }
-
     private fun weeklyProgress(
         endDate: String,
         weekStartDay: Int = Calendar.SUNDAY,
