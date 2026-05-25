@@ -55,14 +55,11 @@ class InsightCardsEditor(
                     checkbox.alpha = 1f
                 }
             }
-            helperText.text = if (atLimit) {
-                activity.getString(R.string.body_insight_cards_at_limit, HomeInsightPreferences.MAX_ENABLED_CARDS)
-            } else {
-                activity.getString(
-                    R.string.body_insight_cards_picker,
-                    HomeInsightPreferences.MAX_ENABLED_CARDS
-                )
-            }
+            helperText.text = HomeInsightPickerCopy.helperText(
+                context = activity,
+                availableCardCount = registry.all().size,
+                enabledCardCount = enabledIds.size
+            )
         }
 
         registry.all().forEach { card ->

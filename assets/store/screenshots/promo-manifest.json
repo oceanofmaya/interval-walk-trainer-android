@@ -2,13 +2,13 @@
   "platform": "android-play-store",
   "device": "phone",
   "manual_composition": true,
-  "last_updated": "2026-05-24",
+  "last_updated": "2026-05-25",
   "items": [
     {
       "position": 1,
       "source": "phone/slow-light.png",
       "promo": "promo/01-slow-light-promo.png",
-      "feature_message": "Clear slow-phase pacing with large, readable timing; Insights section shown with no cards chosen (empty placeholder) to keep focus on the workout",
+      "feature_message": "Clear slow-phase pacing with large, readable timing; Insights section captured with no cards chosen (empty placeholder) so the first frame stays focused on the workout",
       "caption": {
         "headline": "Walk Smarter, Not Harder",
         "supporting_text": "Includes the Japanese 3-3 Interval Walking Training Method",
@@ -19,10 +19,10 @@
       "position": 2,
       "source": "phone/fast-light.png",
       "promo": "promo/02-fast-light-promo.png",
-      "feature_message": "Fast-phase cues with weekly goal insight in enabled state on the home screen",
+      "feature_message": "Fast-phase cues during an active workout; all four insight cards enabled on the home screen with Weekly Goal snapped in view. Insight carousel variations are shown visually only — no promo callouts for Insights",
       "caption": {
         "headline": "Never Miss a Beat",
-        "supporting_text": "See your weekly progress with every walk",
+        "supporting_text": "Stay in rhythm with clear phase cues and gentle alerts",
         "callouts": ["Clear Phase Cues", "Vibration Alerts"]
       }
     },
@@ -85,7 +85,7 @@
       "position": 8,
       "source": "phone/complete-light.png",
       "promo": "promo/08-complete-light-promo.png",
-      "feature_message": "Finish sessions with clear completion and summary feedback; weekly goal insight in enabled state",
+      "feature_message": "Finish sessions with clear completion and summary feedback; all four insight cards enabled with Current Streak snapped in view. Insight carousel variations are shown visually only — no promo callouts for Insights",
       "caption": {
         "headline": "Zero Distractions",
         "supporting_text": "Ad-free, subscription-free, pure focus",

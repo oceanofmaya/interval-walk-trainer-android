@@ -12,8 +12,8 @@
         <shape android:shape="oval">
             <solid android:color="@color/text_secondary" />
             <size
-                android:width="6dp"
-                android:height="6dp" />
+                android:width="8dp"
+                android:height="8dp" />
         </shape>
     </item>
 </selector>

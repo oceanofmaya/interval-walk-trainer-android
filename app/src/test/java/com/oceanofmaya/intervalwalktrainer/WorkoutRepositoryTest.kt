@@ -505,6 +505,30 @@ class WorkoutRepositoryTest {
         assertEquals(1, stats.bestDay?.workoutCount)
     }
 
+    @Test
+    fun `getLatestSession returns most recent session from dao`() = runTest {
+        val session = WorkoutSession(
+            id = 2L,
+            date = "2024-01-03",
+            workoutType = "3-3 Japanese - 5 Rounds (30 min)",
+            minutes = 30,
+            timestamp = 1_704_278_400_000L
+        )
+        whenever(workoutSessionDao.getLatestSession()).thenReturn(session)
+
+        val latest = repository.getLatestSession()
+
+        assertEquals(session, latest)
+        verify(workoutSessionDao).getLatestSession()
+    }
+
+    @Test
+    fun `getLatestSession returns null when no sessions exist`() = runTest {
+        whenever(workoutSessionDao.getLatestSession()).thenReturn(null)
+
+        assertEquals(null, repository.getLatestSession())
+    }
+
     private fun millisFor(
         year: Int,
         month: Int,

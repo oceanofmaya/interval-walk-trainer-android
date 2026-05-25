@@ -17,7 +17,7 @@ Interval Walk Trainer
 
 ### Short Description
 
-Minimalist walking timer with intervals, goals, reminders, and stats.
+Minimalist walking timer with intervals, insights, goals, and stats.
 
 ### Long Description
 
@@ -25,7 +25,7 @@ Interval Walk Trainer is a simple, focused walking timer for interval walking wo
 
 Use ready-to-go routines, including Japanese 3-3 Interval Walking Training (IWT), or create your own custom interval or circuit workout. The app keeps the timing clear so you can focus on walking, building consistency, and feeling good about your progress.
 
-Set weekly goals for workouts, minutes, or both. Glance at weekly progress on the home screen, with full detail in Workout History. Keep an eye on streaks, and use optional reminders to help you stay on track during the week.
+Stay motivated between walks with home screen insights for your streak, weekly goal, and last workout. Set targets, track progress, and get optional reminders to keep your week on track.
 
 FEATURES:
 • Ready-to-use routines - Start with three guided interval walking formulas
@@ -33,6 +33,7 @@ FEATURES:
 • Custom workouts - Set slow and fast times, rounds, and starting phase
 • Saved presets - Save up to 30 favorite workouts and reuse them anytime
 • Weekly goals - Track workout and minute targets for the current week
+• Home screen insights - See Weekly Goal, Current Streak, Today, and Last Workout at a glance
 • Workout reminders - Choose reminder days and exact reminder times
 • Progress history - View workouts, streaks, totals, and monthly progress
 • Voice and vibration cues - Get gentle prompts when it is time to switch pace

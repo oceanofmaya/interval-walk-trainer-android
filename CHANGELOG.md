@@ -2,6 +2,26 @@
 
 ## Version 1
 
+### 1.5.0 - 2026-05-25
+
+#### Features
+
+- **Insight cards:** Three new home screen insight cards — **Current Streak**, **Today**, and **Last Workout** — join the existing Weekly Goal card in the Insights picker.
+
+#### UI/UX Improvements
+
+- **Current Streak card:** Shows consecutive workout days and your personal best; tap to open Workout History.
+- **Today card:** Shows today's completed workouts and minutes, or a gentle empty state when none yet today.
+- **Last Workout card:** Shows your most recent saved workout formula, duration, and relative time; tap to open that day in Workout History.
+- **Insight cards picker:** Helper text now uses neutral copy when all available cards fit under the five-card limit.
+- **Insights styling:** Insight cards now use the same surface card treatment as the timer and workout setup cards (no recessed gray background).
+- **Insight carousel:** Single-card and multi-card layouts align with other home cards; page gaps appear only while swiping.
+
+#### Chore
+
+- Store screenshots, promo images, and `promo-manifest.json` updated for v1.5.0: home-screen captures stage insight cards per screen (`slow` = none; `home` = Weekly Goal only; `fast` = all four with Weekly Goal in focus; `complete` = all four with Current Streak in focus). Promo 02 and 08 show insight variations visually without Insights callouts.
+- Play Store listing copy updated for insight cards (`PLAY_STORE_LISTING.md`).
+
 ### 1.4.3 - 2026-05-24
 
 #### Bug Fixes

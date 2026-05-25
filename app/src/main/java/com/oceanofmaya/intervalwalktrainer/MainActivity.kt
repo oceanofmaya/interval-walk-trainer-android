@@ -735,18 +735,30 @@ open class MainActivity : AppCompatActivity() {
         startActivity(Intent(this, StatsActivity::class.java))
     }
 
+    private fun openWorkoutHistoryForDate(date: String) {
+        startActivity(
+            Intent(this, StatsActivity::class.java).apply {
+                putExtra(StatsActivity.EXTRA_OPEN_WORKOUT_DATE, date)
+            }
+        )
+    }
+
     private fun setupHomeInsights() {
         homeInsightRegistry = HomeInsightRegistry(
             sharedPreferences = sharedPreferences,
             workoutRepository = workoutRepository,
             accentColorProvider = ::getAccentColor,
-            onEditWeeklyGoal = ::showWeeklyGoalEditor
+            saveWorkoutsEnabledProvider = { sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true) },
+            onEditWeeklyGoal = ::showWeeklyGoalEditor,
+            onOpenWorkoutHistory = ::openWorkoutHistory,
+            onOpenWorkoutDate = ::openWorkoutHistoryForDate
         )
         homeInsightsController = HomeInsightsController(
             activity = this,
             binding = binding.homeInsights,
             registry = homeInsightRegistry,
             sharedPreferences = sharedPreferences,
+            accentColorProvider = ::getAccentColor,
             onEditInsightCards = ::showInsightCardsEditor
         )
     }
