@@ -11,7 +11,7 @@ data class WeeklyGoalSettings(
     val enabled: Boolean = false,
     val targetWorkouts: Int = WeeklyGoalPreferences.DEFAULT_TARGET_WORKOUTS,
     val targetMinutes: Int = WeeklyGoalPreferences.DEFAULT_TARGET_MINUTES,
-    val weekStartDay: Int = Calendar.MONDAY
+    val weekStartDay: Int = Calendar.SUNDAY
 ) {
     val tracksWorkouts: Boolean
         get() = targetWorkouts > 0
@@ -120,8 +120,8 @@ object WeeklyGoalPreferences {
                 .coerceIn(0, MAX_TARGET_WORKOUTS),
             targetMinutes = sharedPreferences.getInt(KEY_WEEKLY_GOAL_TARGET_MINUTES, DEFAULT_TARGET_MINUTES)
                 .coerceIn(0, MAX_TARGET_MINUTES),
-            weekStartDay = sharedPreferences.getInt(KEY_WEEKLY_GOAL_WEEK_START_DAY, Calendar.MONDAY)
-                .takeIf { it in Calendar.SUNDAY..Calendar.SATURDAY } ?: Calendar.MONDAY
+            weekStartDay = sharedPreferences.getInt(KEY_WEEKLY_GOAL_WEEK_START_DAY, Calendar.SUNDAY)
+                .takeIf { it in Calendar.SUNDAY..Calendar.SATURDAY } ?: Calendar.SUNDAY
         )
     }
 
@@ -179,7 +179,7 @@ object WeeklyGoalCalculator {
 
     fun currentWeekRange(
         nowMillis: Long = System.currentTimeMillis(),
-        weekStartDay: Int = Calendar.MONDAY
+        weekStartDay: Int = Calendar.SUNDAY
     ): WeeklyDateRange {
         val calendar = Calendar.getInstance().apply {
             timeInMillis = nowMillis

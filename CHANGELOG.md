@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.4.2 - 2026-05-24
+
+#### Bug Fixes
+
+- **Weekly goal:** Weeks now start on Sunday so the goal period matches the Workout History calendar and the “Last day” status appears on Saturday instead of Sunday.
+
 ### 1.4.1 - 2026-05-24
 
 #### UI/UX Improvements
