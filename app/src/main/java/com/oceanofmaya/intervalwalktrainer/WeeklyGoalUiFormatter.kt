@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
@@ -142,16 +142,12 @@ class WeeklyGoalUiFormatter(
         }
     }
 
-    fun isLastGoalDay(progress: WeeklyGoalProgress): Boolean {
-        val weekEndMillis = runCatching {
-            SimpleDateFormat(WEEK_DATE_PATTERN, Locale.US).parse(progress.dateRange.endDate)?.time
-        }.getOrNull() ?: return false
-        val weekEndExclusive = Calendar.getInstance().apply {
-            timeInMillis = weekEndMillis
-            add(Calendar.DAY_OF_MONTH, 1)
-        }.timeInMillis
-        val remainingMillis = weekEndExclusive - System.currentTimeMillis()
-        return remainingMillis in 1..MILLIS_PER_DAY
+    fun isLastGoalDay(progress: WeeklyGoalProgress, nowMillis: Long = System.currentTimeMillis()): Boolean {
+        if (progress.isGoalMet) {
+            return false
+        }
+        val today = SimpleDateFormat(WEEK_DATE_PATTERN, Locale.US).format(Date(nowMillis))
+        return today == progress.dateRange.endDate
     }
 
     private fun workoutsRemainingText(progress: WeeklyGoalProgress): String? {
@@ -204,7 +200,6 @@ class WeeklyGoalUiFormatter(
         private const val PILL_BACKGROUND_ALPHA = 0.14f
         private const val PILL_STROKE_ALPHA = 0.35f
         private const val COLOR_CHANNEL_MAX = 255
-        private const val MILLIS_PER_DAY = 24L * 60L * 60L * 1000L
         private const val WEEK_DATE_PATTERN = "yyyy-MM-dd"
     }
 }

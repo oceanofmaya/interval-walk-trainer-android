@@ -217,15 +217,15 @@ class WorkoutRepositoryTest {
         val nowMillis = millisFor(2026, Calendar.MAY, 21)
         val settings = WeeklyGoalSettings(enabled = true, targetWorkouts = 3, targetMinutes = 90)
         val records = listOf(
-            WorkoutRecord("2026-05-18", 1, 30),
+            WorkoutRecord("2026-05-17", 1, 30),
             WorkoutRecord("2026-05-20", 2, 45)
         )
-        whenever(workoutDao.getRecordsByDateRange("2026-05-18", "2026-05-24")).thenReturn(records)
+        whenever(workoutDao.getRecordsByDateRange("2026-05-17", "2026-05-23")).thenReturn(records)
 
         val progress = repository.getWeeklyGoalProgress(settings, nowMillis)
 
-        assertEquals("2026-05-18", progress.dateRange.startDate)
-        assertEquals("2026-05-24", progress.dateRange.endDate)
+        assertEquals("2026-05-17", progress.dateRange.startDate)
+        assertEquals("2026-05-23", progress.dateRange.endDate)
         assertEquals(3, progress.completedWorkouts)
         assertEquals(75, progress.completedMinutes)
         assertEquals(100, progress.workoutPercent)
@@ -237,25 +237,35 @@ class WorkoutRepositoryTest {
     fun `getWeeklyGoalProgress treats completed sessions only via aggregate records`() = runTest {
         val nowMillis = millisFor(2026, Calendar.MAY, 21)
         val settings = WeeklyGoalSettings(enabled = true, targetWorkouts = 2, targetMinutes = 60)
-        whenever(workoutDao.getRecordsByDateRange("2026-05-18", "2026-05-24")).thenReturn(
+        whenever(workoutDao.getRecordsByDateRange("2026-05-17", "2026-05-23")).thenReturn(
             listOf(WorkoutRecord("2026-05-21", 2, 60))
         )
 
         val progress = repository.getWeeklyGoalProgress(settings, nowMillis)
 
         assertTrue(progress.isGoalMet)
-        verify(workoutDao).getRecordsByDateRange("2026-05-18", "2026-05-24")
+        verify(workoutDao).getRecordsByDateRange("2026-05-17", "2026-05-23")
     }
 
     @Test
     fun `currentWeekRange supports Sunday week start`() {
         val range = WeeklyGoalCalculator.currentWeekRange(
-            nowMillis = millisFor(2026, Calendar.MAY, 21),
-            weekStartDay = Calendar.SUNDAY
+            nowMillis = millisFor(2026, Calendar.MAY, 21)
         )
 
         assertEquals("2026-05-17", range.startDate)
         assertEquals("2026-05-23", range.endDate)
+    }
+
+    @Test
+    fun `currentWeekRange supports Monday week start`() {
+        val range = WeeklyGoalCalculator.currentWeekRange(
+            nowMillis = millisFor(2026, Calendar.MAY, 21),
+            weekStartDay = Calendar.MONDAY
+        )
+
+        assertEquals("2026-05-18", range.startDate)
+        assertEquals("2026-05-24", range.endDate)
     }
 
     @Test
