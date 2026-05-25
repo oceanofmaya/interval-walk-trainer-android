@@ -43,7 +43,7 @@
         android:foreground="?attr/selectableItemBackground"
         android:minHeight="@dimen/home_insight_card_min_height"
         android:visibility="gone"
-        app:cardBackgroundColor="@color/formula_details_bg"
+        app:cardBackgroundColor="@color/surface"
         app:cardCornerRadius="@dimen/home_card_corner_radius"
         app:cardElevation="0dp"
         app:strokeColor="@color/stroke_light"
@@ -61,28 +61,39 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <FrameLayout
+        android:id="@+id/homeInsightsSingleCardHost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/home_insight_pager_margin_top"
+        android:minHeight="@dimen/home_insight_card_min_height"
+        android:visibility="gone" />
+
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/homeInsightsPager"
         android:layout_width="match_parent"
         android:layout_height="@dimen/home_insight_card_min_height"
         android:layout_marginTop="@dimen/home_insight_pager_margin_top"
-        android:clipChildren="false"
-        android:clipToPadding="false"
-        android:overScrollMode="never" />
+        android:overScrollMode="never"
+        android:visibility="gone" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/homeInsightsPageIndicator"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/home_insight_page_indicator_dot_size"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/home_insight_page_indicator_margin_top"
         android:visibility="gone"
         app:tabBackground="@drawable/home_insight_page_indicator"
         app:tabGravity="center"
         app:tabIndicatorHeight="0dp"
-        app:tabMaxWidth="12dp"
-        app:tabMinWidth="12dp"
-        app:tabPaddingEnd="4dp"
-        app:tabPaddingStart="4dp" />
+        app:tabMaxWidth="@dimen/home_insight_page_indicator_dot_size"
+        app:tabMinWidth="@dimen/home_insight_page_indicator_dot_size"
+        app:tabMode="scrollable"
+        app:tabPaddingBottom="0dp"
+        app:tabPaddingEnd="0dp"
+        app:tabPaddingStart="0dp"
+        app:tabPaddingTop="0dp"
+        app:tabRippleColor="@android:color/transparent" />
 
 </LinearLayout>

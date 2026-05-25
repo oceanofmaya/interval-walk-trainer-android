@@ -94,6 +94,13 @@ class StatsActivity : AppCompatActivity() {
         loadWorkoutList()
         loadMonthComparison()
         loadWorkoutTypeDistribution()
+        handleOpenWorkoutDateIntent()
+    }
+
+    private fun handleOpenWorkoutDateIntent() {
+        val date = intent.getStringExtra(EXTRA_OPEN_WORKOUT_DATE) ?: return
+        intent.removeExtra(EXTRA_OPEN_WORKOUT_DATE)
+        showWorkoutDetail(date)
     }
     
     /**
@@ -257,6 +264,7 @@ class StatsActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val EXTRA_OPEN_WORKOUT_DATE = "open_workout_date"
         private const val PREFS_NAME = "interval_walk_trainer_prefs"
         private const val KEY_SAVE_WORKOUTS = "save_workouts"
         private const val KEY_ACCENT_STYLE = "accent_style"

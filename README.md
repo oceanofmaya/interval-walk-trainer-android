@@ -63,8 +63,8 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - Start/Pause/Reset controls and an overflow menu (⋮) for Workout History, Settings, Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional language-based picker for notification TTS
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
 - **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
-- **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and use the tappable **Weekly Goal** insight card on the home screen for a quick weekly snapshot
-- **Insight cards**: Choose which cards appear in the home screen **Insights** section (edit icon beside Insights, or Settings → Insight cards; up to five)
+- **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and choose insight cards on the home screen — **Weekly Goal**, **Current Streak**, **Today**, and **Last Workout** — for quick motivation between walks
+- **Insight cards**: Choose which cards appear in the home screen **Insights** section (edit icon beside Insights, or Settings → Insight cards; up to five when more than five are available). Cards include **Weekly Goal**, **Current Streak**, **Today**, and **Last Workout**.
 - **Workout reminders**: Schedule exact recurring reminder notifications for selected days and time when a weekly goal is active, with an option to pause reminders once the weekly goal is met
 - **TTS languages:** Voice announcements (e.g. “Slow walk”, “Fast walk”, “Workout complete”) are spoken in the selected notification language when supported. Supported locales:
   - Arabic, Danish, Dutch, Filipino, French, German, Hindi, Indonesian, Italian, Japanese, Kannada, Korean, Malayalam, Polish, Portuguese (Brazil and Portugal), Russian, Simplified Chinese (China), Spanish, Swedish, Tagalog, Tamil, Telugu, Thai, Traditional Chinese (Hong Kong), Turkish, Urdu, Vietnamese
@@ -259,7 +259,7 @@ Store screenshots are organized in two layers:
 - `assets/store/screenshots/phone/` - raw emulator captures (source assets)
 - `assets/store/screenshots/promo/` - manually designed Play Store-ready promo images derived from phone screenshots
 
-See [assets/store/SCREENSHOTS.md](assets/store/SCREENSHOTS.md) for the full workflow, naming standards, keep/remove guidance, and update checklist.
+See [assets/store/SCREENSHOTS.md](assets/store/SCREENSHOTS.md) for the full workflow, naming standards, insight-card staging for home captures, keep/remove guidance, and update checklist. Store listing copy lives in [assets/store/PLAY_STORE_LISTING.md](assets/store/PLAY_STORE_LISTING.md).
 
 ## License
 

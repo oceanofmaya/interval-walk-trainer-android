@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/weeklyGoalInsightCard"
+    android:id="@+id/lastWorkoutInsightCard"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minHeight="@dimen/home_insight_card_min_height"
@@ -18,25 +18,16 @@
         android:padding="@dimen/home_insight_card_padding">
 
         <TextView
-            android:id="@+id/weeklyGoalInsightTitle"
+            android:id="@+id/lastWorkoutInsightTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/title_weekly_goal"
+            android:text="@string/title_last_workout"
             android:textColor="@color/text_primary"
             android:textSize="13sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/weeklyGoalInsightStatusMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/home_card_inner_gap"
-            android:textColor="@color/text_secondary"
-            android:textSize="13sp"
-            android:visibility="gone" />
-
         <LinearLayout
-            android:id="@+id/weeklyGoalInsightRingsRow"
+            android:id="@+id/lastWorkoutInsightVisualRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/home_insight_rings_margin_top"
@@ -47,27 +38,39 @@
             android:orientation="horizontal">
 
             <include
-                android:id="@+id/weeklyGoalInsightStatusCircle"
-                layout="@layout/home_insight_weekly_goal_status_circle"
+                android:id="@+id/lastWorkoutInsightMinutesCircle"
+                layout="@layout/home_insight_flat_stat_circle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/home_insight_ring_gap" />
 
-            <include
-                android:id="@+id/weeklyGoalInsightWorkoutsRing"
-                layout="@layout/home_insight_weekly_goal_ring"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/home_insight_ring_gap" />
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
 
-            <include
-                android:id="@+id/weeklyGoalInsightMinutesRing"
-                layout="@layout/home_insight_weekly_goal_ring"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/lastWorkoutInsightFormula"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/lastWorkoutInsightDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>

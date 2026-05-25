@@ -289,6 +289,13 @@ class WorkoutRepository(
     suspend fun getRecordByDate(date: String): WorkoutRecord? {
         return workoutDao.getRecordByDate(date)
     }
+
+    /**
+     * Get the most recently completed workout session.
+     */
+    suspend fun getLatestSession(): WorkoutSession? {
+        return workoutSessionDao.getLatestSession()
+    }
     
     /**
      * Calculate the current workout streak (consecutive days with workouts).

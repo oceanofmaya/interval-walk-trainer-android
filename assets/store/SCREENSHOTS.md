@@ -93,13 +93,20 @@ This sequence tells a clear story: pace -> intensity -> setup -> personalize wor
 
 ## Insights in Phone Captures
 
-Home-screen sources (`slow-light`, `fast-light`, `complete-light`, `home-light`) include the **Insights** section at the bottom of the home screen.
+Home-screen sources (`slow-light`, `fast-light`, `complete-light`, `home-light`) include the **Insights** section at the bottom of the home screen. Before capturing, stage insight cards in **Settings → Insight cards** (or the edit icon beside **Insights**).
 
-- **`slow-light` / promo 01:** Capture with **no insight cards chosen** — recessed placeholder and “Choose insight cards to show here.” Keeps the first impression focused on slow-phase pacing without a weekly-goal preview.
-- **Other home-screen captures (`fast-light`, `complete-light`, `home-light`):** Use weekly goal **enabled** in Insight cards with active progress rings so users see the card doing real work.
-- **Promo 07 (`weekly-goal-reminders-light`):** Stays on the editor sheet for setup and reminders, not the home insight card.
+| Source | Promo | Insight cards enabled | Carousel / focus |
+| --- | --- | --- | --- |
+| `slow-light.png` | 01 | **None** — empty placeholder (“Choose insight cards to show here.”) | N/A |
+| `home-light.png` | (fallback hero, not in active promo set) | **Weekly Goal only** | Single card |
+| `fast-light.png` | 02 | **All four** (Weekly Goal, Current Streak, Today, Last Workout) | **Weekly Goal** snapped in view |
+| `complete-light.png` | 08 | **All four** | **Current Streak** snapped in view |
 
-When rebuilding promo images, match this intent: promo 01 = empty Insights placeholder; promos 02 and 08 (and other enabled home-screen captures) = active weekly goal rings.
+**Promo subtlety:** Promos 02 and 08 demo insight-card UX variations through the screenshot itself — carousel page choice and enabled cards — without adding Insights-specific callouts. Existing callouts on promo 02 remain workout-focused (phase cues, vibration).
+
+- **Promo 07 (`weekly-goal-reminders-light`):** Stays on the editor sheet for setup and reminders, not the home insight carousel.
+
+When rebuilding promo images for a release that touches Insights, update both `phone/` captures (with the staging above) and matching `promo/` composites, then sync `promo-manifest.json`.
 
 ## What to Keep vs. Remove in `phone/`
 
@@ -134,11 +141,12 @@ Promo images in `promo/` are manually created from `phone/` screenshots. To keep
 
 ## Update Workflow
 
-1. Capture/update raw source screenshots in `phone/`.
-2. Rebuild affected promo images manually.
-3. Export final images to `promo/` using the `[position]-[screen]-light-promo.png` pattern.
-4. Update `promo-manifest.json` with source mapping, feature intent, and exact caption text.
-5. Optionally optimize changed screenshots:
+1. Stage insight cards and carousel focus per [Insights in Phone Captures](#insights-in-phone-captures) when home-screen sources change.
+2. Capture/update raw source screenshots in `phone/`.
+3. Rebuild affected promo images manually.
+4. Export final images to `promo/` using the `[position]-[screen]-light-promo.png` pattern.
+5. Update `promo-manifest.json` with source mapping, feature intent, and exact caption text.
+6. Optionally optimize changed screenshots:
 
 ```bash
 ./scripts/optimize-screenshots.sh
@@ -152,7 +160,7 @@ screenshot, run:
 ./scripts/optimize-screenshots.sh --all
 ```
 
-1. Verify Play Store constraints before upload:
+7. Verify Play Store constraints before upload:
   - 2-8 phone screenshots
   - 8 screenshots is the maximum; adding a new promo requires replacing or removing an existing one
   - 16:9 or 9:16 ratio

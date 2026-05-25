@@ -28,6 +28,12 @@ interface WorkoutSessionDao {
      */
     @Query("SELECT MAX(timestamp) FROM workout_sessions WHERE date = :date")
     suspend fun getLatestTimestampByDate(date: String): Long?
+
+    /**
+     * Get the most recently completed workout session.
+     */
+    @Query("SELECT * FROM workout_sessions ORDER BY timestamp DESC LIMIT 1")
+    suspend fun getLatestSession(): WorkoutSession?
     
     /**
      * Get workout sessions for a date range, ordered by date descending, then by timestamp descending.

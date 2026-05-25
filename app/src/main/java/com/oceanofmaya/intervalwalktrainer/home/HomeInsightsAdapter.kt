@@ -18,7 +18,7 @@ class HomeInsightsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InsightViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-        view.layoutParams = ViewGroup.LayoutParams(
+        view.layoutParams = RecyclerView.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
