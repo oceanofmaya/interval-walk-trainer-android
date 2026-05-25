@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.4.3 - 2026-05-24
+
+#### Bug Fixes
+
+- **Weekly goal:** Existing users with a saved Monday-start goal setting are now moved to the Sunday-Saturday goal period, matching Workout History and the 1.4.2 behavior for new installs.
+
 ### 1.4.2 - 2026-05-24
 
 #### Bug Fixes

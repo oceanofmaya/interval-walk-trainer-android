@@ -23,11 +23,7 @@ class WeeklyGoalUiFormatter(
     }
 
     fun homeInsightStatusContentDescription(progress: WeeklyGoalProgress): String {
-        return if (progress.isGoalMet) {
-            context.getString(R.string.label_weekly_goal_met)
-        } else {
-            context.getString(R.string.label_weekly_goal_on_track)
-        }
+        return statusPillText(progress)
     }
 
     fun workoutsProgressLabel(progress: WeeklyGoalProgress): String {

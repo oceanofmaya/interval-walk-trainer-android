@@ -114,14 +114,14 @@ object WeeklyGoalPreferences {
     val DEFAULT_REMINDER_DAYS: Set<Int> = setOf(Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.FRIDAY)
 
     fun loadGoalSettings(sharedPreferences: SharedPreferences): WeeklyGoalSettings {
+        val weekStartDay = loadWeekStartDay(sharedPreferences)
         return WeeklyGoalSettings(
             enabled = sharedPreferences.getBoolean(KEY_WEEKLY_GOAL_ENABLED, false),
             targetWorkouts = sharedPreferences.getInt(KEY_WEEKLY_GOAL_TARGET_WORKOUTS, DEFAULT_TARGET_WORKOUTS)
                 .coerceIn(0, MAX_TARGET_WORKOUTS),
             targetMinutes = sharedPreferences.getInt(KEY_WEEKLY_GOAL_TARGET_MINUTES, DEFAULT_TARGET_MINUTES)
                 .coerceIn(0, MAX_TARGET_MINUTES),
-            weekStartDay = sharedPreferences.getInt(KEY_WEEKLY_GOAL_WEEK_START_DAY, Calendar.SUNDAY)
-                .takeIf { it in Calendar.SUNDAY..Calendar.SATURDAY } ?: Calendar.SUNDAY
+            weekStartDay = weekStartDay
         )
     }
 
@@ -130,8 +130,18 @@ object WeeklyGoalPreferences {
             putBoolean(KEY_WEEKLY_GOAL_ENABLED, settings.enabled)
             putInt(KEY_WEEKLY_GOAL_TARGET_WORKOUTS, settings.targetWorkouts.coerceIn(0, MAX_TARGET_WORKOUTS))
             putInt(KEY_WEEKLY_GOAL_TARGET_MINUTES, settings.targetMinutes.coerceIn(0, MAX_TARGET_MINUTES))
-            putInt(KEY_WEEKLY_GOAL_WEEK_START_DAY, settings.weekStartDay)
+            putInt(KEY_WEEKLY_GOAL_WEEK_START_DAY, Calendar.SUNDAY)
         }
+    }
+
+    private fun loadWeekStartDay(sharedPreferences: SharedPreferences): Int {
+        val storedWeekStartDay = sharedPreferences.getInt(KEY_WEEKLY_GOAL_WEEK_START_DAY, Calendar.SUNDAY)
+        if (storedWeekStartDay != Calendar.SUNDAY) {
+            sharedPreferences.edit {
+                putInt(KEY_WEEKLY_GOAL_WEEK_START_DAY, Calendar.SUNDAY)
+            }
+        }
+        return Calendar.SUNDAY
     }
 
     fun loadReminderSettings(sharedPreferences: SharedPreferences): WeeklyReminderSettings {
