@@ -21,6 +21,7 @@
 
 - Store screenshots, promo images, and `promo-manifest.json` updated for v1.5.0: home-screen captures stage insight cards per screen (`slow` = none; `home` = Weekly Goal only; `fast` = all four with Weekly Goal in focus; `complete` = all four with Current Streak in focus). Promo 02 and 08 show insight variations visually without Insights callouts.
 - Play Store listing copy updated for insight cards (`PLAY_STORE_LISTING.md`).
+- **CI:** Upgrade GitHub Actions to Node.js 24-compatible versions (checkout, setup-java, cache, setup-android, action-gh-release).
 
 ### 1.4.3 - 2026-05-24
 
