@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated:** April 2026
+**Last Updated:** June 2026
 
 ## Introduction
 
@@ -81,7 +81,7 @@ Since the app does not collect or transmit personal data, there is no risk of da
 
 ## Children's Privacy
 
-Interval Walk Trainer does not knowingly collect any information from children. Since we do not collect any data, the app is safe for users of all ages.
+Interval Walk Trainer is intended for adults and is listed on Google Play for users age 18 and older. The app is not directed to children or minors, and we do not knowingly collect personal information from children. Because the app does not collect or transmit personal data, there is no child personal information for us to receive, store on our servers, sell, or share.
 
 ## Your Rights
 
