@@ -36,6 +36,7 @@ FEATURES:
 • Home screen insights - See Weekly Goal, Current Streak, Today, and Last Workout at a glance
 • Workout reminders - Choose reminder days and exact reminder times
 • Progress history - View workouts, streaks, totals, and monthly progress
+• Health Connect metrics - Optionally save steps and heart rate from Health Connect in workout history
 • Voice and vibration cues - Get gentle prompts when it is time to switch pace
 • Voice language picker - Choose the language for workout voice notifications
 • Themes and accents - Personalize the app with light, dark, and accent colors

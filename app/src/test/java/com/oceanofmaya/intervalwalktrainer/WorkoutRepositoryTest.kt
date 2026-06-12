@@ -93,6 +93,44 @@ class WorkoutRepositoryTest {
             record.totalMinutes == 90
         })
     }
+
+    @Test
+    fun `recordWorkout saves optional metrics summary`() = runTest {
+        val today = dateFormat.format(Date())
+        val minutes = 30
+        val workoutType = "3-3 Japanese - 5 Rounds (30 min)"
+        val metrics = WorkoutMetricsSummary(
+            stepCount = 2340,
+            averageHeartRateBpm = 118,
+            minHeartRateBpm = 102,
+            maxHeartRateBpm = 132,
+            stepSource = WorkoutMetricsSources.HEALTH_CONNECT,
+            heartRateSource = WorkoutMetricsSources.HEALTH_CONNECT,
+            startedAt = 1777159800000,
+            intervals = listOf(
+                WorkoutMetricsInterval(1777159800000, 1777160700000),
+                WorkoutMetricsInterval(1777161000000, 1777161600000)
+            )
+        )
+
+        whenever(workoutDao.getRecordByDate(today)).thenReturn(null)
+
+        repository.recordWorkout(minutes, workoutType, metrics)
+
+        verify(workoutSessionDao).insert(argThat { session ->
+            session.date == today &&
+                session.workoutType == workoutType &&
+                session.minutes == minutes &&
+                session.stepCount == 2340 &&
+                session.averageHeartRateBpm == 118 &&
+                session.minHeartRateBpm == 102 &&
+                session.maxHeartRateBpm == 132 &&
+                session.stepSource == WorkoutMetricsSources.HEALTH_CONNECT &&
+                session.heartRateSource == WorkoutMetricsSources.HEALTH_CONNECT &&
+                session.startedAt == 1777159800000 &&
+                session.metricsIntervalsJson == "1777159800000,1777160700000;1777161000000,1777161600000"
+        })
+    }
     
     @Test
     fun `getStatistics returns correct totals`() = runTest {

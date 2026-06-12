@@ -16,8 +16,7 @@
     <dimen name="home_session_phase_to_timer_gap">12dp</dimen>
     <dimen name="home_session_timer_to_progress_gap">16dp</dimen>
     <dimen name="home_session_progress_to_interval_gap">12dp</dimen>
-    <dimen name="home_session_interval_to_metrics_gap">12dp</dimen>
-    <dimen name="home_session_to_controls_gap">24dp</dimen>
+    <dimen name="home_session_metrics_snapshot_gap">12dp</dimen>
     <dimen name="home_insight_card_min_height">118dp</dimen>
     <dimen name="home_insight_card_padding">12dp</dimen>
     <dimen name="home_insight_rings_margin_top">6dp</dimen>
@@ -33,6 +32,13 @@
     <dimen name="home_insight_page_indicator_dot_size">8dp</dimen>
     <dimen name="home_insight_page_indicator_gap">6dp</dimen>
 
+    <dimen name="faq_item_padding_horizontal">28dp</dimen>
+    <dimen name="faq_entry_spacing_bottom">8dp</dimen>
+    <dimen name="faq_section_header_text_size">16sp</dimen>
+    <dimen name="faq_question_text_size">14sp</dimen>
+    <dimen name="faq_section_header_divider_gap">8dp</dimen>
+    <dimen name="faq_section_header_padding_top_first">4dp</dimen>
+    <dimen name="faq_section_header_padding_bottom">4dp</dimen>
     <dimen name="bottom_sheet_padding_top">6dp</dimen>
     <dimen name="bottom_sheet_handle_margin_top">4dp</dimen>
     <dimen name="bottom_sheet_handle_margin_bottom">6dp</dimen>

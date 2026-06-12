@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.health.connect.client.PermissionController
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -23,6 +24,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.oceanofmaya.intervalwalktrainer.databinding.ActivityStatsBinding
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,6 +34,18 @@ import java.util.*
 class StatsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStatsBinding
     private lateinit var workoutRepository: WorkoutRepository
+    private lateinit var healthConnectMetricsSource: HealthConnectMetricsSource
+    private val healthConnectPermissionLauncher = registerForActivityResult(
+        PermissionController.createRequestPermissionResultContract()
+    ) { grantedPermissions ->
+        if (grantedPermissions.any { it in healthConnectMetricsSource.requiredPermissions }) {
+            loadStatistics()
+            loadCalendar()
+            loadWorkoutList()
+            loadMonthComparison()
+            loadWorkoutTypeDistribution()
+        }
+    }
     private lateinit var weeklyGoalController: WeeklyGoalStatsController
     private lateinit var trendsController: StatsTrendsController
     private lateinit var calendarController: StatsCalendarController
@@ -41,6 +55,11 @@ class StatsActivity : AppCompatActivity() {
     private var displayedYear: Int = 0
     private var displayedMonth: Int = 0
     
+    override fun onResume() {
+        super.onResume()
+        refreshHealthConnectDiscoveryBanner()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStatsBinding.inflate(layoutInflater)
@@ -52,6 +71,8 @@ class StatsActivity : AppCompatActivity() {
         // Initialize workout repository
         val database = AppDatabase.getDatabase(this)
         workoutRepository = WorkoutRepository(database.workoutDao(), database.workoutSessionDao(), database)
+        healthConnectMetricsSource = HealthConnectMetricsSource(this)
+        requestMissingHealthConnectPermissionsIfNeeded()
         weeklyGoalController = WeeklyGoalStatsController(
             activity = this,
             binding = binding,
@@ -88,6 +109,7 @@ class StatsActivity : AppCompatActivity() {
         setupTodayButton()
         setupPullToRefresh()
         setupWorkoutList()
+        setupHealthConnectDiscoveryBanner()
         loadStatistics()
         loadWeeklyGoalProgress()
         loadCalendar()
@@ -253,6 +275,39 @@ class StatsActivity : AppCompatActivity() {
             getColor(R.color.text_secondary)
         }
         binding.saveWorkoutsButton.imageTintList = android.content.res.ColorStateList.valueOf(tintColor)
+    }
+
+    private fun setupHealthConnectDiscoveryBanner() {
+        val banner = findViewById<View>(R.id.healthConnectHistoryBanner) ?: return
+        val dismissButton = findViewById<com.google.android.material.button.MaterialButton>(
+            R.id.healthConnectHistoryBannerDismiss
+        )
+        val actionButton = findViewById<com.google.android.material.button.MaterialButton>(
+            R.id.healthConnectHistoryBannerAction
+        )
+        AccentButtonStyling.tintText(actionButton, getAccentColor())
+        dismissButton.setOnClickListener { view ->
+            performHapticFeedback(view)
+            HealthConnectDiscoveryPreferences.markHistoryBannerDismissed(sharedPreferences)
+            refreshHealthConnectDiscoveryBanner()
+        }
+        actionButton.setOnClickListener { view ->
+            performHapticFeedback(view)
+            FaqBottomSheet.show(
+                activity = this,
+                scrollToSectionTitleResId = R.string.faq_section_health_connect
+            )
+        }
+        refreshHealthConnectDiscoveryBanner()
+    }
+
+    private fun refreshHealthConnectDiscoveryBanner() {
+        val banner = findViewById<View>(R.id.healthConnectHistoryBanner) ?: return
+        val showBanner = HealthConnectDiscoveryPreferences.shouldShowHistoryBanner(
+            preferences = sharedPreferences,
+            metricsEnabled = WorkoutMetricsPreferences.isEnabled(sharedPreferences)
+        )
+        banner.visibility = if (showBanner) View.VISIBLE else View.GONE
     }
 
     private fun setupWeeklyGoalCard() {
@@ -586,6 +641,14 @@ class StatsActivity : AppCompatActivity() {
 
         val countTextView = view.findViewById<TextView>(R.id.workoutDetailCount)
         val minutesTextView = view.findViewById<TextView>(R.id.workoutDetailMinutes)
+        val metricsSummaryView = view.findViewById<View>(R.id.workoutDetailMetricsSummary)
+        val metricsStepsCard = view.findViewById<View>(R.id.workoutDetailMetricsStepsCard)
+        val metricsStepsValue = view.findViewById<TextView>(R.id.workoutDetailMetricsStepsValue)
+        val metricsHeartRateCard = view.findViewById<View>(R.id.workoutDetailMetricsHeartRateCard)
+        val metricsHeartRateValue = view.findViewById<TextView>(R.id.workoutDetailMetricsHeartRateValue)
+        val metricsPhaseRow = view.findViewById<View>(R.id.workoutDetailMetricsPhaseRow)
+        val metricsFastPhaseValue = view.findViewById<TextView>(R.id.workoutDetailMetricsFastPhaseValue)
+        val metricsSlowPhaseValue = view.findViewById<TextView>(R.id.workoutDetailMetricsSlowPhaseValue)
         val recyclerView = view.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.workoutDetailRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -594,7 +657,21 @@ class StatsActivity : AppCompatActivity() {
                 countTextView.text = String.format(Locale.getDefault(), "%d", dateRecord.completedWorkouts)
                 minutesTextView.text = formatMinutes(dateRecord.totalMinutes)
             }
-            recyclerView.adapter = WorkoutDetailAdapter(sessions) { session ->
+            bindDayMetricsSummary(
+                sessions = sessions,
+                summaryView = metricsSummaryView,
+                stepsCard = metricsStepsCard,
+                stepsValue = metricsStepsValue,
+                heartRateCard = metricsHeartRateCard,
+                heartRateValue = metricsHeartRateValue,
+                phaseRow = metricsPhaseRow,
+                fastPhaseValue = metricsFastPhaseValue,
+                slowPhaseValue = metricsSlowPhaseValue
+            )
+            recyclerView.adapter = WorkoutDetailAdapter(
+                sessions = sessions,
+                metricsEnabled = WorkoutMetricsPreferences.isEnabled(sharedPreferences)
+            ) { session ->
                 AlertDialog.Builder(this)
                     .setTitle(R.string.prompt_delete_workout)
                     .setMessage(R.string.message_delete_workout)
@@ -652,7 +729,8 @@ class StatsActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val sessions = workoutRepository.getSessionsByDate(record.date)
-                updateSheetWithSessions(sessions, record)
+                val refreshedSessions = backfillHealthConnectMetrics(sessions)
+                updateSheetWithSessions(refreshedSessions, workoutRepository.getRecordByDate(record.date) ?: record)
             } catch (e: Exception) {
                 android.util.Log.e("StatsActivity", "Error loading workout sessions", e)
                 updateSheetWithSessions(emptyList(), null)
@@ -660,6 +738,141 @@ class StatsActivity : AppCompatActivity() {
         }
 
         bottomSheetDialog.show()
+    }
+
+    private suspend fun backfillHealthConnectMetrics(sessions: List<WorkoutSession>): List<WorkoutSession> {
+        val shouldBackfill = WorkoutMetricsPreferences.isEnabled(sharedPreferences) &&
+            healthConnectMetricsSource.hasAnyPermission()
+        if (!shouldBackfill) {
+            return sessions
+        }
+        return sessions.map { session ->
+            backfillHealthConnectMetrics(session)
+        }
+    }
+
+    private suspend fun backfillHealthConnectMetrics(session: WorkoutSession): WorkoutSession {
+        val intervals = WorkoutMetricsIntervalCodec.resolveReadIntervals(session)
+        val metrics = intervals.takeIf { it.isNotEmpty() }
+            ?.let { readIntervals ->
+                val phaseWindows = WorkoutPhaseMetricsResolver.resolvePhaseWindows(session)
+                healthConnectMetricsSource.readSummary(readIntervals, phaseWindows)?.copy(
+                    startedAt = session.startedAt ?: readIntervals.first().startedAtMillis,
+                    intervals = WorkoutMetricsIntervalCodec.resolveTrackedIntervals(session),
+                    phaseWindows = phaseWindows
+                )
+            }
+        return metrics?.let { refreshedMetrics ->
+            workoutRepository.updateSessionMetrics(
+                session = session,
+                metrics = refreshedMetrics,
+                refreshExisting = true
+            )
+        } ?: session
+    }
+
+    private fun requestMissingHealthConnectPermissionsIfNeeded() {
+        if (!WorkoutMetricsPreferences.isEnabled(sharedPreferences)) return
+        if (!healthConnectMetricsSource.isAvailable()) return
+        lifecycleScope.launch {
+            val missingPermissions = healthConnectMetricsSource.missingPermissions()
+            if (missingPermissions.isNotEmpty()) {
+                healthConnectPermissionLauncher.launch(missingPermissions)
+            }
+        }
+    }
+
+    private fun bindDayMetricsSummary(
+        sessions: List<WorkoutSession>,
+        summaryView: View,
+        stepsCard: View,
+        stepsValue: TextView,
+        heartRateCard: View,
+        heartRateValue: TextView,
+        phaseRow: View,
+        fastPhaseValue: TextView,
+        slowPhaseValue: TextView
+    ) {
+        val formatter = WorkoutMetricsUiFormatter(this)
+        val cardFormatter = WorkoutMetricsCardFormatter(this)
+        val totalSteps = sessions.mapNotNull { it.stepCount }.takeIf { it.isNotEmpty() }?.sum()
+        val averageHeartRate = sessions.mapNotNull { it.averageHeartRateBpm }
+            .takeIf { it.isNotEmpty() }
+            ?.average()
+            ?.toInt()
+        val averageFastPhaseHeartRate = sessions.mapNotNull { it.fastPhaseAverageHeartRateBpm }
+            .takeIf { it.isNotEmpty() }
+            ?.average()
+            ?.toInt()
+        val averageSlowPhaseHeartRate = sessions.mapNotNull { it.slowPhaseAverageHeartRateBpm }
+            .takeIf { it.isNotEmpty() }
+            ?.average()
+            ?.toInt()
+        val showPhaseMetrics = WorkoutPhaseMetricsDisplay.shouldShowPhaseMetrics(sessions)
+        val showMetricPlaceholders = WorkoutPhaseMetricsDisplay.shouldShowMetricPlaceholders(
+            metricsEnabled = WorkoutMetricsPreferences.isEnabled(sharedPreferences),
+            sessions = sessions
+        )
+        val stepsDisplay = cardFormatter.stepsCardValue(totalSteps, showMetricPlaceholders)
+        val heartRateDisplay = cardFormatter.averageHeartRateCardValue(averageHeartRate, showMetricPlaceholders)
+        stepsCard.visibility = if (stepsDisplay != null) View.VISIBLE else View.GONE
+        heartRateCard.visibility = if (heartRateDisplay != null) View.VISIBLE else View.GONE
+        phaseRow.visibility = if (showPhaseMetrics) View.VISIBLE else View.GONE
+        stepsDisplay?.let { bindMetricValue(stepsValue, it) }
+        heartRateDisplay?.let { bindMetricValue(heartRateValue, it) }
+        if (showPhaseMetrics) {
+            bindMetricValue(
+                valueView = fastPhaseValue,
+                display = cardFormatter.phaseHeartRateCardValue(
+                    heartRateBpm = averageFastPhaseHeartRate,
+                    hasWorkoutHeartRate = averageHeartRate != null,
+                    fastAverage = averageFastPhaseHeartRate,
+                    slowAverage = averageSlowPhaseHeartRate
+                )
+            )
+            bindMetricValue(
+                valueView = slowPhaseValue,
+                display = cardFormatter.phaseHeartRateCardValue(
+                    heartRateBpm = averageSlowPhaseHeartRate,
+                    hasWorkoutHeartRate = averageHeartRate != null,
+                    fastAverage = averageFastPhaseHeartRate,
+                    slowAverage = averageSlowPhaseHeartRate
+                )
+            )
+        }
+        summaryView.visibility = if (hasDayMetricsSummary(
+                stepsDisplay,
+                heartRateDisplay,
+                showPhaseMetrics
+            )
+        ) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+
+    private fun bindMetricValue(
+        valueView: TextView,
+        display: WorkoutPhaseHeartRateDisplay
+    ) {
+        valueView.text = display.text
+        val colorRes = if (display.isPlaceholder) R.color.text_secondary else R.color.text_primary
+        valueView.setTextColor(ContextCompat.getColor(this, colorRes))
+        val style = if (display.isPlaceholder) {
+            android.graphics.Typeface.NORMAL
+        } else {
+            android.graphics.Typeface.BOLD
+        }
+        valueView.setTypeface(valueView.typeface, style)
+    }
+
+    private fun hasDayMetricsSummary(
+        stepsDisplay: WorkoutPhaseHeartRateDisplay?,
+        heartRateDisplay: WorkoutPhaseHeartRateDisplay?,
+        showPhaseMetrics: Boolean
+    ): Boolean {
+        return stepsDisplay != null || heartRateDisplay != null || showPhaseMetrics
     }
 
     private fun configureBottomSheet(dialog: BottomSheetDialog, contentView: View) {

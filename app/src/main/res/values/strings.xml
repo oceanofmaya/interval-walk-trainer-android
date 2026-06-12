@@ -26,7 +26,7 @@
       Domain prefixes (case follows naturalness for that domain):
         tts_*         Text-to-speech announcements (SC fragments; localized)
         notif_*       Notification channel + content strings (SC)
-        faq_question_*, faq_answer_*  FAQ Q&A pairs (SC)
+        faq_section_*, faq_question_*, faq_answer_*  FAQ sections and Q&A pairs (SC)
         desc_*        Accessibility content descriptions (SC)
         format_*      Format strings (case follows the rendered text role)
         placeholder_* UI placeholder values (numbers, dates, ellipses)
@@ -157,6 +157,7 @@
     <string name="format_weekly_goal_minutes_progress">%1$d / %2$d min</string>
     <string name="format_weekly_goal_fraction">%1$d/%2$d</string>
     <string name="label_minutes_short">min</string>
+    <string name="label_bpm_short">bpm</string>
     <string name="label_workouts_short">workouts</string>
     <string name="format_home_weekly_goal_insight_detail">%1$s. %2$s</string>
     <string name="desc_home_weekly_goal_insight">Weekly goal, %1$s. Double tap to edit.</string>
@@ -172,15 +173,16 @@
     <string name="body_insight_card_weekly_goal_description">Weekly workout and minute progress at a glance.</string>
     <string name="body_insight_card_current_streak_description">Consecutive workout days and your personal best.</string>
     <string name="body_insight_card_today_description">Today\'s completed workouts and minutes at a glance.</string>
-    <string name="body_insight_card_last_workout_description">Your most recent saved workout, formula, and duration.</string>
+    <string name="body_insight_card_last_workout_description">Your most recent saved workout with duration, formula, and time.</string>
     <string name="title_last_workout">Last Workout</string>
     <string name="label_days_short">days</string>
     <string name="label_yesterday">Yesterday</string>
     <string name="format_streak_best">Best %1$s</string>
     <string name="body_today_no_workout">No workout yet today</string>
     <string name="body_last_workout_empty">No workouts saved yet</string>
+    <string name="body_last_workout_save_off">Turn on Save Workouts to track your latest session here.</string>
+    <string name="format_last_workout_meta">%1$s\u2002•\u2002%2$s</string>
     <string name="format_today_summary">%1$s\u2002•\u2002%2$s</string>
-    <string name="format_last_workout_subtitle">%1$s\u2002•\u2002%2$s</string>
     <string name="desc_home_current_streak_insight">Current streak, %1$s. %2$s. Double tap to open workout history.</string>
     <string name="desc_home_current_streak_insight_off">Current streak, 0 days. Double tap to open workout history.</string>
     <string name="desc_home_today_insight">Today, %1$s. Double tap to open workout history.</string>
@@ -190,7 +192,23 @@
     <string name="separator_bullet">\u2002•\u2002</string>
     <string name="title_settings">Settings</string>
     <string name="label_about">About</string>
-    <string name="title_faq">Frequently Asked Questions</string>
+    <string name="title_faq">FAQ</string>
+    <string name="title_whats_new_health_connect">New: Health Connect metrics</string>
+    <string name="body_whats_new_health_connect">Optionally save steps and heart rate from Health Connect in Workout Details after each walk.\n\nOff by default. Summaries stay on your device only. Watch or tracker data may take a few minutes to sync.</string>
+    <string name="action_learn_more">Learn more</string>
+    <string name="action_not_now">Not now</string>
+    <string name="title_health_connect_history_banner">Optional Health Connect metrics</string>
+    <string name="body_health_connect_history_banner">Save steps and heart rate from Health Connect in Workout Details after each walk. Off by default and stored on your device only.</string>
+    <string name="action_see_how">See how</string>
+    <string name="action_dismiss">Dismiss</string>
+    <string name="faq_section_getting_started">Getting started</string>
+    <string name="faq_section_during_workout">During a workout</string>
+    <string name="faq_section_formulas_presets">Formulas &amp; presets</string>
+    <string name="faq_section_history_insights">History &amp; insights</string>
+    <string name="faq_section_health_connect">Health Connect</string>
+    <string name="faq_section_privacy_permissions">Privacy &amp; permissions</string>
+    <string name="faq_section_troubleshooting">Troubleshooting</string>
+    <string name="faq_section_safety">Safety</string>
     <string name="label_privacy_policy">Privacy Policy</string>
     <string name="label_terms_of_service">Terms of Service</string>
     <string name="label_theme">Theme</string>
@@ -217,9 +235,32 @@
     <string name="body_no_voices_available">No supported voices available</string>
     <string name="label_notifications">Notifications</string>
     <string name="label_keep_screen_awake">Keep Screen Awake</string>
+    <string name="label_workout_metrics">Use Health Connect</string>
+    <string name="body_workout_metrics_unavailable">Health Connect is not available on this device.</string>
+    <string name="format_steps">%1$s steps</string>
+    <string name="format_average_heart_rate">Avg %1$d bpm</string>
+    <string name="format_average_heart_rate_placeholder">Avg %1$s</string>
+    <string name="format_heart_rate_bpm">%1$d bpm</string>
+    <string name="format_heart_rate_range">Range %1$d-%2$d bpm</string>
+    <string name="format_heart_rate_range_placeholder">Range %1$s</string>
+    <string name="label_steps">Steps</string>
+    <string name="label_average_heart_rate">Avg Heart Rate</string>
+    <string name="label_average_heart_rate_short">Avg bpm</string>
+    <string name="label_workout_metrics_summary">Health Connect Metrics</string>
+    <string name="format_workout_detail_meta">%1$s\u2002•\u2002%2$s</string>
+    <string name="title_workout_metrics_snapshot">Health Connect Metrics</string>
+    <string name="body_workout_metrics_snapshot_loading">Saving workout…</string>
+    <string name="body_workout_metrics_snapshot">Steps and heart rate can be seen in Workout Details in History once Health Connect syncs.</string>
+    <string name="body_workout_metrics_snapshot_unavailable">Workout saved. Check Workout Details in History later for Health Connect metrics.</string>
+    <string name="format_fast_phase_heart_rate">Fast (avg) %1$s</string>
+    <string name="format_slow_phase_heart_rate">Slow (avg) %1$s</string>
+    <string name="label_fast_phase_heart_rate">Fast Phases (avg)</string>
+    <string name="label_slow_phase_heart_rate">Slow Phases (avg)</string>
+    <string name="label_metrics_unavailable">—</string>
+    <string name="label_metrics_pending_sync">Pending sync</string>
+    <string name="snackbar_permission_health_connect_denied">Health Connect step and heart-rate summaries need permission.</string>
     <string name="label_report_issue">Report Issue</string>
     <string name="label_rate_app">Rate App</string>
-    <string name="label_help">Help</string>
     <string name="prompt_disable_save_workouts">Turn off workout history?</string>
     <string name="message_disable_save_workouts">New workouts will not be saved to history while this is off.</string>
     <string name="action_turn_off">Turn Off</string>
@@ -259,7 +300,11 @@
     <string name="faq_question_data_shared">Is my data stored or shared online?</string>
     <string name="faq_answer_data_shared">Nope. Everything stays on your device, including your workout history. No accounts, no cloud sync, and we don’t share anything with anyone. For the full picture, check out our Privacy Policy.</string>
     <string name="faq_question_physical_activity_permission">Why does the app ask for \"Physical activity\" or notifications?</string>
-    <string name="faq_answer_physical_activity_permission">We need notifications to show that a workout is in progress and to show optional weekly goal reminders. Android also asks for \"Physical activity\" for background workout execution, and may ask for \"Alarms &amp; reminders\" so weekly reminders can fire at the exact time you choose. We don’t read your steps or any movement data.</string>
+    <string name="faq_answer_physical_activity_permission">We need notifications to show that a workout is in progress and to show optional weekly goal reminders. Android also asks for \"Physical activity\" for background workout execution on newer Android versions. Android may also ask for \"Alarms &amp; reminders\" so weekly reminders can fire at the exact time you choose.</string>
+    <string name="faq_question_workout_metrics">What does Use Health Connect do?</string>
+    <string name="faq_answer_workout_metrics">Optional and off by default. Turn it on in Settings to read steps and heart rate from Health Connect when you finish a workout and save local summaries in Workout History. The app reads from Health Connect only — not your phone’s step counter or heart-rate sensor directly. Data may come from your phone, watch, or tracker after it has synced into Health Connect.\n\nAfter a workout, a short home screen card explains that steps and heart rate can be seen in Workout Details once Health Connect syncs. In History, open that day’s Workout Details to see steps, average heart rate, range, and fast- and slow-phase averages estimated from your formula timing.\n\nWatch or tracker data can take a few minutes to reach Health Connect. Open that day in Workout History again to refresh saved values, including for older walks. Allow both Steps and Heart rate when Health Connect asks.\n\nStill waiting on data? Workout Details shows — placeholders until values arrive. Your timer works either way.</string>
+    <string name="faq_question_metrics_privacy">Are my steps and heart rate shared?</string>
+    <string name="faq_answer_metrics_privacy">No. Summaries stay in this app’s workout history on your phone only. We read from Health Connect; we don’t upload them or write back to Health Connect.</string>
     <string name="faq_question_workout_stops_background">Why does my workout stop when I lock my phone or switch apps?</string>
     <string name="faq_answer_workout_stops_background">First, check that notifications are enabled for the app and you’ve said yes to \"Physical activity\" if Android asked. On some devices, telling the system not to battery-optimize this app (in system settings) makes a big difference. Worth trying if the workout keeps stopping.</string>
     <string name="faq_question_keep_screen_awake">What does \"Keep Screen Awake\" do?</string>

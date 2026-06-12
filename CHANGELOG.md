@@ -2,6 +2,35 @@
 
 ## Version 1
 
+### 1.6.0 - 2026-06-12
+
+#### Features
+
+- **Use Health Connect:** Optional Health Connect step and heart-rate summaries for completed workouts, stored locally in workout history. The app reads from Health Connect only — not phone sensors directly — and saves summaries after completion or when Workout History refreshes later.
+- **Saved metrics:** Workout detail rows, day summaries, and monthly stats show steps, average heart rate, range, and fast/slow phase averages when data is available. Reopening a day’s Workout Details can backfill values after a watch or tracker syncs, including for older walks.
+- **Phase-aware heart rate:** Fast- and slow-phase average heart rates are estimated from your formula timing and the active workout intervals you actually walked.
+- **Metrics session:** Active workout timing is tracked across pause, resume, and phone rotation so Health Connect reads use the full workout window.
+- **Health Connect reads:** Heart-rate summaries use aggregate reads with paginated sample fallback; step and heart-rate reads are independent so one metric can still save when the other is missing.
+- **Permissions:** Use Health Connect can request only missing Health Connect permissions; Workout History can prompt for missing access when metrics are enabled.
+- **Post-workout snapshot:** When Health Connect is enabled, the home screen shows a short completion card pointing to Workout Details in History once Health Connect syncs.
+
+#### UI/UX Improvements
+
+- **Workout details:** Per-workout Health Connect lines use clearer labels — `Avg`, `Range 80-112 bpm`, and `Fast (avg)` / `Slow (avg)` — and show `—` placeholders for missing steps, heart rate, and phase values when Health Connect is enabled.
+- **Last Workout insight:** Shows formula, duration, and completion time only; saved Health Connect metrics stay in Workout Details.
+- **Post-workout snapshot:** Balanced spacing above and below the completion card in the session panel.
+- **Settings:** Added a Use Health Connect opt-in; the toggle is disabled when Health Connect is unavailable.
+- **FAQ:** Overflow menu and sheet title are now **FAQ**. Questions are grouped under section headings with clearer typography and section dividers instead of lines between every question.
+- **Health Connect discovery:** A one-time what’s new sheet on the home screen and a dismissible Workout History banner point users to the FAQ Health Connect section.
+
+#### Bug Fixes
+
+- **Insights:** Fixed home screen insight headings and circle styling disappearing after returning from Workout History.
+
+#### Privacy
+
+- Updated FAQ, README, and Privacy Policy copy for optional Health Connect step and heart-rate reads, including sync timing, placeholders, and where metrics appear. Metrics remain local-only with no GPS, cloud sync, accounts, analytics, or Health Connect writes.
+
 ### 1.5.0 - 2026-05-25
 
 #### Features

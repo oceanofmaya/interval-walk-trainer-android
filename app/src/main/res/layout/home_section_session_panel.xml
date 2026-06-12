@@ -30,11 +30,18 @@
                 android:layout_height="wrap_content" />
 
             <include
+                android:id="@+id/homeMetricsSnapshot"
+                layout="@layout/home_section_metrics_snapshot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/home_session_metrics_snapshot_gap" />
+
+            <include
                 android:id="@+id/homeActions"
                 layout="@layout/home_section_actions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/home_session_to_controls_gap" />
+                android:layout_marginTop="@dimen/home_session_metrics_snapshot_gap" />
 
         </LinearLayout>
 

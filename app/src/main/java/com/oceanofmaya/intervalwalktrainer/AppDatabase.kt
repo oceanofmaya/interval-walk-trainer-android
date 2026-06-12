@@ -13,7 +13,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  */
 @Database(
     entities = [WorkoutRecord::class, WorkoutSession::class, SavedWorkout::class],
-    version = 3,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -64,6 +64,33 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        internal val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN stepCount INTEGER")
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN averageHeartRateBpm INTEGER")
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN minHeartRateBpm INTEGER")
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN maxHeartRateBpm INTEGER")
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN stepSource TEXT")
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN heartRateSource TEXT")
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN startedAt INTEGER")
+            }
+        }
+
+        internal val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN metricsIntervalsJson TEXT")
+            }
+        }
+
+        internal val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN formulaSnapshotJson TEXT")
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN metricsPhaseWindowsJson TEXT")
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN fastPhaseAverageHeartRateBpm INTEGER")
+                db.execSQL("ALTER TABLE workout_sessions ADD COLUMN slowPhaseAverageHeartRateBpm INTEGER")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             Log.d(TAG, "Getting database instance")
             return INSTANCE ?: synchronized(this) {
@@ -73,7 +100,13 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "workout_database"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(
+                    MIGRATION_1_2,
+                    MIGRATION_2_3,
+                    MIGRATION_3_4,
+                    MIGRATION_4_5,
+                    MIGRATION_5_6
+                )
                 .build()
                 INSTANCE = instance
                 Log.d(TAG, "Database instance created")
