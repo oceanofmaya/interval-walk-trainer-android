@@ -30,8 +30,6 @@ class HomeInsightUiFormatterTest {
         whenever(context.getString(R.string.format_time_min, 30)).thenReturn("30 min")
         whenever(context.getString(R.string.format_today_summary, "2 workouts", "28 min"))
             .thenReturn("2 workouts\u2002•\u200228 min")
-        whenever(context.getString(R.string.format_last_workout_subtitle, "Today", "30 min"))
-            .thenReturn("Today\u2002•\u200230 min")
         formatter = HomeInsightUiFormatter(context)
     }
 
@@ -71,14 +69,4 @@ class HomeInsightUiFormatterTest {
         assertEquals("2 workouts\u2002•\u200228 min", formatter.todaySummaryText(2, 28))
     }
 
-    @Test
-    fun `lastWorkoutSubtitle formats relative date and minutes`() {
-        val session = com.oceanofmaya.intervalwalktrainer.WorkoutSession(
-            date = formatter.todayDateString(),
-            workoutType = "3-3 Japanese - 5 Rounds (30 min)",
-            minutes = 30
-        )
-
-        assertEquals("Today\u2002•\u200230 min", formatter.lastWorkoutSubtitle(session))
-    }
 }

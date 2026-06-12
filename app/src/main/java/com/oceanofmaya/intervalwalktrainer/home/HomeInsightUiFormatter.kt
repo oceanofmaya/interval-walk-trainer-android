@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.drawable.GradientDrawable
 import android.view.View
 import com.oceanofmaya.intervalwalktrainer.R
-import com.oceanofmaya.intervalwalktrainer.WorkoutSession
 import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -69,12 +68,6 @@ class HomeInsightUiFormatter(private val context: Context) {
             add(Calendar.DAY_OF_MONTH, -1)
         }
         return dateFormat.format(yesterdayCalendar.time)
-    }
-
-    fun lastWorkoutSubtitle(session: WorkoutSession): String {
-        val relativeDate = relativeDateLabel(session.date)
-        val minutesText = formatMinutes(session.minutes)
-        return context.getString(R.string.format_last_workout_subtitle, relativeDate, minutesText)
     }
 
     fun formatMinutes(minutes: Int): String {

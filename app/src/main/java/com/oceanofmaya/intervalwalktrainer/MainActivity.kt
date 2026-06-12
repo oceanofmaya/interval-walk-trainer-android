@@ -57,6 +57,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import androidx.health.connect.client.PermissionController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -67,6 +68,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.PopupMenu
+import android.widget.TextView
 import androidx.core.content.edit
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 /**
@@ -107,6 +109,20 @@ open class MainActivity : AppCompatActivity() {
     private var completionAutoResetRunnable: Runnable? = null
     private lateinit var homeInsightsController: HomeInsightsController
     private lateinit var homeInsightRegistry: HomeInsightRegistry
+    private lateinit var workoutMetricsManager: WorkoutMetricsManager
+    private lateinit var workoutMetricsSnapshotBinder: WorkoutMetricsSnapshotBinder
+
+    private val healthConnectPermissionLauncher = registerForActivityResult(
+        PermissionController.createRequestPermissionResultContract()
+    ) { grantedPermissions ->
+        if (!grantedPermissions.any { it in workoutMetricsManager.healthConnectMetricsPermissions() }) {
+            android.widget.Toast.makeText(
+                this,
+                getString(R.string.snackbar_permission_health_connect_denied),
+                android.widget.Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
     private val homeWorkoutSetup get() = binding.homeWorkoutSetup
     private val homeSession get() = binding.homeSessionPanel.homeSession
@@ -114,36 +130,6 @@ open class MainActivity : AppCompatActivity() {
     private val phaseLabel get() = homeSession.phaseLabel
 
     companion object {
-        // FAQ order: basics → how to use → workout flow → data & history → technical & permissions → safety
-        private val faqEntries = listOf(
-            FaqEntry(R.string.faq_question_interval_walking, R.string.faq_answer_interval_walking),
-            FaqEntry(R.string.faq_question_why_interval_walking, R.string.faq_answer_why_interval_walking),
-            FaqEntry(R.string.faq_question_slow_fast_mean, R.string.faq_answer_slow_fast_mean),
-            FaqEntry(R.string.faq_question_choose_formula, R.string.faq_answer_choose_formula),
-            FaqEntry(R.string.faq_question_interval_vs_circuit, R.string.faq_answer_interval_vs_circuit),
-            FaqEntry(R.string.faq_question_custom_formula_saved, R.string.faq_answer_custom_formula_saved),
-            FaqEntry(R.string.faq_question_countdown, R.string.faq_answer_countdown),
-            FaqEntry(R.string.faq_question_pause_reset, R.string.faq_answer_pause_reset),
-            FaqEntry(R.string.faq_question_workout_history, R.string.faq_answer_workout_history),
-            FaqEntry(R.string.faq_question_weekly_goals, R.string.faq_answer_weekly_goals),
-            FaqEntry(R.string.faq_question_insight_cards, R.string.faq_answer_insight_cards),
-            FaqEntry(R.string.faq_question_data_shared, R.string.faq_answer_data_shared),
-            FaqEntry(R.string.faq_question_notifications, R.string.faq_answer_notifications),
-            FaqEntry(R.string.faq_question_voice, R.string.faq_answer_voice),
-            FaqEntry(R.string.faq_question_voice_languages, R.string.faq_answer_voice_languages),
-            FaqEntry(R.string.faq_question_background, R.string.faq_answer_background),
-            FaqEntry(
-                R.string.faq_question_physical_activity_permission,
-                R.string.faq_answer_physical_activity_permission
-            ),
-            FaqEntry(
-                R.string.faq_question_workout_stops_background,
-                R.string.faq_answer_workout_stops_background
-            ),
-            FaqEntry(R.string.faq_question_keep_screen_awake, R.string.faq_answer_keep_screen_awake),
-            FaqEntry(R.string.faq_question_safe, R.string.faq_answer_safe)
-        )
-
         // SharedPreferences keys
         private const val PREFS_NAME = "interval_walk_trainer_prefs"
         private const val KEY_THEME_MODE = "theme_mode"
@@ -168,7 +154,8 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_ACTIVE_SAVED_WORKOUT_ID = "active_saved_workout_id"
         private const val KEY_CUSTOM_FORMULA_MODE = "custom_formula_mode" // "circuit" or "interval"
         private const val KEY_LEGACY_SAVED_MIGRATED = "saved_workouts_legacy_migrated_v3"
-        
+        private const val WORKOUT_METRICS_UNAVAILABLE_ROW_ALPHA = 0.72f
+
         // Saved state keys
         private const val KEY_SAVED_FORMULA_NAME = "saved_formula_name"
         private const val KEY_SAVED_TIME_REMAINING = "saved_time_remaining"
@@ -177,6 +164,10 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_SAVED_PHASE = "saved_phase"
         private const val KEY_SAVED_ELAPSED_SECONDS = "saved_elapsed_seconds"
         private const val KEY_SAVED_COMPLETION_AT_MILLIS = "saved_completion_at_millis"
+        private const val KEY_SAVED_METRICS_SESSION_STARTED_AT = "saved_metrics_session_started_at"
+        private const val KEY_SAVED_METRICS_INTERVALS = "saved_metrics_intervals"
+        private const val KEY_SAVED_METRICS_ACTIVE_INTERVAL_STARTED_AT = "saved_metrics_active_interval_started_at"
+        private const val KEY_SAVED_METRICS_RUNNING = "saved_metrics_running"
         private const val KEY_PRE_START_ACTIVE = "pre_start_countdown_active"
         private const val KEY_PRE_START_END_ELAPSED_REALTIME = "pre_start_countdown_end_elapsed_realtime"
         private const val PRE_START_RESUME_THRESHOLD_MS = 250L
@@ -259,6 +250,10 @@ open class MainActivity : AppCompatActivity() {
         val database = AppDatabase.getDatabase(this)
         workoutRepository = WorkoutRepository(database.workoutDao(), database.workoutSessionDao(), database)
         savedWorkoutRepository = SavedWorkoutRepository(database.savedWorkoutDao(), database)
+        workoutMetricsManager = WorkoutMetricsManager(this)
+        workoutMetricsSnapshotBinder = WorkoutMetricsSnapshotBinder(
+            root = binding.homeSessionPanel.homeMetricsSnapshot.root
+        )
         lifecycleScope.launch(Dispatchers.IO) {
             maybeMigrateLegacySavedWorkouts()
         }
@@ -307,10 +302,11 @@ open class MainActivity : AppCompatActivity() {
         handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
         lastKnownNotificationsEnabled = notificationsEnabled
         refreshNotificationsSwitchState()
-        homeInsightsController.load()
+        homeInsightsController.load(onComplete = ::applyAccentStyling)
         lifecycleScope.launch(Dispatchers.IO) {
             WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
         }
+        maybeShowHealthConnectWhatsNew()
     }
 
     override fun onPause() {
@@ -387,6 +383,16 @@ open class MainActivity : AppCompatActivity() {
             })
             outState.putLong(KEY_SAVED_COMPLETION_AT_MILLIS, completionAtMillis ?: -1L)
         }
+        workoutMetricsManager.snapshot()?.let { snapshot ->
+            outState.putLong(KEY_SAVED_METRICS_SESSION_STARTED_AT, snapshot.sessionStartedAtMillis)
+            WorkoutMetricsIntervalCodec.encode(snapshot.activeIntervals)?.let { encodedIntervals ->
+                outState.putString(KEY_SAVED_METRICS_INTERVALS, encodedIntervals)
+            }
+            snapshot.activeIntervalStartedAtMillis?.let { activeIntervalStartedAt ->
+                outState.putLong(KEY_SAVED_METRICS_ACTIVE_INTERVAL_STARTED_AT, activeIntervalStartedAt)
+            }
+            outState.putBoolean(KEY_SAVED_METRICS_RUNNING, snapshot.running)
+        }
         if (isPreStartCountdownActive) {
             outState.putBoolean(KEY_PRE_START_ACTIVE, true)
             outState.putLong(KEY_PRE_START_END_ELAPSED_REALTIME, preStartCountdownEndElapsedRealtime)
@@ -459,6 +465,9 @@ open class MainActivity : AppCompatActivity() {
             if (savedIsRunning) {
                 acquireWakeLock()
                 startWorkoutForegroundService()
+                requestMetricsPermissionsIfNeeded()
+                restoreMetricsSession(savedInstanceState, savedElapsedSeconds)
+                workoutMetricsManager.startOrResumeSession(isWorkoutMetricsEnabled())
             }
 
             updateUI()
@@ -468,6 +477,37 @@ open class MainActivity : AppCompatActivity() {
         }
     }
     
+    private fun restoreMetricsSession(savedInstanceState: Bundle, elapsedSeconds: Int) {
+        if (!isWorkoutMetricsEnabled()) {
+            return
+        }
+
+        val savedSessionStartedAt = savedInstanceState.getLong(KEY_SAVED_METRICS_SESSION_STARTED_AT, -1L)
+        if (savedSessionStartedAt > 0L) {
+            val activeIntervalStartedAt = savedInstanceState
+                .getLong(KEY_SAVED_METRICS_ACTIVE_INTERVAL_STARTED_AT, -1L)
+                .takeIf { it > 0L }
+            workoutMetricsManager.restore(
+                WorkoutMetricsSessionSnapshot(
+                    sessionStartedAtMillis = savedSessionStartedAt,
+                    activeIntervals = WorkoutMetricsIntervalCodec.decode(
+                        savedInstanceState.getString(KEY_SAVED_METRICS_INTERVALS)
+                    ),
+                    activeIntervalStartedAtMillis = activeIntervalStartedAt,
+                    running = savedInstanceState.getBoolean(KEY_SAVED_METRICS_RUNNING, false)
+                )
+            )
+            return
+        }
+
+        if (elapsedSeconds >= 0) {
+            workoutMetricsManager.restoreFromElapsedSeconds(
+                elapsedSeconds = elapsedSeconds,
+                metricsEnabled = true
+            )
+        }
+    }
+
     private fun restoreCustomFormula() {
         val isCustom = sharedPreferences.getBoolean(KEY_IS_CUSTOM_FORMULA, false)
         if (isCustom) {
@@ -1935,32 +1975,38 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun configureBottomSheet(dialog: BottomSheetDialog, contentView: View) {
-        val behavior = dialog.behavior
-        behavior.isFitToContents = true
-        behavior.isDraggable = true
-        behavior.skipCollapsed = false
-        behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        BottomSheetConfigurator.configure(dialog, contentView)
+    }
 
-        contentView.doOnLayout {
-            val screenHeight = resources.displayMetrics.heightPixels
-            val availableWidth = (contentView.parent as? View)?.width?.takeIf { it > 0 }
-                ?: resources.displayMetrics.widthPixels
-            val minPeekHeight = (screenHeight * 0.40f).toInt()
-            val maxPeekHeight = (screenHeight * 0.80f).toInt()
-            val widthSpec = View.MeasureSpec.makeMeasureSpec(availableWidth, View.MeasureSpec.EXACTLY)
-            val heightSpec = View.MeasureSpec.makeMeasureSpec(screenHeight, View.MeasureSpec.AT_MOST)
-            contentView.measure(widthSpec, heightSpec)
-            val contentHeight = contentView.measuredHeight
-            // Ensure peek height is at least the full content height to prevent bottom buttons from being cut off
-            // Always use full content height if it fits, otherwise cap at max
-            val finalPeekHeight = if (contentHeight <= maxPeekHeight) {
-                // Content fits - use full height to show everything including bottom button
-                contentHeight
-            } else {
-                // Content too tall - use max height (content will be scrollable)
-                maxPeekHeight
+    private fun maybeShowHealthConnectWhatsNew() {
+        if (!HealthConnectDiscoveryPreferences.shouldShowWhatsNew(
+                sharedPreferences,
+                HealthConnectDiscoveryPreferences.appVersionCode(this)
+            )
+        ) {
+            return
+        }
+        if (intervalTimer?.state?.value?.isRunning == true) {
+            return
+        }
+        binding.root.post {
+            if (isFinishing || isDestroyed) return@post
+            if (!HealthConnectDiscoveryPreferences.shouldShowWhatsNew(
+                    sharedPreferences,
+                    HealthConnectDiscoveryPreferences.appVersionCode(this)
+                )
+            ) {
+                return@post
             }
-            behavior.peekHeight = finalPeekHeight.coerceAtLeast(minPeekHeight)
+            if (intervalTimer?.state?.value?.isRunning == true) {
+                return@post
+            }
+            WhatsNewBottomSheet.show(
+                activity = this,
+                accentColor = getAccentColor()
+            ) {
+                HealthConnectDiscoveryPreferences.markWhatsNewSeen(sharedPreferences)
+            }
         }
     }
     
@@ -2028,6 +2074,7 @@ open class MainActivity : AppCompatActivity() {
         var voiceNotificationsSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
         var notificationsSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
         var keepScreenAwakeSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
+        var workoutMetricsSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
         var startCountdownSwitchRef: com.google.android.material.switchmaterial.SwitchMaterial? = null
 
         fun applySelection(button: android.widget.ImageButton, isSelected: Boolean) {
@@ -2066,6 +2113,8 @@ open class MainActivity : AppCompatActivity() {
             notificationsSwitchRef?.trackTintList = trackTint
             keepScreenAwakeSwitchRef?.thumbTintList = thumbTint
             keepScreenAwakeSwitchRef?.trackTintList = trackTint
+            workoutMetricsSwitchRef?.thumbTintList = thumbTint
+            workoutMetricsSwitchRef?.trackTintList = trackTint
             startCountdownSwitchRef?.thumbTintList = thumbTint
             startCountdownSwitchRef?.trackTintList = trackTint
         }
@@ -2265,6 +2314,39 @@ open class MainActivity : AppCompatActivity() {
             applyKeepScreenAwakePreference()
         }
 
+        val workoutMetricsRow = view.findViewById<View>(R.id.workoutMetricsRow)
+        val workoutMetricsUnavailableNote = view.findViewById<TextView>(R.id.workoutMetricsUnavailableNote)
+        val workoutMetricsSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(
+            R.id.workoutMetricsSwitch
+        )
+        workoutMetricsSwitchRef = workoutMetricsSwitch
+        val healthConnectAvailable = workoutMetricsManager.healthConnectAvailable()
+        workoutMetricsUnavailableNote.visibility =
+            if (healthConnectAvailable) View.GONE else View.VISIBLE
+        workoutMetricsSwitch.isEnabled = healthConnectAvailable
+        workoutMetricsSwitch.isChecked = healthConnectAvailable && isWorkoutMetricsEnabled()
+        workoutMetricsSwitch.thumbTintList = createSwitchThumbTint()
+        workoutMetricsSwitch.trackTintList = createSwitchTrackTint()
+        workoutMetricsRow.alpha = if (healthConnectAvailable) 1f else WORKOUT_METRICS_UNAVAILABLE_ROW_ALPHA
+        workoutMetricsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (!healthConnectAvailable) {
+                buttonView.isChecked = false
+                return@setOnCheckedChangeListener
+            }
+            hapticSelection(buttonView)
+            sharedPreferences.edit {
+                putBoolean(WorkoutMetricsPreferences.KEY_WORKOUT_METRICS_ENABLED, isChecked)
+            }
+            if (isChecked) {
+                requestMetricsPermissionsIfNeeded()
+                if (intervalTimer?.state?.value?.isRunning == true) {
+                    workoutMetricsManager.startOrResumeSession(metricsEnabled = true)
+                }
+            } else {
+                workoutMetricsManager.clearSession()
+            }
+        }
+
         // Start countdown toggle switch
         val startCountdownSwitch = view.findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.startCountdownSwitch)
         startCountdownSwitchRef = startCountdownSwitch
@@ -2299,39 +2381,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun showFaqDialog() {
-        val bottomSheetDialog = BottomSheetDialog(this)
-        val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_faq, android.widget.FrameLayout(this), false)
-        view.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        bottomSheetDialog.setContentView(view)
-        bottomSheetDialog.setOnShowListener {
-            val bottomSheet = bottomSheetDialog.findViewById<android.widget.FrameLayout>(
-                com.google.android.material.R.id.design_bottom_sheet
-            )
-            bottomSheet?.layoutParams?.width = ViewGroup.LayoutParams.MATCH_PARENT
-            bottomSheet?.requestLayout()
-        }
-
-        bottomSheetDialog.window?.let { window ->
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-            val recyclerView = view.findViewById<RecyclerView>(R.id.faqRecyclerView)
-            val basePaddingBottom = recyclerView.paddingBottom
-            ViewCompat.setOnApplyWindowInsetsListener(view) { _, windowInsets ->
-                val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-                recyclerView.updatePadding(bottom = basePaddingBottom + insets.bottom)
-                windowInsets
-            }
-        }
-
-        val recyclerView = view.findViewById<RecyclerView>(R.id.faqRecyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = FaqAdapter(faqEntries)
-        recyclerView.setHasFixedSize(false)
-
-        configureBottomSheet(bottomSheetDialog, view)
-        bottomSheetDialog.show()
+        FaqBottomSheet.show(this)
     }
     
     private fun setThemeMode(mode: Int) {
@@ -2488,6 +2538,26 @@ open class MainActivity : AppCompatActivity() {
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }
+
+    private fun isWorkoutMetricsEnabled(): Boolean {
+        return WorkoutMetricsPreferences.isEnabled(sharedPreferences)
+    }
+
+    private fun requestMetricsPermissionsIfNeeded() {
+        if (isWorkoutMetricsEnabled()) {
+            requestHealthConnectPermissionIfNeeded()
+        }
+    }
+
+    private fun requestHealthConnectPermissionIfNeeded() {
+        if (!workoutMetricsManager.healthConnectAvailable()) return
+        lifecycleScope.launch {
+            val missingPermissions = workoutMetricsManager.missingHealthConnectMetricsPermissions()
+            if (missingPermissions.isNotEmpty()) {
+                healthConnectPermissionLauncher.launch(missingPermissions)
+            }
+        }
+    }
     
     private fun startTimer() {
         if (intervalTimer == null) {
@@ -2510,6 +2580,8 @@ open class MainActivity : AppCompatActivity() {
         // Acquire wake lock to keep device awake during timer
         acquireWakeLock()
         startWorkoutForegroundService()
+        requestMetricsPermissionsIfNeeded()
+        workoutMetricsManager.startOrResumeSession(isWorkoutMetricsEnabled())
         hasShownCompletionConfetti = false
         intervalTimer?.start()
         
@@ -2518,6 +2590,7 @@ open class MainActivity : AppCompatActivity() {
 
     private fun pauseTimer() {
         intervalTimer?.pause()
+        workoutMetricsManager.pauseSession()
         // Release wake lock when paused
         releaseWakeLock()
         stopWorkoutForegroundService()
@@ -2633,6 +2706,10 @@ open class MainActivity : AppCompatActivity() {
         cancelPreStartCountdown()
         intervalTimer?.dispose()
         intervalTimer = null
+        workoutMetricsManager.clearSession()
+        if (::workoutMetricsSnapshotBinder.isInitialized) {
+            workoutMetricsSnapshotBinder.hide()
+        }
         // Release wake lock when reset
         releaseWakeLock()
         stopWorkoutForegroundService()
@@ -2887,6 +2964,7 @@ open class MainActivity : AppCompatActivity() {
         // Check if workout saving is enabled
         val saveWorkoutsEnabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
         if (!saveWorkoutsEnabled) {
+            workoutMetricsManager.clearSession()
             android.util.Log.d("MainActivity", "Workout saving is disabled, skipping record")
             return
         }
@@ -2896,13 +2974,21 @@ open class MainActivity : AppCompatActivity() {
         if (totalSeconds > 0) {
             val minutes = (totalSeconds / 60).coerceAtLeast(1) // At least 1 minute
             val workoutType = currentFormula.name
+            val metricsEnabled = isWorkoutMetricsEnabled()
+            workoutMetricsSnapshotBinder.showLoading(metricsEnabled, saveWorkoutsEnabled = true)
             lifecycleScope.launch {
                 try {
-                    workoutRepository.recordWorkout(minutes, workoutType)
+                    val metrics = workoutMetricsManager.completeSession(
+                        metricsEnabled = metricsEnabled,
+                        formula = currentFormula
+                    )
+                    workoutRepository.recordWorkout(minutes, workoutType, metrics)
+                    workoutMetricsSnapshotBinder.bind(metricsEnabled, saveWorkoutsEnabled = true, metrics)
                     homeInsightsController.load()
                     WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
                     android.util.Log.d("MainActivity", "Workout recorded: $minutes minutes, type: $workoutType")
                 } catch (e: Exception) {
+                    workoutMetricsSnapshotBinder.bind(metricsEnabled, saveWorkoutsEnabled = true, metrics = null)
                     android.util.Log.e("MainActivity", "Error recording workout", e)
                 }
             }
@@ -3372,26 +3458,31 @@ open class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_POST_NOTIFICATIONS) {
-            val notificationsEnabled = areAppNotificationsEnabled()
-            handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
-            lastKnownNotificationsEnabled = notificationsEnabled
-            refreshNotificationsSwitchState()
-            if (notificationsEnabled) {
-                requestExactAlarmAccessForWeeklyRemindersIfNeeded()
-            }
-            return
+        when (requestCode) {
+            REQUEST_CODE_POST_NOTIFICATIONS -> handlePostNotificationsPermissionResult()
+            REQUEST_CODE_ACTIVITY_RECOGNITION -> handleActivityRecognitionPermissionResult(grantResults)
         }
-        if (requestCode != REQUEST_CODE_ACTIVITY_RECOGNITION) return
+    }
 
+    private fun handlePostNotificationsPermissionResult() {
+        val notificationsEnabled = areAppNotificationsEnabled()
+        handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
+        lastKnownNotificationsEnabled = notificationsEnabled
+        refreshNotificationsSwitchState()
+        if (notificationsEnabled) {
+            requestExactAlarmAccessForWeeklyRemindersIfNeeded()
+        }
+    }
+
+    private fun handleActivityRecognitionPermissionResult(grantResults: IntArray) {
         val granted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
-        if (granted && shouldStartForegroundServiceAfterPermission && intervalTimer?.state?.value?.isRunning == true) {
-            shouldStartForegroundServiceAfterPermission = false
+        val timerRunning = intervalTimer?.state?.value?.isRunning == true
+        val restartForegroundService = shouldStartForegroundServiceAfterPermission
+        shouldStartForegroundServiceAfterPermission = false
+        if (granted && restartForegroundService && timerRunning) {
             startWorkoutForegroundService()
-            return
         }
 
-        shouldStartForegroundServiceAfterPermission = false
         if (!granted) {
             android.widget.Toast.makeText(
                 this,
@@ -3444,6 +3535,7 @@ open class MainActivity : AppCompatActivity() {
         cancelCompletionAutoReset(clearCompletionTimestamp = false)
         preStartCountdownTimer?.cancel()
         intervalTimer?.dispose()
+        workoutMetricsManager.clearSession()
         notificationHelper?.release()
         notificationHelper = null
         releaseWakeLock()

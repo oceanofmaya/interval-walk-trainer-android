@@ -313,6 +313,58 @@
             app:trackTint="@color/switch_track_color" />
     </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/workoutMetricsRow"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="52dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/workoutMetricsLabel"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false"
+            android:gravity="start|center_vertical"
+            android:minHeight="52dp"
+            android:paddingStart="24dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="80dp"
+            android:paddingBottom="12dp"
+            android:text="@string/label_workout_metrics"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            app:backgroundTint="@android:color/transparent"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/outline_ecg_heart_24"
+            app:iconGravity="start"
+            app:iconPadding="12dp"
+            app:iconTint="@color/text_secondary"
+            app:strokeWidth="0dp" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/workoutMetricsSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="16dp"
+            app:thumbTint="@color/switch_thumb_color"
+            app:trackTint="@color/switch_track_color" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/workoutMetricsUnavailableNote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="8dp"
+        android:text="@string/body_workout_metrics_unavailable"
+        android:textColor="@color/text_secondary"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
     <!-- Countdown toggle row - using same pattern as working buttons -->
     <FrameLayout
         android:id="@+id/startCountdownRow"

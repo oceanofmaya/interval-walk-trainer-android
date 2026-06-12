@@ -5,8 +5,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.card.MaterialCardView
 import com.oceanofmaya.intervalwalktrainer.R
+import com.oceanofmaya.intervalwalktrainer.WeeklyGoalUiFormatter
 import com.oceanofmaya.intervalwalktrainer.WorkoutRepository
 import com.oceanofmaya.intervalwalktrainer.WorkoutSession
+import kotlin.math.roundToInt
 
 class LastWorkoutHomeInsight(
     private val workoutRepository: WorkoutRepository,
@@ -53,10 +55,10 @@ class LastWorkoutHomeInsight(
 
     override fun bind(view: View) {
         val formatter = HomeInsightUiFormatter(view.context)
+        val lastWorkoutFormatter = LastWorkoutInsightFormatter(view.context)
         val accentColor = accentColorProvider()
         val mutedColor = ContextCompat.getColor(view.context, R.color.text_secondary)
         val primaryTextColor = ContextCompat.getColor(view.context, R.color.text_primary)
-        val secondaryTextColor = ContextCompat.getColor(view.context, R.color.text_secondary)
 
         view.findViewById<TextView>(R.id.lastWorkoutInsightTitle).text =
             view.context.getString(R.string.title_last_workout)
@@ -64,16 +66,16 @@ class LastWorkoutHomeInsight(
         when (val state = insightState) {
             InsightState.Disabled, InsightState.LoadError -> bindDisabledState(
                 view = view,
-                formatter = formatter,
                 mutedColor = mutedColor
             )
             is InsightState.Active -> bindActiveState(
                 view = view,
                 session = state.session,
                 formatter = formatter,
+                lastWorkoutFormatter = lastWorkoutFormatter,
                 accentColor = accentColor,
                 primaryTextColor = primaryTextColor,
-                secondaryTextColor = secondaryTextColor
+                secondaryTextColor = mutedColor
             )
         }
 
@@ -91,24 +93,29 @@ class LastWorkoutHomeInsight(
 
     private fun bindDisabledState(
         view: View,
-        formatter: HomeInsightUiFormatter,
         mutedColor: Int
     ) {
+        val emptyMessage = if (saveWorkoutsEnabledProvider()) {
+            view.context.getString(R.string.body_last_workout_empty)
+        } else {
+            view.context.getString(R.string.body_last_workout_save_off)
+        }
+
         view.findViewById<MaterialCardView>(R.id.lastWorkoutInsightCard).alpha = DISABLED_CARD_ALPHA
         view.findViewById<TextView>(R.id.lastWorkoutInsightTitle).setTextColor(mutedColor)
-        HomeInsightCircleBinder.bindFlatStatCircle(
-            statRoot = view.findViewById(R.id.lastWorkoutInsightMinutesCircle),
-            valueText = formatter.flatStatMinutesValue(0),
-            captionText = view.context.getString(R.string.label_minutes_short),
-            valueTextColor = mutedColor,
-            captionTextColor = mutedColor,
-            formatter = formatter
+        view.findViewById<View>(R.id.lastWorkoutInsightActiveContent).visibility = View.GONE
+        view.findViewById<View>(R.id.lastWorkoutInsightEmptyContent).visibility = View.VISIBLE
+        HomeInsightCircleBinder.bindStatusCircle(
+            statusRoot = view.findViewById(R.id.lastWorkoutInsightStatusCircle),
+            iconResId = R.drawable.outline_directions_walk_24,
+            iconTintColor = mutedColor,
+            accessibilityLabel = view.context.getString(R.string.desc_home_last_workout_insight_empty),
+            formatter = WeeklyGoalUiFormatter(view.context)
         )
-        view.findViewById<TextView>(R.id.lastWorkoutInsightFormula).apply {
-            text = view.context.getString(R.string.body_last_workout_empty)
+        view.findViewById<TextView>(R.id.lastWorkoutInsightEmptyMessage).apply {
+            text = emptyMessage
             setTextColor(mutedColor)
         }
-        view.findViewById<TextView>(R.id.lastWorkoutInsightDate).visibility = View.GONE
         latestContentDescription = view.context.getString(R.string.desc_home_last_workout_insight_empty)
     }
 
@@ -116,17 +123,21 @@ class LastWorkoutHomeInsight(
         view: View,
         session: WorkoutSession,
         formatter: HomeInsightUiFormatter,
+        lastWorkoutFormatter: LastWorkoutInsightFormatter,
         accentColor: Int,
         primaryTextColor: Int,
         secondaryTextColor: Int
     ) {
-        val relativeDate = formatter.relativeDateLabel(session.date)
         view.findViewById<MaterialCardView>(R.id.lastWorkoutInsightCard).alpha = 1f
         view.findViewById<TextView>(R.id.lastWorkoutInsightTitle).setTextColor(primaryTextColor)
+        view.findViewById<View>(R.id.lastWorkoutInsightEmptyContent).visibility = View.GONE
+        view.findViewById<View>(R.id.lastWorkoutInsightActiveContent).visibility = View.VISIBLE
+
+        val context = view.context
         HomeInsightCircleBinder.bindFlatStatCircle(
             statRoot = view.findViewById(R.id.lastWorkoutInsightMinutesCircle),
             valueText = formatter.flatStatMinutesValue(session.minutes),
-            captionText = view.context.getString(R.string.label_minutes_short),
+            captionText = context.getString(R.string.label_minutes_short),
             valueTextColor = accentColor,
             captionTextColor = accentColor,
             formatter = formatter
@@ -135,24 +146,43 @@ class LastWorkoutHomeInsight(
             text = session.workoutType
             setTextColor(primaryTextColor)
         }
-        view.findViewById<TextView>(R.id.lastWorkoutInsightDate).apply {
-            visibility = View.VISIBLE
-            text = relativeDate
+        view.findViewById<TextView>(R.id.lastWorkoutInsightWhen).apply {
+            text = lastWorkoutFormatter.lastWorkoutWhenText(session)
             setTextColor(secondaryTextColor)
+            bindLineStartIcon(
+                iconResId = R.drawable.outline_timer_24,
+                iconTintColor = secondaryTextColor
+            )
         }
-        latestContentDescription = view.context.getString(
+
+        latestContentDescription = context.getString(
             R.string.desc_home_last_workout_insight,
             session.workoutType,
-            view.context.getString(
-                R.string.format_last_workout_subtitle,
-                relativeDate,
-                formatter.formatMinutes(session.minutes)
-            )
+            lastWorkoutFormatter.lastWorkoutMetaText(session)
         )
+    }
+
+    private fun TextView.bindLineStartIcon(
+        iconResId: Int,
+        iconTintColor: Int
+    ) {
+        val density = context.resources.displayMetrics.density
+        val iconSize = (LINE_ICON_SIZE_DP * density).roundToInt()
+        val icon = ContextCompat.getDrawable(context, iconResId)
+            ?.mutate()
+            ?.apply {
+                setBounds(0, 0, iconSize, iconSize)
+                setTint(iconTintColor)
+            }
+        includeFontPadding = false
+        setCompoundDrawables(icon, null, null, null)
+        compoundDrawablePadding = (LINE_ICON_PADDING_DP * density).roundToInt()
     }
 
     companion object {
         private const val TAG = "LastWorkoutHomeInsight"
         private const val DISABLED_CARD_ALPHA = 0.72f
+        private const val LINE_ICON_SIZE_DP = 14
+        private const val LINE_ICON_PADDING_DP = 4
     }
 }

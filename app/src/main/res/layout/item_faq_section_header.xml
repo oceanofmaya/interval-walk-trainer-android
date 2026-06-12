@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/faqSectionTopDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="@dimen/faq_section_header_divider_gap"
+        android:background="@color/stroke_light" />
+
+    <TextView
+        android:id="@+id/faqSectionTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/faq_item_padding_horizontal"
+        android:paddingEnd="@dimen/faq_item_padding_horizontal"
+        android:textColor="@color/text_secondary"
+        android:textSize="@dimen/faq_section_header_text_size"
+        android:textStyle="bold" />
+
+    <View
+        android:id="@+id/faqSectionBottomDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/faq_section_header_divider_gap"
+        android:layout_marginBottom="@dimen/faq_section_header_padding_bottom"
+        android:background="@color/stroke_light" />
+
+</LinearLayout>

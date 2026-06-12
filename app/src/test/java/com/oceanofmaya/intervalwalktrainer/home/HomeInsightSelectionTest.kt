@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class HomeInsightSelectionTest {
-    private val weeklyGoalCard = object : HomeInsightCard {
-        override val id: String = HomeInsightCardIds.WEEKLY_GOAL
+    private fun card(idValue: String) = object : HomeInsightCard {
+        override val id: String = idValue
         override val settingsLabelResId: Int = 0
         override val layoutResId: Int = 0
 
@@ -35,12 +35,19 @@ class HomeInsightSelectionTest {
     }
 
     @Test
-    fun `resolveSelectedCards preserves user order and ignores unknown ids`() {
+    fun `resolveSelectedCards uses registry order and ignores unknown ids`() {
+        val weeklyGoalCard = card(HomeInsightCardIds.WEEKLY_GOAL)
+        val currentStreakCard = card(HomeInsightCardIds.CURRENT_STREAK)
+
         val cards = HomeInsightSelection.resolveSelectedCards(
-            allCards = listOf(weeklyGoalCard),
-            enabledCardIds = listOf("unknown", HomeInsightCardIds.WEEKLY_GOAL)
+            allCards = listOf(weeklyGoalCard, currentStreakCard),
+            enabledCardIds = listOf(
+                "unknown",
+                HomeInsightCardIds.CURRENT_STREAK,
+                HomeInsightCardIds.WEEKLY_GOAL
+            )
         )
 
-        assertEquals(listOf(weeklyGoalCard), cards)
+        assertEquals(listOf(weeklyGoalCard, currentStreakCard), cards)
     }
 }

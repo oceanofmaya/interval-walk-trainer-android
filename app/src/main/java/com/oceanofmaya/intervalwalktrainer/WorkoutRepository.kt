@@ -26,8 +26,13 @@ class WorkoutRepository(
      * 
      * @param minutes The duration of the workout in minutes
      * @param workoutType The name/type of the workout formula used
+     * @param metrics Optional per-session metrics captured during active workout intervals
      */
-    suspend fun recordWorkout(minutes: Int, workoutType: String) {
+    suspend fun recordWorkout(
+        minutes: Int,
+        workoutType: String,
+        metrics: WorkoutMetricsSummary? = null
+    ) {
         val today = dateFormat.format(Date())
         android.util.Log.d("WorkoutRepository", "Recording workout: date=$today, minutes=$minutes, type=$workoutType")
         
@@ -36,7 +41,19 @@ class WorkoutRepository(
             date = today,
             workoutType = workoutType,
             minutes = minutes,
-            timestamp = System.currentTimeMillis()
+            timestamp = System.currentTimeMillis(),
+            stepCount = metrics?.stepCount,
+            averageHeartRateBpm = metrics?.averageHeartRateBpm,
+            minHeartRateBpm = metrics?.minHeartRateBpm,
+            maxHeartRateBpm = metrics?.maxHeartRateBpm,
+            stepSource = metrics?.stepSource,
+            heartRateSource = metrics?.heartRateSource,
+            startedAt = metrics?.startedAt,
+            metricsIntervalsJson = metrics?.intervals?.let { WorkoutMetricsIntervalCodec.encode(it) },
+            formulaSnapshotJson = metrics?.formulaSnapshot?.let { WorkoutMetricsCodec.encodeFormulaSnapshot(it) },
+            metricsPhaseWindowsJson = metrics?.phaseWindows?.let { WorkoutMetricsCodec.encodePhaseWindows(it) },
+            fastPhaseAverageHeartRateBpm = metrics?.fastPhaseAverageHeartRateBpm,
+            slowPhaseAverageHeartRateBpm = metrics?.slowPhaseAverageHeartRateBpm
         )
         workoutSessionDao.insert(session)
         android.util.Log.d("WorkoutRepository", "Saved workout session: $session")
@@ -168,6 +185,23 @@ class WorkoutRepository(
         val sessions = workoutSessionDao.getSessionsByDateRange(startDate, endDate)
         return sessions.groupingBy { it.workoutType }.eachCount()
     }
+
+    suspend fun getMetricsSummaryForMonth(year: Int, month: Int): WorkoutMetricsSummary? {
+        val sessions = getSessionsForMonth(year, month)
+        val totalSteps = sessions.mapNotNull { it.stepCount }.takeIf { it.isNotEmpty() }?.sum()
+        val averageHeartRate = sessions.mapNotNull { it.averageHeartRateBpm }
+            .takeIf { it.isNotEmpty() }
+            ?.average()
+            ?.toInt()
+        val minHeartRate = sessions.mapNotNull { it.minHeartRateBpm }.minOrNull()
+        val maxHeartRate = sessions.mapNotNull { it.maxHeartRateBpm }.maxOrNull()
+        return WorkoutMetricsSummary(
+            stepCount = totalSteps,
+            averageHeartRateBpm = averageHeartRate,
+            minHeartRateBpm = minHeartRate,
+            maxHeartRateBpm = maxHeartRate
+        ).takeIf { it.hasDisplayableValue }
+    }
     
     /**
      * Clear all workout data.
@@ -246,6 +280,22 @@ class WorkoutRepository(
     suspend fun getSessionsByDate(date: String): List<WorkoutSession> {
         return workoutSessionDao.getSessionsByDate(date)
     }
+
+    suspend fun updateSessionMetrics(
+        session: WorkoutSession,
+        metrics: WorkoutMetricsSummary,
+        refreshExisting: Boolean = false
+    ): WorkoutSession {
+        val updatedSession = if (refreshExisting) {
+            WorkoutSessionMetricsMerger.refresh(session, metrics)
+        } else {
+            WorkoutSessionMetricsMerger.merge(session, metrics)
+        }
+        if (updatedSession != session) {
+            workoutSessionDao.update(updatedSession)
+        }
+        return updatedSession
+    }
     
     /**
      * Get records for a specific month.
@@ -267,6 +317,21 @@ class WorkoutRepository(
         val records = workoutDao.getRecordsByDateRange(startDate, endDate)
         android.util.Log.d("WorkoutRepository", "Found ${records.size} records")
         return records
+    }
+
+    suspend fun getSessionsForMonth(year: Int, month: Int): List<WorkoutSession> {
+        val calendar = Calendar.getInstance()
+        calendar.set(year, month, 1)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val startDate = dateFormat.format(calendar.time)
+
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+        val endDate = dateFormat.format(calendar.time)
+
+        return workoutSessionDao.getSessionsByDateRange(startDate, endDate)
     }
 
     suspend fun getWeeklyGoalProgress(

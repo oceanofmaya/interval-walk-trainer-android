@@ -21,7 +21,7 @@ object HomeInsightSelection {
         if (enabledCardIds.isEmpty()) {
             return emptyList()
         }
-        val cardsById = allCards.associateBy { it.id }
-        return enabledCardIds.mapNotNull { cardsById[it] }
+        val enabledIdSet = enabledCardIds.toSet()
+        return allCards.filter { it.id in enabledIdSet }
     }
 }

@@ -44,6 +44,11 @@ class InsightCardsEditor(
         val checkboxTint = checkboxTint(accentColorProvider())
         val rowCheckboxes = mutableListOf<MaterialCheckBox>()
 
+        fun pickerOrderedEnabledIds(): List<String> {
+            val enabledIdSet = enabledIds.toSet()
+            return registry.all().map { it.id }.filter { it in enabledIdSet }
+        }
+
         fun refreshRowStates() {
             val atLimit = !HomeInsightPreferences.canEnableMoreCard(enabledIds.size)
             rowCheckboxes.forEach { checkbox ->
@@ -102,6 +107,9 @@ class InsightCardsEditor(
                 } else {
                     enabledIds.remove(card.id)
                 }
+                val orderedEnabledIds = pickerOrderedEnabledIds()
+                enabledIds.clear()
+                enabledIds += orderedEnabledIds
                 HomeInsightPreferences.saveEnabledCardIds(sharedPreferences, enabledIds)
                 onSaved()
                 refreshRowStates()

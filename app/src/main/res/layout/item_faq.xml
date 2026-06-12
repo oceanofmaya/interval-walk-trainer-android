@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/faq_entry_spacing_bottom">
 
     <FrameLayout
         android:id="@+id/faqItemHeader"
@@ -21,9 +22,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:paddingStart="28dp"
-            android:paddingEnd="28dp"
-            android:textSize="16sp"
+            android:paddingStart="@dimen/faq_item_padding_horizontal"
+            android:paddingEnd="@dimen/faq_item_padding_horizontal"
+            android:textSize="@dimen/faq_question_text_size"
             android:textStyle="bold"
             android:textColor="@color/text_primary" />
 
@@ -44,13 +45,8 @@
         android:textSize="14sp"
         android:textColor="@color/text_secondary"
         android:lineSpacingExtra="2dp"
-        android:paddingStart="28dp"
-        android:paddingEnd="28dp"
+        android:paddingStart="@dimen/faq_item_padding_horizontal"
+        android:paddingEnd="@dimen/faq_item_padding_horizontal"
         android:paddingBottom="16dp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginBottom="16dp"
-        android:background="@color/stroke_light" />
 </LinearLayout>

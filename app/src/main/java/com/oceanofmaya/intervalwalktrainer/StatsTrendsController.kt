@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.oceanofmaya.intervalwalktrainer.databinding.ActivityStatsBinding
+import java.text.NumberFormat
+import java.util.Locale
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -20,13 +22,15 @@ class StatsTrendsController(
     fun loadMonthComparison(year: Int, month: Int) {
         activity.lifecycleScope.launch {
             runCatching {
-                workoutRepository.getMonthComparison(year, month)
-            }.onSuccess { comparison ->
-                showMonthComparison(comparison)
+                workoutRepository.getMonthComparison(year, month) to
+                    workoutRepository.getMetricsSummaryForMonth(year, month)
+            }.onSuccess { (comparison, metricsSummary) ->
+                showMonthComparison(comparison, metricsSummary)
             }.onFailure { throwable ->
                 android.util.Log.e(TAG, "Error loading month comparison", throwable)
                 binding.monthlyTrendHeader.visibility = View.GONE
                 binding.monthComparisonContainer.visibility = View.GONE
+                binding.monthMetricsCard.visibility = View.GONE
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         }
@@ -62,13 +66,15 @@ class StatsTrendsController(
         binding.monthComparisonWorkoutsEmptyState.visibility = View.VISIBLE
         binding.monthComparisonMinutesBadgeContainer.visibility = View.GONE
         binding.monthComparisonMinutesEmptyState.visibility = View.VISIBLE
+        binding.monthMetricsCard.visibility = View.GONE
     }
 
-    private fun showMonthComparison(comparison: MonthComparison) {
+    private fun showMonthComparison(comparison: MonthComparison, metricsSummary: WorkoutMetricsSummary?) {
         binding.monthlyTrendHeader.visibility = View.VISIBLE
         binding.monthComparisonContainer.visibility = View.VISIBLE
         showWorkoutComparison(comparison)
         showMinutesComparison(comparison)
+        showMetricsSummary(metricsSummary)
         binding.swipeRefreshLayout.isRefreshing = false
     }
 
@@ -114,6 +120,24 @@ class StatsTrendsController(
             binding.monthComparisonMinutesValue.text = formatMinutes(0)
             binding.monthComparisonMinutesBadgeContainer.visibility = View.GONE
             binding.monthComparisonMinutesEmptyState.visibility = View.VISIBLE
+        }
+    }
+
+    private fun showMetricsSummary(metricsSummary: WorkoutMetricsSummary?) {
+        val stepCount = metricsSummary?.stepCount
+        val heartRate = metricsSummary?.averageHeartRateBpm
+        binding.monthMetricsStepsCard.visibility = if (stepCount != null) View.VISIBLE else View.GONE
+        binding.monthMetricsHeartRateCard.visibility = if (heartRate != null) View.VISIBLE else View.GONE
+        stepCount?.let {
+            binding.monthMetricsStepsValue.text = integerFormat.format(it)
+        }
+        heartRate?.let {
+            binding.monthMetricsHeartRateValue.text = activity.getString(R.string.format_heart_rate_bpm, it)
+        }
+        binding.monthMetricsCard.visibility = if (stepCount != null || heartRate != null) {
+            View.VISIBLE
+        } else {
+            View.GONE
         }
     }
 
@@ -193,5 +217,6 @@ class StatsTrendsController(
     companion object {
         private const val TAG = "StatsTrends"
         private const val PERCENT_MAX = 100
+        private val integerFormat = NumberFormat.getIntegerInstance(Locale.getDefault())
     }
 }

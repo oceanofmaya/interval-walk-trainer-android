@@ -97,7 +97,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="40dp"
-            android:text="@string/label_help"
+            android:text="@string/title_faq"
             android:textSize="16sp"
             android:textColor="@color/text_primary" />
     </FrameLayout>
