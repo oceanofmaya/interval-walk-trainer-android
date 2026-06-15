@@ -16,12 +16,20 @@ object HomeInsightSelection {
 
     fun resolveSelectedCards(
         allCards: List<HomeInsightCard>,
-        enabledCardIds: List<String>
+        enabledCardIds: List<String>,
+        orderedCardIds: List<String>? = null
     ): List<HomeInsightCard> {
         if (enabledCardIds.isEmpty()) {
             return emptyList()
         }
         val enabledIdSet = enabledCardIds.toSet()
-        return allCards.filter { it.id in enabledIdSet }
+        val cardsById = allCards.associateBy { it.id }
+        val resolvedOrder = HomeInsightPreferences.resolveCardOrder(
+            registryOrderedIds = allCards.map { it.id },
+            storedOrder = orderedCardIds
+        )
+        return resolvedOrder
+            .filter { it in enabledIdSet }
+            .mapNotNull { cardsById[it] }
     }
 }

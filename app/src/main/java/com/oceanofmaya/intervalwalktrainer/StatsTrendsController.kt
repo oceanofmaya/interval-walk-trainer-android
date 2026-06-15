@@ -17,24 +17,37 @@ class StatsTrendsController(
     private val binding: ActivityStatsBinding,
     private val workoutRepository: WorkoutRepository,
     private val accentColorProvider: () -> Int,
-    private val formatMinutes: (Int) -> String
+    private val formatMinutes: (Int) -> String,
+    private val weeklyGoalSettingsProvider: () -> WeeklyGoalSettings
 ) {
     fun loadMonthComparison(year: Int, month: Int) {
         activity.lifecycleScope.launch {
             runCatching {
-                workoutRepository.getMonthComparison(year, month) to
-                    workoutRepository.getMetricsSummaryForMonth(year, month)
-            }.onSuccess { (comparison, metricsSummary) ->
-                showMonthComparison(comparison, metricsSummary)
+                val settings = weeklyGoalSettingsProvider()
+                MonthTrends(
+                    comparison = workoutRepository.getMonthComparison(year, month),
+                    metricsSummary = workoutRepository.getMetricsSummaryForMonth(year, month),
+                    goalMet = workoutRepository.getMonthlyGoalMetComparison(year, month, settings)
+                )
+            }.onSuccess { trends ->
+                showMonthComparison(trends.comparison, trends.metricsSummary)
+                showGoalMetTrend(trends.goalMet)
             }.onFailure { throwable ->
                 android.util.Log.e(TAG, "Error loading month comparison", throwable)
                 binding.monthlyTrendHeader.visibility = View.GONE
                 binding.monthComparisonContainer.visibility = View.GONE
                 binding.monthMetricsCard.visibility = View.GONE
+                binding.monthGoalMetCard.visibility = View.GONE
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         }
     }
+
+    private data class MonthTrends(
+        val comparison: MonthComparison,
+        val metricsSummary: WorkoutMetricsSummary?,
+        val goalMet: MonthlyGoalMetComparison
+    )
 
     fun loadWorkoutTypeDistribution(year: Int, month: Int) {
         activity.lifecycleScope.launch {
@@ -67,6 +80,57 @@ class StatsTrendsController(
         binding.monthComparisonMinutesBadgeContainer.visibility = View.GONE
         binding.monthComparisonMinutesEmptyState.visibility = View.VISIBLE
         binding.monthMetricsCard.visibility = View.GONE
+        binding.monthGoalMetCard.visibility = View.GONE
+    }
+
+    private fun showGoalMetTrend(comparison: MonthlyGoalMetComparison) {
+        val current = comparison.current
+        if (!current.active) {
+            binding.monthGoalMetCard.visibility = View.GONE
+            return
+        }
+        binding.monthGoalMetCard.visibility = View.VISIBLE
+
+        if (current.totalWeeks <= 0) {
+            binding.monthGoalMetValue.visibility = View.GONE
+            binding.monthGoalMetBadgeContainer.visibility = View.GONE
+            binding.monthGoalMetEmptyState.visibility = View.VISIBLE
+            return
+        }
+
+        binding.monthGoalMetEmptyState.visibility = View.GONE
+        binding.monthGoalMetValue.visibility = View.VISIBLE
+        binding.monthGoalMetValue.text = if (current.totalWeeks == 1) {
+            activity.getString(R.string.format_weekly_goal_met_weeks_singular, current.weeksMet)
+        } else {
+            activity.getString(
+                R.string.format_weekly_goal_met_weeks,
+                current.weeksMet,
+                current.totalWeeks
+            )
+        }
+
+        val previous = comparison.previous
+        if (previous.active && previous.totalWeeks > 0) {
+            updateComparisonBadge(
+                binding.monthGoalMetArrow,
+                binding.monthGoalMetChange,
+                goalMetChangePercent(current.weeksMet, previous.weeksMet),
+                current.weeksMet,
+                previous.weeksMet
+            )
+            binding.monthGoalMetBadgeContainer.visibility = View.VISIBLE
+        } else {
+            binding.monthGoalMetBadgeContainer.visibility = View.GONE
+        }
+    }
+
+    private fun goalMetChangePercent(current: Int, previous: Int): Double {
+        return when {
+            previous > 0 -> ((current - previous).toDouble() / previous) * PERCENT_MAX
+            current > 0 -> PERCENT_MAX.toDouble()
+            else -> 0.0
+        }
     }
 
     private fun showMonthComparison(comparison: MonthComparison, metricsSummary: WorkoutMetricsSummary?) {

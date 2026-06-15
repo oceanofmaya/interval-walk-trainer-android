@@ -50,4 +50,43 @@ class HomeInsightSelectionTest {
 
         assertEquals(listOf(weeklyGoalCard, currentStreakCard), cards)
     }
+
+    @Test
+    fun `resolveSelectedCards displays enabled cards in saved order`() {
+        val weeklyGoalCard = card(HomeInsightCardIds.WEEKLY_GOAL)
+        val currentStreakCard = card(HomeInsightCardIds.CURRENT_STREAK)
+        val todayCard = card(HomeInsightCardIds.TODAY)
+
+        val cards = HomeInsightSelection.resolveSelectedCards(
+            allCards = listOf(weeklyGoalCard, currentStreakCard, todayCard),
+            enabledCardIds = listOf(
+                HomeInsightCardIds.WEEKLY_GOAL,
+                HomeInsightCardIds.TODAY
+            ),
+            orderedCardIds = listOf(
+                HomeInsightCardIds.TODAY,
+                HomeInsightCardIds.CURRENT_STREAK,
+                HomeInsightCardIds.WEEKLY_GOAL
+            )
+        )
+
+        assertEquals(listOf(todayCard, weeklyGoalCard), cards)
+    }
+
+    @Test
+    fun `resolveSelectedCards excludes disabled cards from saved order`() {
+        val weeklyGoalCard = card(HomeInsightCardIds.WEEKLY_GOAL)
+        val currentStreakCard = card(HomeInsightCardIds.CURRENT_STREAK)
+
+        val cards = HomeInsightSelection.resolveSelectedCards(
+            allCards = listOf(weeklyGoalCard, currentStreakCard),
+            enabledCardIds = listOf(HomeInsightCardIds.CURRENT_STREAK),
+            orderedCardIds = listOf(
+                HomeInsightCardIds.CURRENT_STREAK,
+                HomeInsightCardIds.WEEKLY_GOAL
+            )
+        )
+
+        assertEquals(listOf(currentStreakCard), cards)
+    }
 }

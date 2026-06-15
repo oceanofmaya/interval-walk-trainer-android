@@ -130,6 +130,10 @@
     <string name="format_streak_progress">%1$d / %2$d</string>
     <string name="body_no_best_day_data">No workout data available</string>
     <string name="body_no_monthly_trend_data">No data for this month</string>
+    <string name="label_weekly_goal_met_trend">Weekly Goal Met</string>
+    <string name="format_weekly_goal_met_weeks">%1$d of %2$d weeks</string>
+    <string name="format_weekly_goal_met_weeks_singular">%1$d of 1 week</string>
+    <string name="body_no_goal_met_data">No completed weeks this month</string>
     <string name="title_weekly_goal">Weekly Goal</string>
     <string name="label_enable_weekly_goal">Enable weekly goal</string>
     <string name="label_weekly_targets">Targets</string>
@@ -167,9 +171,11 @@
     <string name="title_insight_cards">Insight cards</string>
     <string name="body_home_insights_empty">Choose insight cards to show here.</string>
     <string name="desc_edit_insight_cards">Choose insight cards</string>
-    <string name="body_insight_cards_picker">Choose up to %1$d insight cards to show on the home screen.</string>
-    <string name="body_insight_cards_picker_neutral">Choose insight cards to show on the home screen.</string>
-    <string name="body_insight_cards_at_limit">You can show up to %1$d insight cards. Deselect one to add another.</string>
+    <string name="body_insight_cards_picker">Choose up to %1$d insight cards to show on the home screen. Use the arrows to reorder them.</string>
+    <string name="body_insight_cards_picker_neutral">Choose insight cards to show on the home screen. Use the arrows to reorder them.</string>
+    <string name="body_insight_cards_at_limit">You can show up to %1$d insight cards. Deselect one to add another. Use the arrows to reorder them.</string>
+    <string name="desc_move_insight_card_up">Move %1$s up</string>
+    <string name="desc_move_insight_card_down">Move %1$s down</string>
     <string name="body_insight_card_weekly_goal_description">Weekly workout and minute progress at a glance.</string>
     <string name="body_insight_card_current_streak_description">Consecutive workout days and your personal best.</string>
     <string name="body_insight_card_today_description">Today\'s completed workouts and minutes at a glance.</string>
@@ -296,7 +302,7 @@
     <string name="faq_question_weekly_goals">How do weekly goals and reminders work?</string>
     <string name="faq_answer_weekly_goals">In Workout History or Settings, tap Weekly Goal to set weekly workout and minute targets. You can leave either target at 0 if you only want to track the other one. Progress counts completed workouts from Sunday through Saturday, matching the Workout History calendar. When enabled in Settings under Insight cards, the home screen shows a tappable Weekly Goal insight card in the Insights area: when a goal is active it shows quick progress rings, and when no goal is set it shows a grayed-out preview with 0/0 workouts and minutes. Workout History shows the detailed progress card. The app uses only completed workouts saved on this device. Optional reminders become available once a weekly goal is enabled with at least one target; they repeat on the days and time you choose, can pause once you meet the week’s goal, and may request Android notification and Alarms &amp; reminders access so they can appear at the exact time you set.</string>
     <string name="faq_question_insight_cards">How do I choose which insight cards appear on the home screen?</string>
-    <string name="faq_answer_insight_cards">On the home screen, tap the edit icon beside Insights, or open Settings and tap Insight cards under Insights. Check the cards you want to show — you can pick up to five when more than five are available. Uncheck a card to hide it. Available cards include Weekly Goal, Current Streak, Today, and Last Workout.</string>
+    <string name="faq_answer_insight_cards">On the home screen, tap the edit icon beside Insights, or open Settings and tap Insight cards under Insights. Check the cards you want to show — you can pick up to five when more than five are available. Uncheck a card to hide it. Use the up and down arrows beside a selected card to change the order they appear in. Available cards include Weekly Goal, Current Streak, Today, and Last Workout.</string>
     <string name="faq_question_data_shared">Is my data stored or shared online?</string>
     <string name="faq_answer_data_shared">Nope. Everything stays on your device, including your workout history. No accounts, no cloud sync, and we don’t share anything with anyone. For the full picture, check out our Privacy Policy.</string>
     <string name="faq_question_physical_activity_permission">Why does the app ask for \"Physical activity\" or notifications?</string>
