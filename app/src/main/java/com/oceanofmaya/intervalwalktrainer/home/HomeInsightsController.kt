@@ -62,8 +62,13 @@ class HomeInsightsController(
         activity.lifecycleScope.launch {
             val previouslyFocusedCardId = focusedCardId()
             val enabledCardIds = HomeInsightPreferences.loadEnabledCardIdsOrdered(sharedPreferences)
+            val orderedCardIds = HomeInsightPreferences.loadCardOrderIds(sharedPreferences)
             val selectionState = HomeInsightSelection.resolveSelectionState(enabledCardIds)
-            val selectedCards = HomeInsightSelection.resolveSelectedCards(registryCards, enabledCardIds)
+            val selectedCards = HomeInsightSelection.resolveSelectedCards(
+                registryCards,
+                enabledCardIds,
+                orderedCardIds
+            )
 
             ensureSectionChromeVisible(selectionState)
 

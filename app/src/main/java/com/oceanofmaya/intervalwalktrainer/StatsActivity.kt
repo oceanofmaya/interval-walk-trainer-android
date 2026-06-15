@@ -85,7 +85,8 @@ class StatsActivity : AppCompatActivity() {
             binding = binding,
             workoutRepository = workoutRepository,
             accentColorProvider = ::getAccentColor,
-            formatMinutes = ::formatMinutes
+            formatMinutes = ::formatMinutes,
+            weeklyGoalSettingsProvider = { WeeklyGoalPreferences.loadGoalSettings(sharedPreferences) }
         )
         calendarController = StatsCalendarController(
             activity = this,

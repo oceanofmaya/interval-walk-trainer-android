@@ -2,6 +2,17 @@
 
 ## Version 1
 
+### 1.6.1 - 2026-06-14
+
+#### Features
+
+- **Reorder insight cards:** The Insight cards picker now lets you arrange selected cards. Selected cards appear at the top with up/down arrows to change the order they show in the home Insights carousel, and disabled cards keep their position so re-enabling restores your chosen order.
+- **Weekly goal trend:** Workout History now shows a **Weekly Goal Met** monthly trend — how many completed weeks in the month met your weekly goal — compared with the previous month. Only fully completed weeks count; the in-progress current week is excluded.
+
+#### UI/UX Improvements
+
+- **Balanced stats header:** The **Total Workouts** and **Total Minutes** cards now reserve matching heights so the row stays even when total minutes wraps to two lines (for example `1 hr 3 min`).
+
 ### 1.6.0 - 2026-06-12
 
 #### Features

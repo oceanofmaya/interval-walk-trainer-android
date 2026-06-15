@@ -52,4 +52,69 @@ class HomeInsightPreferencesTest {
         assertTrue(HomeInsightPreferences.canEnableMoreCard(HomeInsightPreferences.MAX_ENABLED_CARDS - 1))
         assertFalse(HomeInsightPreferences.canEnableMoreCard(HomeInsightPreferences.MAX_ENABLED_CARDS))
     }
+
+    @Test
+    fun `loadCardOrderIds returns null when order key absent`() {
+        val prefs = mock<SharedPreferences>()
+        whenever(prefs.contains(HomeInsightPreferences.KEY_CARD_ORDER_IDS)).thenReturn(false)
+
+        assertEquals(null, HomeInsightPreferences.loadCardOrderIds(prefs))
+    }
+
+    @Test
+    fun `loadCardOrderIds parses stored order`() {
+        val prefs = mock<SharedPreferences>()
+        whenever(prefs.contains(HomeInsightPreferences.KEY_CARD_ORDER_IDS)).thenReturn(true)
+        whenever(prefs.getString(HomeInsightPreferences.KEY_CARD_ORDER_IDS, ""))
+            .thenReturn("today, weekly_goal ,last_workout")
+
+        assertEquals(
+            listOf("today", "weekly_goal", "last_workout"),
+            HomeInsightPreferences.loadCardOrderIds(prefs)
+        )
+    }
+
+    @Test
+    fun `saveCardOrderIds stores distinct comma separated order`() {
+        val editor = mock<SharedPreferences.Editor>()
+        val prefs = mock<SharedPreferences>()
+        whenever(prefs.edit()).thenReturn(editor)
+        whenever(editor.putString(org.mockito.kotlin.any(), org.mockito.kotlin.any())).thenReturn(editor)
+
+        HomeInsightPreferences.saveCardOrderIds(prefs, listOf("today", "weekly_goal", "today"))
+
+        verify(editor).putString(
+            HomeInsightPreferences.KEY_CARD_ORDER_IDS,
+            "today,weekly_goal"
+        )
+    }
+
+    @Test
+    fun `resolveCardOrder uses registry order when stored order missing`() {
+        val registry = listOf("weekly_goal", "current_streak", "today", "last_workout")
+
+        assertEquals(registry, HomeInsightPreferences.resolveCardOrder(registry, null))
+    }
+
+    @Test
+    fun `resolveCardOrder respects stored order and ignores unknown ids`() {
+        val registry = listOf("weekly_goal", "current_streak", "today", "last_workout")
+        val stored = listOf("today", "unknown", "weekly_goal")
+
+        assertEquals(
+            listOf("today", "weekly_goal", "current_streak", "last_workout"),
+            HomeInsightPreferences.resolveCardOrder(registry, stored)
+        )
+    }
+
+    @Test
+    fun `resolveCardOrder appends newly introduced registry cards in registry order`() {
+        val registry = listOf("weekly_goal", "current_streak", "today", "last_workout")
+        val stored = listOf("today", "weekly_goal")
+
+        assertEquals(
+            listOf("today", "weekly_goal", "current_streak", "last_workout"),
+            HomeInsightPreferences.resolveCardOrder(registry, stored)
+        )
+    }
 }

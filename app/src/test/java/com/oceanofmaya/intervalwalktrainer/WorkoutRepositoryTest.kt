@@ -485,6 +485,55 @@ class WorkoutRepositoryTest {
     }
     
     @Test
+    fun `getMonthlyGoalMetComparison counts met weeks for current and previous month`() = runTest {
+        val settings = WeeklyGoalSettings(enabled = true, targetWorkouts = 3, targetMinutes = 0)
+        val recordsByWeekStart = mapOf(
+            // May 2026 (Sunday weeks): 2 of 5 completed weeks meet the 3-workout target.
+            "2026-05-03" to listOf(WorkoutRecord("2026-05-04", 3, 90)),
+            "2026-05-10" to listOf(WorkoutRecord("2026-05-11", 3, 90)),
+            "2026-05-17" to listOf(WorkoutRecord("2026-05-18", 1, 30)),
+            "2026-05-24" to emptyList(),
+            "2026-05-31" to emptyList(),
+            // April 2026 (Sunday weeks): 1 of 4 completed weeks meets the target.
+            "2026-04-05" to listOf(WorkoutRecord("2026-04-06", 3, 90)),
+            "2026-04-12" to emptyList(),
+            "2026-04-19" to emptyList(),
+            "2026-04-26" to emptyList()
+        )
+        whenever(workoutDao.getRecordsByDateRange(org.mockito.kotlin.any(), org.mockito.kotlin.any()))
+            .thenAnswer { invocation ->
+                recordsByWeekStart[invocation.getArgument<String>(0)] ?: emptyList<WorkoutRecord>()
+            }
+
+        val comparison = repository.getMonthlyGoalMetComparison(
+            year = 2026,
+            month = Calendar.MAY,
+            settings = settings,
+            nowMillis = millisFor(2027, Calendar.JANUARY, 1)
+        )
+
+        assertTrue(comparison.current.active)
+        assertEquals(2, comparison.current.weeksMet)
+        assertEquals(5, comparison.current.totalWeeks)
+        assertEquals(1, comparison.previous.weeksMet)
+        assertEquals(4, comparison.previous.totalWeeks)
+    }
+
+    @Test
+    fun `getMonthlyGoalMetComparison is inactive when goal disabled`() = runTest {
+        val comparison = repository.getMonthlyGoalMetComparison(
+            year = 2026,
+            month = Calendar.MAY,
+            settings = WeeklyGoalSettings(enabled = false),
+            nowMillis = millisFor(2027, Calendar.JANUARY, 1)
+        )
+
+        assertFalse(comparison.current.active)
+        assertEquals(0, comparison.current.totalWeeks)
+        assertFalse(comparison.previous.active)
+    }
+
+    @Test
     fun `getWorkoutTypeDistribution returns correct distribution`() = runTest {
         val calendar = Calendar.getInstance()
         calendar.set(2024, Calendar.MARCH, 1)

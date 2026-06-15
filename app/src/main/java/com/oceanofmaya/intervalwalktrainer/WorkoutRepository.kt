@@ -334,6 +334,44 @@ class WorkoutRepository(
         return workoutSessionDao.getSessionsByDateRange(startDate, endDate)
     }
 
+    /**
+     * Computes how often the weekly goal was met during the given month, plus the same figure for
+     * the previous month, so the History view can show a monthly trend.
+     */
+    suspend fun getMonthlyGoalMetComparison(
+        year: Int,
+        month: Int,
+        settings: WeeklyGoalSettings,
+        nowMillis: Long = System.currentTimeMillis()
+    ): MonthlyGoalMetComparison {
+        suspend fun monthSummary(summaryYear: Int, summaryMonth: Int): MonthlyGoalMetSummary {
+            if (!settings.enabled || !settings.hasAnyTarget) {
+                return MonthlyGoalMetSummary(active = false, weeksMet = 0, totalWeeks = 0)
+            }
+            val ranges = MonthlyGoalMetCalculator.weekStartsInMonth(
+                summaryYear,
+                summaryMonth,
+                settings.weekStartDay
+            )
+            val windows = ranges.map { range ->
+                val records = workoutDao.getRecordsByDateRange(range.startDate, range.endDate)
+                WeekWindow(
+                    range = range,
+                    completedWorkouts = records.sumOf { it.completedWorkouts },
+                    completedMinutes = records.sumOf { it.totalMinutes }
+                )
+            }
+            return MonthlyGoalMetCalculator.summarize(settings, windows, nowMillis)
+        }
+
+        val current = monthSummary(year, month)
+        val calendar = Calendar.getInstance()
+        calendar.set(year, month, 1)
+        calendar.add(Calendar.MONTH, -1)
+        val previous = monthSummary(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH))
+        return MonthlyGoalMetComparison(current = current, previous = previous)
+    }
+
     suspend fun getWeeklyGoalProgress(
         settings: WeeklyGoalSettings,
         nowMillis: Long = System.currentTimeMillis()

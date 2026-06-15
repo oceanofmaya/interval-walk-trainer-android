@@ -65,7 +65,7 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
 - **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, Health Connect, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
 - **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and choose insight cards on the home screen — **Weekly Goal**, **Current Streak**, **Today**, and **Last Workout** — for quick motivation between walks
-- **Insight cards**: Choose which cards appear in the home screen **Insights** section (edit icon beside Insights, or Settings → Insight cards; up to five when more than five are available). Cards include **Weekly Goal**, **Current Streak**, **Today**, and **Last Workout**. Last Workout can include saved Health Connect steps and average heart rate when available.
+- **Insight cards**: Choose which cards appear in the home screen **Insights** section (edit icon beside Insights, or Settings → Insight cards; up to five when more than five are available), and use the up/down arrows beside a selected card to set the order they appear in. Cards include **Weekly Goal**, **Current Streak**, **Today**, and **Last Workout**. Last Workout can include saved Health Connect steps and average heart rate when available.
 - **Workout reminders**: Schedule exact recurring reminder notifications for selected days and time when a weekly goal is active, with an option to pause reminders once the weekly goal is met
 - **TTS languages:** Voice announcements (e.g. “Slow walk”, “Fast walk”, “Workout complete”) are spoken in the selected notification language when supported. Supported locales:
   - Arabic, Danish, Dutch, Filipino, French, German, Hindi, Indonesian, Italian, Japanese, Kannada, Korean, Malayalam, Polish, Portuguese (Brazil and Portugal), Russian, Simplified Chinese (China), Spanish, Swedish, Tagalog, Tamil, Telugu, Thai, Traditional Chinese (Hong Kong), Turkish, Urdu, Vietnamese
@@ -74,6 +74,7 @@ These scripts are utilities to optimize Play Store assets and are not required f
   - Weekly Goal card showing current-week workout and minute progress
   - Calendar view showing workout days with a high-contrast today indicator
   - Total workouts, minutes, and streaks
+  - Monthly trend cards for workouts and minutes, plus a **Weekly Goal Met** trend showing how many completed weeks in the month met your weekly goal versus the previous month
   - Optional saved step counts and heart-rate summaries per session, plus compact day/month metric summaries when data exists
   - Monthly navigation to view past workouts
   - Per-day workout detail with completion time; delete individual workouts or clear all history
@@ -139,7 +140,7 @@ Three pre-configured presets cover the main training patterns. **My saved preset
 
 Weekly Goals are local planning targets. You can track workouts per week, minutes per week, or both. Only completed workouts that are saved to Workout History count toward the current week.
 
-The home screen is organized into grouped sections: a workout setup card for formula selection, a bordered session panel that combines the timer with Start, Pause, Reset, and the overflow menu, and an **Insights** section at the bottom. Tap the edit icon beside **Insights** (or use **Settings → Insight cards**) to choose which cards appear there — up to five. The Weekly Goal card is available by default. The Last Workout insight shows your most recent saved workout formula, duration, and relative date; when Health Connect Metrics are available, it can also show saved steps and average heart rate.
+The home screen is organized into grouped sections: a workout setup card for formula selection, a bordered session panel that combines the timer with Start, Pause, Reset, and the overflow menu, and an **Insights** section at the bottom. Tap the edit icon beside **Insights** (or use **Settings → Insight cards**) to choose which cards appear there — up to five — and use the up/down arrows beside a selected card to reorder how they appear in the carousel. The Weekly Goal card is available by default. The Last Workout insight shows your most recent saved workout formula, duration, and relative date; when Health Connect Metrics are available, it can also show saved steps and average heart rate.
 
 When the Weekly Goal insight card is enabled and a goal is active, it shows an icon status badge and radial progress rings for the enabled targets. When no goal is set, the card can still appear as a grayed-out preview with 0/0 workouts and minutes. Tap the card to edit the goal. The full Weekly Goal card in Workout History keeps the detailed status pill, progress bars, remaining-target text, and reminder summary.
 

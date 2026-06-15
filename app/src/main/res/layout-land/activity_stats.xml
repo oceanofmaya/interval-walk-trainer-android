@@ -101,6 +101,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
+                    android:layout_gravity="fill_vertical"
                     android:layout_marginEnd="6dp"
                     android:layout_marginBottom="16dp"
                     android:orientation="vertical"
@@ -128,6 +129,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_columnWeight="1"
+                    android:layout_gravity="fill_vertical"
                     android:layout_marginStart="6dp"
                     android:layout_marginEnd="6dp"
                     android:layout_marginBottom="16dp"
@@ -551,6 +553,65 @@
                         android:textColor="@color/text_secondary"
                         android:visibility="gone" />
                 </LinearLayout>
+            </LinearLayout>
+
+            <!-- Weekly Goal Met Trend -->
+            <LinearLayout
+                android:id="@+id/monthGoalMetCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="@drawable/formula_details_background"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_weekly_goal_met_trend"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:layout_marginBottom="4dp" />
+                <TextView
+                    android:id="@+id/monthGoalMetValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginBottom="8dp" />
+                <LinearLayout
+                    android:id="@+id/monthGoalMetBadgeContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+                    <TextView
+                        android:id="@+id/monthGoalMetArrow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/monthGoalMetChange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginStart="6dp" />
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/monthGoalMetEmptyState"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/body_no_goal_met_data"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout
