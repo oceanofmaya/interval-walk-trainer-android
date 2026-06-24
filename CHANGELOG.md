@@ -2,6 +2,24 @@
 
 ## Version 1
 
+### 1.7.0 - 2026-06-23
+
+#### Features
+
+- **Workout Metrics:** Health Connect steps and heart rate are now presented as a prominent optional workout-metrics feature for completed interval walks, powering post-workout summaries, Workout Details, monthly metric trends, and fast-vs-slow phase heart-rate response.
+- **Metrics setup:** The home screen now includes a dedicated Workout Metrics setup card with Health Connect education and a direct enable action.
+- **Scoped permissions:** Health Connect permission requests are staged by data type so step access and heart-rate access can be requested independently while keeping the manifest limited to `READ_STEPS` and `READ_HEART_RATE`.
+
+#### UI/UX Improvements
+
+- **Post-workout metrics:** The completion card now shows saved steps, average heart rate, and phase-aware heart-rate summaries when Health Connect data is available, with clearer pending-sync copy when watch or tracker data has not arrived yet.
+- **Workout History metrics:** Workout Details and monthly stats keep Health Connect metric surfaces visible with placeholders when metrics are enabled, making sync state clear instead of hiding the feature.
+- **Last Workout insight:** The home insight can again show saved Health Connect steps and average heart rate for the most recent workout.
+
+#### Privacy
+
+- Updated FAQ, README, Privacy Policy, and Play Store listing copy to describe optional workout-window-only Health Connect reads, local-only summaries, and the role of steps and heart rate in workout effort insights.
+
 ### 1.6.1 - 2026-06-14
 
 #### Features

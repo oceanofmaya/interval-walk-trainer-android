@@ -35,15 +35,25 @@ class StatsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityStatsBinding
     private lateinit var workoutRepository: WorkoutRepository
     private lateinit var healthConnectMetricsSource: HealthConnectMetricsSource
+    private var healthConnectPermissionRequest: HealthConnectPermissionRequest = HealthConnectPermissionRequest.NONE
     private val healthConnectPermissionLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
     ) { grantedPermissions ->
+        val completedRequest = healthConnectPermissionRequest
+        healthConnectPermissionRequest = HealthConnectPermissionRequest.NONE
         if (grantedPermissions.any { it in healthConnectMetricsSource.requiredPermissions }) {
             loadStatistics()
             loadCalendar()
             loadWorkoutList()
             loadMonthComparison()
             loadWorkoutTypeDistribution()
+            refreshActiveWorkoutDetailSheet?.invoke()
+        }
+        if (
+            completedRequest == HealthConnectPermissionRequest.STEPS &&
+            grantedPermissions.any { it in healthConnectMetricsSource.requiredPermissions }
+        ) {
+            requestMissingHeartRatePermissionsIfNeeded()
         }
     }
     private lateinit var weeklyGoalController: WeeklyGoalStatsController
@@ -51,6 +61,7 @@ class StatsActivity : AppCompatActivity() {
     private lateinit var calendarController: StatsCalendarController
     private lateinit var sharedPreferences: android.content.SharedPreferences
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private var refreshActiveWorkoutDetailSheet: (() -> Unit)? = null
     // Track the currently displayed month
     private var displayedYear: Int = 0
     private var displayedMonth: Int = 0
@@ -72,7 +83,6 @@ class StatsActivity : AppCompatActivity() {
         val database = AppDatabase.getDatabase(this)
         workoutRepository = WorkoutRepository(database.workoutDao(), database.workoutSessionDao(), database)
         healthConnectMetricsSource = HealthConnectMetricsSource(this)
-        requestMissingHealthConnectPermissionsIfNeeded()
         weeklyGoalController = WeeklyGoalStatsController(
             activity = this,
             binding = binding,
@@ -86,7 +96,8 @@ class StatsActivity : AppCompatActivity() {
             workoutRepository = workoutRepository,
             accentColorProvider = ::getAccentColor,
             formatMinutes = ::formatMinutes,
-            weeklyGoalSettingsProvider = { WeeklyGoalPreferences.loadGoalSettings(sharedPreferences) }
+            weeklyGoalSettingsProvider = { WeeklyGoalPreferences.loadGoalSettings(sharedPreferences) },
+            metricsEnabledProvider = { WorkoutMetricsPreferences.isEnabled(sharedPreferences) }
         )
         calendarController = StatsCalendarController(
             activity = this,
@@ -727,18 +738,29 @@ class StatsActivity : AppCompatActivity() {
         countTextView.text = String.format(Locale.getDefault(), "%d", record.completedWorkouts)
         minutesTextView.text = formatMinutes(record.totalMinutes)
 
-        lifecycleScope.launch {
-            try {
-                val sessions = workoutRepository.getSessionsByDate(record.date)
-                val refreshedSessions = backfillHealthConnectMetrics(sessions)
-                updateSheetWithSessions(refreshedSessions, workoutRepository.getRecordByDate(record.date) ?: record)
-            } catch (e: Exception) {
-                android.util.Log.e("StatsActivity", "Error loading workout sessions", e)
-                updateSheetWithSessions(emptyList(), null)
+        fun refreshSheetSessions() {
+            lifecycleScope.launch {
+                runCatching {
+                    val refreshedSessions = backfillHealthConnectMetrics(
+                        workoutRepository.getSessionsByDate(record.date)
+                    )
+                    updateSheetWithSessions(refreshedSessions, workoutRepository.getRecordByDate(record.date) ?: record)
+                }.onFailure { e ->
+                    android.util.Log.e("StatsActivity", "Error loading workout sessions", e)
+                    updateSheetWithSessions(emptyList(), null)
+                }
             }
         }
 
+        refreshActiveWorkoutDetailSheet = ::refreshSheetSessions
+        bottomSheetDialog.setOnDismissListener {
+            refreshActiveWorkoutDetailSheet = null
+        }
+
+        refreshSheetSessions()
+
         bottomSheetDialog.show()
+        requestMissingHealthConnectPermissionsIfNeeded()
     }
 
     private suspend fun backfillHealthConnectMetrics(sessions: List<WorkoutSession>): List<WorkoutSession> {
@@ -776,9 +798,24 @@ class StatsActivity : AppCompatActivity() {
         if (!WorkoutMetricsPreferences.isEnabled(sharedPreferences)) return
         if (!healthConnectMetricsSource.isAvailable()) return
         lifecycleScope.launch {
-            val missingPermissions = healthConnectMetricsSource.missingPermissions()
-            if (missingPermissions.isNotEmpty()) {
-                healthConnectPermissionLauncher.launch(missingPermissions)
+            val missingStepPermissions = healthConnectMetricsSource.missingStepPermissions()
+            if (missingStepPermissions.isNotEmpty()) {
+                healthConnectPermissionRequest = HealthConnectPermissionRequest.STEPS
+                healthConnectPermissionLauncher.launch(missingStepPermissions)
+                return@launch
+            }
+            requestMissingHeartRatePermissionsIfNeeded()
+        }
+    }
+
+    private fun requestMissingHeartRatePermissionsIfNeeded() {
+        if (!WorkoutMetricsPreferences.isEnabled(sharedPreferences)) return
+        if (!healthConnectMetricsSource.isAvailable()) return
+        lifecycleScope.launch {
+            val missingHeartRatePermissions = healthConnectMetricsSource.missingHeartRatePermissions()
+            if (missingHeartRatePermissions.isNotEmpty()) {
+                healthConnectPermissionRequest = HealthConnectPermissionRequest.HEART_RATE
+                healthConnectPermissionLauncher.launch(missingHeartRatePermissions)
             }
         }
     }
@@ -809,11 +846,9 @@ class StatsActivity : AppCompatActivity() {
             .takeIf { it.isNotEmpty() }
             ?.average()
             ?.toInt()
-        val showPhaseMetrics = WorkoutPhaseMetricsDisplay.shouldShowPhaseMetrics(sessions)
-        val showMetricPlaceholders = WorkoutPhaseMetricsDisplay.shouldShowMetricPlaceholders(
-            metricsEnabled = WorkoutMetricsPreferences.isEnabled(sharedPreferences),
-            sessions = sessions
-        )
+        val metricsEnabled = WorkoutMetricsPreferences.isEnabled(sharedPreferences)
+        val showMetricPlaceholders = metricsEnabled && sessions.isNotEmpty()
+        val showPhaseMetrics = WorkoutPhaseMetricsDisplay.shouldShowPhaseMetrics(sessions) || showMetricPlaceholders
         val stepsDisplay = cardFormatter.stepsCardValue(totalSteps, showMetricPlaceholders)
         val heartRateDisplay = cardFormatter.averageHeartRateCardValue(averageHeartRate, showMetricPlaceholders)
         stepsCard.visibility = if (stepsDisplay != null) View.VISIBLE else View.GONE
@@ -894,13 +929,20 @@ class StatsActivity : AppCompatActivity() {
             behavior.peekHeight = contentHeight.coerceIn(minPeekHeight, maxPeekHeight)
         }
     }
-    private fun formatMinutes(minutes: Int): String {
-        val hours = minutes / 60
-        val mins = minutes % 60
-        return if (hours > 0) {
-            getString(R.string.format_time_hr_min, hours, mins)
-        } else {
-            getString(R.string.format_time_min, mins)
-        }
+}
+
+private enum class HealthConnectPermissionRequest {
+    NONE,
+    STEPS,
+    HEART_RATE
+}
+
+private fun StatsActivity.formatMinutes(minutes: Int): String {
+    val hours = minutes / 60
+    val mins = minutes % 60
+    return if (hours > 0) {
+        getString(R.string.format_time_hr_min, hours, mins)
+    } else {
+        getString(R.string.format_time_min, mins)
     }
 }

@@ -7,8 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.oceanofmaya.intervalwalktrainer.databinding.ActivityStatsBinding
-import java.text.NumberFormat
-import java.util.Locale
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -18,7 +16,8 @@ class StatsTrendsController(
     private val workoutRepository: WorkoutRepository,
     private val accentColorProvider: () -> Int,
     private val formatMinutes: (Int) -> String,
-    private val weeklyGoalSettingsProvider: () -> WeeklyGoalSettings
+    private val weeklyGoalSettingsProvider: () -> WeeklyGoalSettings,
+    private val metricsEnabledProvider: () -> Boolean
 ) {
     fun loadMonthComparison(year: Int, month: Int) {
         activity.lifecycleScope.launch {
@@ -138,7 +137,7 @@ class StatsTrendsController(
         binding.monthComparisonContainer.visibility = View.VISIBLE
         showWorkoutComparison(comparison)
         showMinutesComparison(comparison)
-        showMetricsSummary(metricsSummary)
+        showMetricsSummary(comparison, metricsSummary)
         binding.swipeRefreshLayout.isRefreshing = false
     }
 
@@ -187,22 +186,34 @@ class StatsTrendsController(
         }
     }
 
-    private fun showMetricsSummary(metricsSummary: WorkoutMetricsSummary?) {
+    private fun showMetricsSummary(comparison: MonthComparison, metricsSummary: WorkoutMetricsSummary?) {
         val stepCount = metricsSummary?.stepCount
         val heartRate = metricsSummary?.averageHeartRateBpm
-        binding.monthMetricsStepsCard.visibility = if (stepCount != null) View.VISIBLE else View.GONE
-        binding.monthMetricsHeartRateCard.visibility = if (heartRate != null) View.VISIBLE else View.GONE
-        stepCount?.let {
-            binding.monthMetricsStepsValue.text = integerFormat.format(it)
-        }
-        heartRate?.let {
-            binding.monthMetricsHeartRateValue.text = activity.getString(R.string.format_heart_rate_bpm, it)
-        }
-        binding.monthMetricsCard.visibility = if (stepCount != null || heartRate != null) {
-            View.VISIBLE
+        val showPlaceholders = metricsEnabledProvider() && comparison.currentMonthWorkouts > 0
+        val cardFormatter = WorkoutMetricsCardFormatter(activity)
+        val stepDisplay = cardFormatter.stepsCardValue(stepCount, showPlaceholders)
+        val heartRateDisplay = cardFormatter.averageHeartRateCardValue(heartRate, showPlaceholders)
+        binding.monthMetricsStepsCard.visibility = if (stepDisplay != null) View.VISIBLE else View.GONE
+        binding.monthMetricsHeartRateCard.visibility = if (heartRateDisplay != null) View.VISIBLE else View.GONE
+        stepDisplay?.let { bindMetricValue(binding.monthMetricsStepsValue, it) }
+        heartRateDisplay?.let { bindMetricValue(binding.monthMetricsHeartRateValue, it) }
+        binding.monthMetricsCard.visibility =
+            if (stepDisplay != null || heartRateDisplay != null) View.VISIBLE else View.GONE
+    }
+
+    private fun bindMetricValue(
+        valueView: TextView,
+        display: WorkoutPhaseHeartRateDisplay
+    ) {
+        valueView.text = display.text
+        val colorRes = if (display.isPlaceholder) R.color.text_secondary else R.color.text_primary
+        valueView.setTextColor(ContextCompat.getColor(activity, colorRes))
+        val style = if (display.isPlaceholder) {
+            android.graphics.Typeface.NORMAL
         } else {
-            View.GONE
+            android.graphics.Typeface.BOLD
         }
+        valueView.setTypeface(valueView.typeface, style)
     }
 
     private fun updateComparisonBadge(
@@ -281,6 +292,5 @@ class StatsTrendsController(
     companion object {
         private const val TAG = "StatsTrends"
         private const val PERCENT_MAX = 100
-        private val integerFormat = NumberFormat.getIntegerInstance(Locale.getDefault())
     }
 }

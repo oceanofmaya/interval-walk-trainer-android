@@ -97,11 +97,14 @@ open class MainActivity : AppCompatActivity() {
     private var lastDisplayedTime = -1
     private var lastDisplayedPhase: IntervalPhase? = null
     private var hasShownCompletionConfetti = false
+    private var hasRecordedWorkoutCompletion = false
+    private var isRecordingWorkoutCompletion = false
     private var preStartCountdownTimer: CountDownTimer? = null
     private var isPreStartCountdownActive = false
     private var preStartCountdownEndElapsedRealtime: Long = 0L
     private var shouldStartForegroundServiceAfterPermission = false
     private var settingsNotificationsSwitch: com.google.android.material.switchmaterial.SwitchMaterial? = null
+    private var settingsWorkoutMetricsSwitch: com.google.android.material.switchmaterial.SwitchMaterial? = null
     private var isUpdatingNotificationsSwitch = false
     private var lastKnownNotificationsEnabled = false
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -111,16 +114,30 @@ open class MainActivity : AppCompatActivity() {
     private lateinit var homeInsightRegistry: HomeInsightRegistry
     private lateinit var workoutMetricsManager: WorkoutMetricsManager
     private lateinit var workoutMetricsSnapshotBinder: WorkoutMetricsSnapshotBinder
+    private var healthConnectPermissionRequest: HealthConnectPermissionRequest = HealthConnectPermissionRequest.NONE
+    private var isUpdatingWorkoutMetricsSwitch = false
+    private var workoutMetricsSnapshotRequestId = 0
 
     private val healthConnectPermissionLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
     ) { grantedPermissions ->
-        if (!grantedPermissions.any { it in workoutMetricsManager.healthConnectMetricsPermissions() }) {
+        val completedRequest = healthConnectPermissionRequest
+        if (
+            completedRequest == HealthConnectPermissionRequest.STEPS &&
+            !grantedPermissions.any { it in workoutMetricsManager.healthConnectMetricsPermissions() }
+        ) {
             android.widget.Toast.makeText(
                 this,
                 getString(R.string.snackbar_permission_health_connect_denied),
                 android.widget.Toast.LENGTH_LONG
             ).show()
+        }
+        healthConnectPermissionRequest = HealthConnectPermissionRequest.NONE
+        if (
+            completedRequest == HealthConnectPermissionRequest.STEPS &&
+            grantedPermissions.any { it in workoutMetricsManager.healthConnectMetricsPermissions() }
+        ) {
+            requestHealthConnectHeartRatePermissionIfNeeded()
         }
     }
 
@@ -164,6 +181,7 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_SAVED_PHASE = "saved_phase"
         private const val KEY_SAVED_ELAPSED_SECONDS = "saved_elapsed_seconds"
         private const val KEY_SAVED_COMPLETION_AT_MILLIS = "saved_completion_at_millis"
+        private const val KEY_SAVED_WORKOUT_RECORDED = "saved_workout_recorded"
         private const val KEY_SAVED_METRICS_SESSION_STARTED_AT = "saved_metrics_session_started_at"
         private const val KEY_SAVED_METRICS_INTERVALS = "saved_metrics_intervals"
         private const val KEY_SAVED_METRICS_ACTIVE_INTERVAL_STARTED_AT = "saved_metrics_active_interval_started_at"
@@ -263,6 +281,7 @@ open class MainActivity : AppCompatActivity() {
         setupControls()
         applyAccentStyling()
         setupOverflowMenuButton()
+        setupHomeHealthConnectMetricsCard()
         setupHomeInsights()
         lifecycleScope.launch(Dispatchers.IO) {
             WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
@@ -302,6 +321,7 @@ open class MainActivity : AppCompatActivity() {
         handleNotificationsEnabledTransition(lastKnownNotificationsEnabled, notificationsEnabled)
         lastKnownNotificationsEnabled = notificationsEnabled
         refreshNotificationsSwitchState()
+        refreshHomeHealthConnectMetricsCard()
         homeInsightsController.load(onComplete = ::applyAccentStyling)
         lifecycleScope.launch(Dispatchers.IO) {
             WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
@@ -382,6 +402,7 @@ open class MainActivity : AppCompatActivity() {
                 is IntervalPhase.Completed -> "completed"
             })
             outState.putLong(KEY_SAVED_COMPLETION_AT_MILLIS, completionAtMillis ?: -1L)
+            outState.putBoolean(KEY_SAVED_WORKOUT_RECORDED, hasRecordedWorkoutCompletion)
         }
         workoutMetricsManager.snapshot()?.let { snapshot ->
             outState.putLong(KEY_SAVED_METRICS_SESSION_STARTED_AT, snapshot.sessionStartedAtMillis)
@@ -408,6 +429,7 @@ open class MainActivity : AppCompatActivity() {
         val savedPhase = savedInstanceState.getString(KEY_SAVED_PHASE, "slow")
         val savedCompletionAt = savedInstanceState.getLong(KEY_SAVED_COMPLETION_AT_MILLIS, -1L)
         completionAtMillis = if (savedCompletionAt > 0) savedCompletionAt else null
+        hasRecordedWorkoutCompletion = savedInstanceState.getBoolean(KEY_SAVED_WORKOUT_RECORDED, false)
         
         // Only restore if we have valid saved state
         if (savedFormulaName != null && savedTimeRemaining >= 0) {
@@ -698,15 +720,8 @@ open class MainActivity : AppCompatActivity() {
                     lastNotifiedPhase = phase
                 }
 
-                // Release wake lock and record workout when timer completes (skip record when restoring state to avoid duplicates)
-                if (phase is IntervalPhase.Completed) {
-                    releaseWakeLock()
-                    stopWorkoutForegroundService()
-                    if (!isRestoringTimerState) {
-                        recordWorkoutCompletion()
-                    }
-                    scheduleCompletionAutoReset()
-                }
+                // Completion is handled when the actual completed TimerState renders.
+                // Phase callbacks can fire early so voice prompts finish on time.
             },
             onIntervalComplete = {}
         )
@@ -2009,6 +2024,63 @@ open class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun setupHomeHealthConnectMetricsCard() {
+        val metricsBinding = binding.homeHealthConnectMetrics ?: return
+        metricsBinding.homeHealthConnectMetricsEnable.setOnClickListener { view ->
+            hapticSelection(view)
+            showHealthConnectMetricsSetupDialog()
+        }
+        metricsBinding.homeHealthConnectMetricsLearnMore.setOnClickListener { view ->
+            hapticSelection(view)
+            FaqBottomSheet.show(
+                activity = this,
+                scrollToSectionTitleResId = R.string.faq_section_health_connect
+            )
+        }
+        refreshHomeHealthConnectMetricsCard()
+    }
+
+    private fun refreshHomeHealthConnectMetricsCard() {
+        val showCard = workoutMetricsManager.healthConnectAvailable() && !isWorkoutMetricsEnabled()
+        binding.homeHealthConnectMetrics?.root?.visibility = if (showCard) View.VISIBLE else View.GONE
+    }
+
+    private fun showHealthConnectMetricsSetupDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.title_health_connect_metrics_setup)
+            .setMessage(R.string.message_health_connect_metrics_setup)
+            .setPositiveButton(R.string.action_enable_workout_metrics) { _, _ ->
+                enableWorkoutMetrics()
+            }
+            .setNegativeButton(R.string.action_not_now, null)
+            .show()
+    }
+
+    private fun enableWorkoutMetrics() {
+        if (!workoutMetricsManager.healthConnectAvailable()) {
+            android.widget.Toast.makeText(
+                this,
+                getString(R.string.body_workout_metrics_unavailable),
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+            refreshHomeHealthConnectMetricsCard()
+            return
+        }
+        sharedPreferences.edit {
+            putBoolean(WorkoutMetricsPreferences.KEY_WORKOUT_METRICS_ENABLED, true)
+        }
+        settingsWorkoutMetricsSwitch?.let { switch ->
+            isUpdatingWorkoutMetricsSwitch = true
+            switch.isChecked = true
+            isUpdatingWorkoutMetricsSwitch = false
+        }
+        refreshHomeHealthConnectMetricsCard()
+        requestMetricsPermissionsIfNeeded()
+        if (intervalTimer?.state?.value?.isRunning == true) {
+            workoutMetricsManager.startOrResumeSession(metricsEnabled = true)
+        }
+    }
     
     private fun showSettingsDialog() {
         val bottomSheetDialog = BottomSheetDialog(this)
@@ -2016,6 +2088,7 @@ open class MainActivity : AppCompatActivity() {
         bottomSheetDialog.setContentView(view)
         bottomSheetDialog.setOnDismissListener {
             settingsNotificationsSwitch = null
+            settingsWorkoutMetricsSwitch = null
         }
         
         // Enable edge-to-edge for bottom sheet dialog
@@ -2320,6 +2393,7 @@ open class MainActivity : AppCompatActivity() {
             R.id.workoutMetricsSwitch
         )
         workoutMetricsSwitchRef = workoutMetricsSwitch
+        settingsWorkoutMetricsSwitch = workoutMetricsSwitch
         val healthConnectAvailable = workoutMetricsManager.healthConnectAvailable()
         workoutMetricsUnavailableNote.visibility =
             if (healthConnectAvailable) View.GONE else View.VISIBLE
@@ -2329,20 +2403,24 @@ open class MainActivity : AppCompatActivity() {
         workoutMetricsSwitch.trackTintList = createSwitchTrackTint()
         workoutMetricsRow.alpha = if (healthConnectAvailable) 1f else WORKOUT_METRICS_UNAVAILABLE_ROW_ALPHA
         workoutMetricsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isUpdatingWorkoutMetricsSwitch) {
+                return@setOnCheckedChangeListener
+            }
             if (!healthConnectAvailable) {
                 buttonView.isChecked = false
                 return@setOnCheckedChangeListener
             }
             hapticSelection(buttonView)
-            sharedPreferences.edit {
-                putBoolean(WorkoutMetricsPreferences.KEY_WORKOUT_METRICS_ENABLED, isChecked)
-            }
             if (isChecked) {
-                requestMetricsPermissionsIfNeeded()
-                if (intervalTimer?.state?.value?.isRunning == true) {
-                    workoutMetricsManager.startOrResumeSession(metricsEnabled = true)
-                }
+                isUpdatingWorkoutMetricsSwitch = true
+                buttonView.isChecked = false
+                isUpdatingWorkoutMetricsSwitch = false
+                showHealthConnectMetricsSetupDialog()
             } else {
+                sharedPreferences.edit {
+                    putBoolean(WorkoutMetricsPreferences.KEY_WORKOUT_METRICS_ENABLED, false)
+                }
+                refreshHomeHealthConnectMetricsCard()
                 workoutMetricsManager.clearSession()
             }
         }
@@ -2552,9 +2630,23 @@ open class MainActivity : AppCompatActivity() {
     private fun requestHealthConnectPermissionIfNeeded() {
         if (!workoutMetricsManager.healthConnectAvailable()) return
         lifecycleScope.launch {
-            val missingPermissions = workoutMetricsManager.missingHealthConnectMetricsPermissions()
-            if (missingPermissions.isNotEmpty()) {
-                healthConnectPermissionLauncher.launch(missingPermissions)
+            val missingStepPermissions = workoutMetricsManager.missingHealthConnectStepPermissions()
+            if (missingStepPermissions.isNotEmpty()) {
+                healthConnectPermissionRequest = HealthConnectPermissionRequest.STEPS
+                healthConnectPermissionLauncher.launch(missingStepPermissions)
+                return@launch
+            }
+            requestHealthConnectHeartRatePermissionIfNeeded()
+        }
+    }
+
+    private fun requestHealthConnectHeartRatePermissionIfNeeded() {
+        if (!workoutMetricsManager.healthConnectAvailable()) return
+        lifecycleScope.launch {
+            val missingHeartRatePermissions = workoutMetricsManager.missingHealthConnectHeartRatePermissions()
+            if (missingHeartRatePermissions.isNotEmpty()) {
+                healthConnectPermissionRequest = HealthConnectPermissionRequest.HEART_RATE
+                healthConnectPermissionLauncher.launch(missingHeartRatePermissions)
             }
         }
     }
@@ -2702,6 +2794,7 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun resetTimer() {
+        workoutMetricsSnapshotRequestId++
         cancelCompletionAutoReset(clearCompletionTimestamp = true)
         cancelPreStartCountdown()
         intervalTimer?.dispose()
@@ -2714,6 +2807,8 @@ open class MainActivity : AppCompatActivity() {
         releaseWakeLock()
         stopWorkoutForegroundService()
         hasShownCompletionConfetti = false
+        hasRecordedWorkoutCompletion = false
+        isRecordingWorkoutCompletion = false
 
         intervalTimer = createIntervalTimer()
         observeTimerState()
@@ -2742,8 +2837,24 @@ open class MainActivity : AppCompatActivity() {
         updatePhaseDisplay(state.currentPhase)
         updateWorkoutProgress(state)
         updateButtonStates()
+        handleRenderedCompletion(state)
         
         lastDisplayedTime = newTime
+    }
+
+    private fun handleRenderedCompletion(state: TimerState) {
+        if (
+            state.currentPhase !is IntervalPhase.Completed ||
+            hasRecordedWorkoutCompletion ||
+            isRecordingWorkoutCompletion
+        ) {
+            return
+        }
+        isRecordingWorkoutCompletion = true
+        releaseWakeLock()
+        stopWorkoutForegroundService()
+        recordWorkoutCompletion()
+        scheduleCompletionAutoReset()
     }
     
     private fun animateCountdownUpdate() {
@@ -2965,6 +3076,8 @@ open class MainActivity : AppCompatActivity() {
         val saveWorkoutsEnabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
         if (!saveWorkoutsEnabled) {
             workoutMetricsManager.clearSession()
+            hasRecordedWorkoutCompletion = true
+            isRecordingWorkoutCompletion = false
             android.util.Log.d("MainActivity", "Workout saving is disabled, skipping record")
             return
         }
@@ -2975,6 +3088,7 @@ open class MainActivity : AppCompatActivity() {
             val minutes = (totalSeconds / 60).coerceAtLeast(1) // At least 1 minute
             val workoutType = currentFormula.name
             val metricsEnabled = isWorkoutMetricsEnabled()
+            val snapshotRequestId = ++workoutMetricsSnapshotRequestId
             workoutMetricsSnapshotBinder.showLoading(metricsEnabled, saveWorkoutsEnabled = true)
             lifecycleScope.launch {
                 try {
@@ -2983,15 +3097,24 @@ open class MainActivity : AppCompatActivity() {
                         formula = currentFormula
                     )
                     workoutRepository.recordWorkout(minutes, workoutType, metrics)
-                    workoutMetricsSnapshotBinder.bind(metricsEnabled, saveWorkoutsEnabled = true, metrics)
+                    hasRecordedWorkoutCompletion = true
+                    isRecordingWorkoutCompletion = false
+                    if (snapshotRequestId == workoutMetricsSnapshotRequestId) {
+                        workoutMetricsSnapshotBinder.bind(metricsEnabled, saveWorkoutsEnabled = true, metrics)
+                    }
                     homeInsightsController.load()
                     WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
                     android.util.Log.d("MainActivity", "Workout recorded: $minutes minutes, type: $workoutType")
                 } catch (e: Exception) {
-                    workoutMetricsSnapshotBinder.bind(metricsEnabled, saveWorkoutsEnabled = true, metrics = null)
+                    if (snapshotRequestId == workoutMetricsSnapshotRequestId) {
+                        workoutMetricsSnapshotBinder.bind(metricsEnabled, saveWorkoutsEnabled = true, metrics = null)
+                    }
+                    isRecordingWorkoutCompletion = false
                     android.util.Log.e("MainActivity", "Error recording workout", e)
                 }
             }
+        } else {
+            isRecordingWorkoutCompletion = false
         }
     }
     
@@ -3540,6 +3663,12 @@ open class MainActivity : AppCompatActivity() {
         notificationHelper = null
         releaseWakeLock()
         stopWorkoutForegroundService()
+    }
+
+    private enum class HealthConnectPermissionRequest {
+        NONE,
+        STEPS,
+        HEART_RATE
     }
 }
 

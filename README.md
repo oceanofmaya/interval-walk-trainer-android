@@ -1,6 +1,6 @@
 # Interval Walk Trainer
 
-A minimalist Android app for interval walking training with customizable formulas, vibration, and voice notifications.
+A minimalist Android app for interval walking training with customizable formulas, vibration, voice notifications, and optional Health Connect-powered workout metrics.
 
 ## Project Structure
 
@@ -60,10 +60,10 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - Progress tracking: current interval and total intervals
 - Visual progress bar showing overall workout completion
 - Elapsed and remaining time displays for clear progress feedback
-- **Use Health Connect**: Optional Health Connect step and heart-rate summaries saved locally for completed workouts
+- **Workout Metrics**: Optional Health Connect-powered step count, heart-rate range, and fast-vs-slow phase heart-rate summaries for completed interval walks
 - Start/Pause/Reset controls and an overflow menu (⋮) for Workout History, Settings, Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional language-based picker for notification TTS
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
-- **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, Health Connect, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
+- **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, Workout Metrics, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
 - **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and choose insight cards on the home screen — **Weekly Goal**, **Current Streak**, **Today**, and **Last Workout** — for quick motivation between walks
 - **Insight cards**: Choose which cards appear in the home screen **Insights** section (edit icon beside Insights, or Settings → Insight cards; up to five when more than five are available), and use the up/down arrows beside a selected card to set the order they appear in. Cards include **Weekly Goal**, **Current Streak**, **Today**, and **Last Workout**. Last Workout can include saved Health Connect steps and average heart rate when available.
 - **Workout reminders**: Schedule exact recurring reminder notifications for selected days and time when a weekly goal is active, with an option to pause reminders once the weekly goal is met
@@ -75,7 +75,7 @@ These scripts are utilities to optimize Play Store assets and are not required f
   - Calendar view showing workout days with a high-contrast today indicator
   - Total workouts, minutes, and streaks
   - Monthly trend cards for workouts and minutes, plus a **Weekly Goal Met** trend showing how many completed weeks in the month met your weekly goal versus the previous month
-  - Optional saved step counts and heart-rate summaries per session, plus compact day/month metric summaries when data exists
+  - Saved step counts and heart-rate summaries per session, plus prominent day/month Health Connect metric summaries and placeholders when data is still syncing
   - Monthly navigation to view past workouts
   - Per-day workout detail with completion time; delete individual workouts or clear all history
 
@@ -122,7 +122,7 @@ Three pre-configured presets cover the main training patterns. **My saved preset
    - Vibration and voice toggles for in-workout cues
    - Notifications permission and app notification state
    - Keep Screen Awake (foreground-only behavior)
-   - Use Health Connect (optional local steps and heart-rate summaries)
+   - Workout Metrics (Health Connect steps and heart-rate summaries for completed workout windows)
    - Countdown on/off and countdown seconds (1-10)
    - Save Workouts toggle and theme selection (System, Light, Dark) with compact swatches
    - Accent selection (Blue, Teal, Purple, Amber, Magenta) for interactive UI highlights
@@ -140,7 +140,7 @@ Three pre-configured presets cover the main training patterns. **My saved preset
 
 Weekly Goals are local planning targets. You can track workouts per week, minutes per week, or both. Only completed workouts that are saved to Workout History count toward the current week.
 
-The home screen is organized into grouped sections: a workout setup card for formula selection, a bordered session panel that combines the timer with Start, Pause, Reset, and the overflow menu, and an **Insights** section at the bottom. Tap the edit icon beside **Insights** (or use **Settings → Insight cards**) to choose which cards appear there — up to five — and use the up/down arrows beside a selected card to reorder how they appear in the carousel. The Weekly Goal card is available by default. The Last Workout insight shows your most recent saved workout formula, duration, and relative date; when Health Connect Metrics are available, it can also show saved steps and average heart rate.
+The home screen is organized into grouped sections: a workout setup card for formula selection, a bordered session panel that combines the timer with Start, Pause, Reset, and the overflow menu, a Workout Metrics setup card when Health Connect metrics are not enabled, and an **Insights** section at the bottom. Tap the edit icon beside **Insights** (or use **Settings → Insight cards**) to choose which cards appear there — up to five — and use the up/down arrows beside a selected card to reorder how they appear in the carousel. The Weekly Goal card is available by default. The Last Workout insight shows your most recent saved workout formula, duration, relative date, and saved Health Connect steps or average heart rate when available.
 
 When the Weekly Goal insight card is enabled and a goal is active, it shows an icon status badge and radial progress rings for the enabled targets. When no goal is set, the card can still appear as a grayed-out preview with 0/0 workouts and minutes. Tap the card to edit the goal. The full Weekly Goal card in Workout History keeps the detailed status pill, progress bars, remaining-target text, and reminder summary.
 
@@ -161,13 +161,13 @@ When you select "Design Your Own":
 
 The active custom workout (when you use or save one) is kept in preferences so it can restore after an app restart.
 
-### Health Connect Metrics
+### Workout Metrics With Health Connect
 
-The Use Health Connect setting is optional and off by default. Turn it on in **Settings → Use Health Connect** to allow the app to read Health Connect step and heart-rate data for completed workout windows and save local summaries in Workout History. Health Connect Metrics can appear in workout details, day summaries, monthly stats, and the Last Workout insight.
+Workout Metrics are optional and off by default. When enabled from the home screen setup card or **Settings → Workout Metrics**, the app uses Health Connect to help users understand each interval walk after completion. The app reads Health Connect step and heart-rate data only for workout windows completed in Interval Walk Trainer. Metrics can appear in the post-workout result card, Workout Details, day summaries, monthly stats, and the Last Workout insight.
 
-When enabled, the app also estimates separate fast- and slow-phase average heart rates from your formula timing and the active workout intervals you actually walked. After you finish, a short home screen status card explains what saved immediately and what may still be syncing from a watch or tracker.
+When enabled, the app estimates separate fast- and slow-phase average heart rates from your formula timing and the active workout intervals you actually walked. After you finish, the home screen result card shows saved metrics immediately or explains what may still be syncing from a watch or tracker.
 
-Wearable data synced through Health Connect, such as Garmin Connect samples, may appear only after the provider has synced that workout window. Opening Workout History later can backfill missing saved metrics when Health Connect data becomes available, including older workouts saved before metrics were added. If Health Connect is unavailable on your device, the setting stays disabled. If permission is denied or there is no data for the workout window, the related metric is hidden and the timer still works normally. Metrics stay on your device with the rest of workout history; there is no GPS, cloud sync, account, or analytics.
+Wearable data synced through Health Connect, such as Garmin Connect samples, may appear only after the provider has synced that workout window. Opening Workout History later can backfill missing saved metrics when Health Connect data becomes available, including older workouts saved before metrics were added. Steps and heart rate are requested separately by Health Connect data type. If Health Connect is unavailable on your device, the setting stays disabled. If permission is denied or there is no data for the workout window, the related metric shows as pending or unavailable and the timer still works normally. Metrics stay on your device with the rest of workout history; there is no GPS, cloud sync, account, or analytics.
 
 ### Saved Preset Behavior
 
@@ -186,7 +186,7 @@ Workout history records the workout name shown when the session completes. Exist
 
 - Android 7.0 (API 24) or higher
 - Device with vibration capability (for vibration notifications)
-- Optional Health Connect metrics require Health Connect step and/or heart-rate data
+- Optional Workout Metrics require Health Connect step and/or heart-rate data
 
 ## Building
 
