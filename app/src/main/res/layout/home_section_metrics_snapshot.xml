@@ -25,4 +25,45 @@
         android:textColor="@color/text_secondary"
         android:textSize="13sp" />
 
+    <LinearLayout
+        android:id="@+id/workoutMetricsSnapshotValues"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/workoutMetricsSnapshotSteps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="6dp"
+            android:drawableStart="@drawable/outline_steps_24"
+            android:drawableTint="@color/text_secondary"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/workoutMetricsSnapshotHeartRate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:drawablePadding="6dp"
+            android:drawableStart="@drawable/outline_ecg_heart_24"
+            android:drawableTint="@color/text_secondary"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/workoutMetricsSnapshotPhases"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:drawablePadding="6dp"
+            android:drawableStart="@drawable/outline_timer_24"
+            android:drawableTint="@color/text_secondary"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+    </LinearLayout>
+
 </LinearLayout>

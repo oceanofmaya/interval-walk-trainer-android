@@ -23,6 +23,12 @@ class WorkoutMetricsUiFormatter(private val context: Context) {
         phaseMetricsText(session)?.let { add(heartItem(it)) }
     }
 
+    fun summaryMetricItems(summary: WorkoutMetricsSummary): List<WorkoutMetricDisplayItem> = buildList {
+        summary.stepCount?.let { add(stepsItem(formatSteps(it))) }
+        summary.averageHeartRateBpm?.let { add(heartItem(formatAverageHeartRate(it))) }
+        phaseMetricsText(summary)?.let { add(heartItem(it)) }
+    }
+
     fun detailedMetricsRichText(
         session: WorkoutSession,
         showMetricPlaceholders: Boolean = false

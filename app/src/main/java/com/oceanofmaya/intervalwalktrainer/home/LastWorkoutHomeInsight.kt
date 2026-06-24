@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.card.MaterialCardView
 import com.oceanofmaya.intervalwalktrainer.R
 import com.oceanofmaya.intervalwalktrainer.WeeklyGoalUiFormatter
+import com.oceanofmaya.intervalwalktrainer.WorkoutMetricsUiFormatter
 import com.oceanofmaya.intervalwalktrainer.WorkoutRepository
 import com.oceanofmaya.intervalwalktrainer.WorkoutSession
 import kotlin.math.roundToInt
@@ -154,11 +155,24 @@ class LastWorkoutHomeInsight(
                 iconTintColor = secondaryTextColor
             )
         }
+        view.findViewById<TextView>(R.id.lastWorkoutInsightMetrics).apply {
+            val metricsText = WorkoutMetricsUiFormatter(context).insightMetricsPlainText(session)
+            visibility = if (metricsText.isNullOrBlank()) View.GONE else View.VISIBLE
+            text = metricsText.orEmpty()
+            setTextColor(secondaryTextColor)
+            bindLineStartIcon(
+                iconResId = R.drawable.outline_ecg_heart_24,
+                iconTintColor = secondaryTextColor
+            )
+        }
 
         latestContentDescription = context.getString(
             R.string.desc_home_last_workout_insight,
             session.workoutType,
-            lastWorkoutFormatter.lastWorkoutMetaText(session)
+            listOfNotNull(
+                lastWorkoutFormatter.lastWorkoutMetaText(session),
+                WorkoutMetricsUiFormatter(context).insightMetricsPlainText(session)
+            ).joinToString(context.getString(R.string.separator_bullet))
         )
     }
 

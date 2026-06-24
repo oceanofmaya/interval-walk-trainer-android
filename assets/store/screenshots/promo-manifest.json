@@ -2,13 +2,13 @@
   "platform": "android-play-store",
   "device": "phone",
   "manual_composition": true,
-  "last_updated": "2026-05-25",
+  "last_updated": "2026-06-23",
   "items": [
     {
       "position": 1,
       "source": "phone/slow-light.png",
       "promo": "promo/01-slow-light-promo.png",
-      "feature_message": "Clear slow-phase pacing with large, readable timing; Insights section captured with no cards chosen (empty placeholder) so the first frame stays focused on the workout",
+      "feature_message": "Home screen with the Workout Metrics enable card visible and the Weekly Goal insight card staged, introducing Health Connect metrics while preserving the guided walking story",
       "caption": {
         "headline": "Walk Smarter, Not Harder",
         "supporting_text": "Includes the Japanese 3-3 Interval Walking Training Method",
@@ -19,10 +19,10 @@
       "position": 2,
       "source": "phone/fast-light.png",
       "promo": "promo/02-fast-light-promo.png",
-      "feature_message": "Fast-phase cues during an active workout; all four insight cards enabled on the home screen with Weekly Goal snapped in view. Insight carousel variations are shown visually only — no promo callouts for Insights",
+      "feature_message": "Home Insights with Last Workout showing a previous workout that includes saved Health Connect steps and average heart rate; callouts remain focused on workout rhythm",
       "caption": {
         "headline": "Never Miss a Beat",
-        "supporting_text": "Stay in rhythm with clear phase cues and gentle alerts",
+        "supporting_text": "See your last walk's steps and heart rate at a glance",
         "callouts": ["Clear Phase Cues", "Vibration Alerts"]
       }
     },
@@ -63,7 +63,7 @@
       "position": 6,
       "source": "phone/settings-theme-accent-light.png",
       "promo": "promo/06-settings-theme-accent-light-promo.png",
-      "feature_message": "Personalize theme, accent, and which language voice cues are spoken in",
+      "feature_message": "Settings screen focused on personalization while also showing the Workout Metrics toggle among app setup controls",
       "caption": {
         "headline": "Make It Yours",
         "supporting_text": "Personalize your experience with theme, accent, and voice settings",
@@ -72,20 +72,20 @@
     },
     {
       "position": 7,
-      "source": "phone/weekly-goal-reminders-light.png",
-      "promo": "promo/07-weekly-goal-reminders-light-promo.png",
-      "feature_message": "Configure weekly workout and minute targets with optional reminder days and time",
+      "source": "phone/workout-details-metrics-light.png",
+      "promo": "promo/07-workout-details-metrics-light-promo.png",
+      "feature_message": "Workout Details for a completed day with prominent Health Connect metrics: steps, average heart rate, range, and fast-vs-slow phase heart-rate response",
       "caption": {
-        "headline": "Stay On Track Each Week",
-        "supporting_text": "Set weekly targets for workouts and minutes with reminders",
-        "callouts": []
+        "headline": "Understand Your Effort",
+        "supporting_text": "See effort insights after each walk",
+        "callouts": ["Steps + Heart Rate", "Fast vs Slow"]
       }
     },
     {
       "position": 8,
       "source": "phone/complete-light.png",
       "promo": "promo/08-complete-light-promo.png",
-      "feature_message": "Finish sessions with clear completion and summary feedback; all four insight cards enabled with Current Streak snapped in view. Insight carousel variations are shown visually only — no promo callouts for Insights",
+      "feature_message": "Workout completion screen including the post-workout Health Connect metrics card or pending sync state, with the Current Streak insight card staged below; callouts remain unchanged",
       "caption": {
         "headline": "Zero Distractions",
         "supporting_text": "Ad-free, subscription-free, pure focus",

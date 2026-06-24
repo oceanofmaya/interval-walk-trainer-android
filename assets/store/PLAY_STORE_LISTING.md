@@ -17,13 +17,13 @@ Interval Walk Trainer
 
 ### Short Description
 
-Minimalist walking timer with intervals, insights, goals, and stats.
+Interval walking trainer with goals, stats, and workout metrics.
 
 ### Long Description
 
-Interval Walk Trainer is a simple, focused walking timer for interval walking workouts.
+Interval Walk Trainer is a focused interval walking trainer with guided timing and Health Connect-powered workout metrics.
 
-Use ready-to-go routines, including Japanese 3-3 Interval Walking Training (IWT), or create your own custom interval or circuit workout. The app keeps the timing clear so you can focus on walking, building consistency, and feeling good about your progress.
+Use ready-to-go routines, including Japanese 3-3 Interval Walking Training (IWT), or create your own custom interval or circuit workout. The app keeps the timing clear and can use Health Connect workout-window steps and heart rate, when enabled, to help you understand your effort after each walk.
 
 Stay motivated between walks with home screen insights for your streak, weekly goal, and last workout. Set targets, track progress, and get optional reminders to keep your week on track.
 
@@ -36,7 +36,8 @@ FEATURES:
 • Home screen insights - See Weekly Goal, Current Streak, Today, and Last Workout at a glance
 • Workout reminders - Choose reminder days and exact reminder times
 • Progress history - View workouts, streaks, totals, and monthly progress
-• Health Connect metrics - Optionally save steps and heart rate from Health Connect in workout history
+• Workout metrics - Use Health Connect steps and heart rate for post-workout summaries and trends
+• Phase-aware heart rate - Compare fast and slow interval heart-rate response
 • Voice and vibration cues - Get gentle prompts when it is time to switch pace
 • Voice language picker - Choose the language for workout voice notifications
 • Themes and accents - Personalize the app with light, dark, and accent colors
@@ -44,6 +45,6 @@ FEATURES:
 • Background support - Keep workouts running while your phone is locked
 • Clean design - Large timer, clear phase cues, and no clutter
 
-No ads. No subscriptions. Just a calm timer for interval walking.
+No ads. No subscriptions. Just calm guidance for interval walking.
 
 Start small, stay consistent, and keep walking.

@@ -19,12 +19,12 @@ The app stores the following preferences locally on your device using Android's 
 - **Theme Preference**: Your choice of dark or light theme
 - **Vibration Setting**: Whether vibration notifications are enabled
 - **Voice Setting**: Whether voice notifications are enabled
-- **Use Health Connect Setting**: Whether optional Health Connect metrics are enabled
+- **Workout Metrics Setting**: Whether optional Health Connect workout metrics are enabled
 - **Weekly Goal Settings**: Optional weekly targets and reminder preferences, including selected reminder days and time
 
 Additionally, the app stores workout history and optional saved workout templates locally on your device using a local database:
 
-- **Workout History**: Dates on which you completed workouts, the number of workouts completed per day, total minutes walked per day, and optional per-session Health Connect metrics when enabled and available. This includes statistics such as workout streaks, total workouts, total minutes walked, step counts, and heart-rate summaries.
+- **Workout History**: Dates on which you completed workouts, the number of workouts completed per day, total minutes walked per day, and per-session Health Connect metrics when optional Workout Metrics are enabled and available. This includes statistics such as workout streaks, total workouts, total minutes walked, step counts, heart-rate summaries, and fast-vs-slow phase heart-rate summaries.
 - **Saved Presets**: Names and interval/circuit settings for up to 30 custom presets you choose to keep in the formula picker. They are not uploaded or synced.
 
 This data is stored only on your device and is never transmitted or shared with us or any third parties. All workout history data remains completely private and local to your device.
@@ -40,11 +40,11 @@ The app stores workout completion data locally on your device, including:
 - Dates when workouts were completed
 - Number of workouts completed per day
 - Total minutes walked per day
-- Optional step counts and heart-rate summaries for completed workouts when Use Health Connect is enabled and Health Connect data is available
+- Optional step counts and heart-rate summaries for completed workouts when Workout Metrics are enabled and Health Connect data is available
 
 This health and fitness data is stored locally using Android's Room database and is never transmitted, synced to the cloud, or shared with any third parties. You have full control over this data, and it can be completely removed by uninstalling the app.
 
-When you complete a workout, the app records the completion date, number of workouts for that day, total minutes walked, and optional metrics if enabled and available. This data is stored locally in a database on your device and is used only to display your workout history and statistics within the app.
+When you complete a workout, the app records the completion date, number of workouts for that day, total minutes walked, and optional Health Connect workout metrics if enabled and available. This data is stored locally in a database on your device and is used only to display your workout history, post-workout summaries, phase-aware heart-rate comparisons, and statistics within the app.
 
 ## Permissions
 
@@ -58,8 +58,9 @@ The app requests the following permissions:
 - **FOREGROUND_SERVICE_HEALTH**: Required by Android for health/fitness foreground-service use cases on newer Android versions.
 - **ACTIVITY_RECOGNITION**: Required by Android when starting a health foreground service on Android 14+.
   - This permission is used only to satisfy Android platform requirements for background workout execution.
-- **Health Connect step and heart-rate read access**: Used only when Use Health Connect is enabled and permission is granted, so the app can read step counts and heart-rate samples for the completed workout window and save summaries locally.
+- **Health Connect step and heart-rate read access**: Optional and off by default. Used only when Workout Metrics are enabled and permission is granted, so the app can read step counts and heart-rate samples for workout windows completed in Interval Walk Trainer and save summaries locally.
   - The app reads Health Connect data only; it does not write workouts or metrics back to Health Connect.
+  - Steps are used for workout step summaries and trends. Heart rate is used for average/range summaries and fast-vs-slow interval phase comparisons.
   - If Health Connect is unavailable, permission is denied, or no samples exist for the workout window, Health Connect summaries are omitted.
 
 ## Third-Party Services

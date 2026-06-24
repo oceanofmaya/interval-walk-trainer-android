@@ -80,37 +80,36 @@ Avoid:
 
 Google Play allows up to 8 phone screenshots. Keep these in `promo/` as the active sequence:
 
-1. `01-slow-light-promo.png` (slow interval phase)
-2. `02-fast-light-promo.png` (fast interval phase)
+1. `01-slow-light-promo.png` (slow interval phase with Workout Metrics setup and Weekly Goal insight)
+2. `02-fast-light-promo.png` (fast interval phase with Last Workout metrics insight)
 3. `03-formula-light-promo.png` (setup and customization entry point)
 4. `04-custom-interval-light-promo.png` (design-your-own value)
 5. `05-stats-overview-light-promo.png` (progress tracking and motivation proof)
 6. `06-settings-theme-accent-light-promo.png` (theme + accent personalization)
-7. `07-weekly-goal-reminders-light-promo.png` (weekly goals and reminders)
+7. `07-workout-details-metrics-light-promo.png` (workout details with Health Connect metrics)
 8. `08-complete-light-promo.png` (session completion outcome)
 
-This sequence tells a clear story: pace -> intensity -> setup -> personalize workout -> track progress -> personalize look -> plan weekly goals -> complete.
+This sequence tells a clear story: pace + metrics setup -> intensity + last workout metrics -> setup -> personalize workout -> track progress -> personalize look -> detailed workout metrics -> complete.
 
 ## Insights in Phone Captures
 
-Home-screen sources (`slow-light`, `fast-light`, `complete-light`, `home-light`) include the **Insights** section at the bottom of the home screen. Before capturing, stage insight cards in **Settings → Insight cards** (or the edit icon beside **Insights**).
+Home-screen sources (`slow-light`, `fast-light`, `complete-light`) include the **Insights** section at the bottom of the home screen. Before capturing, stage insight cards in **Settings → Insight cards** (or the edit icon beside **Insights**).
 
 | Source | Promo | Insight cards enabled | Carousel / focus |
 | --- | --- | --- | --- |
-| `slow-light.png` | 01 | **None** — empty placeholder (“Choose insight cards to show here.”) | N/A |
-| `home-light.png` | (fallback hero, not in active promo set) | **Weekly Goal only** | Single card |
-| `fast-light.png` | 02 | **All four** (Weekly Goal, Current Streak, Today, Last Workout) | **Weekly Goal** snapped in view |
+| `slow-light.png` | 01 | **All four** (Weekly Goal, Current Streak, Today, Last Workout) plus the home **Workout Metrics** enable card visible above Insights | **Weekly Goal** snapped in view |
+| `fast-light.png` | 02 | **All four** (Weekly Goal, Current Streak, Today, Last Workout) | **Last Workout** snapped in view with saved steps and average heart rate |
 | `complete-light.png` | 08 | **All four** | **Current Streak** snapped in view |
 
 **Promo subtlety:** Promos 02 and 08 demo insight-card UX variations through the screenshot itself — carousel page choice and enabled cards — without adding Insights-specific callouts. Existing callouts on promo 02 remain workout-focused (phase cues, vibration).
 
-- **Promo 07 (`weekly-goal-reminders-light`):** Stays on the editor sheet for setup and reminders, not the home insight carousel.
+- **Promo 07 (`workout-details-metrics-light`):** Shows a completed day’s Workout Details sheet with Health Connect steps, average heart rate, and fast-vs-slow phase metrics.
 
 When rebuilding promo images for a release that touches Insights, update both `phone/` captures (with the staging above) and matching `promo/` composites, then sync `promo-manifest.json`.
 
 ## What to Keep vs. Remove in `phone/`
 
-Keep in active source set:
+Keep in active promo source set:
 
 - `formula-light.png`
 - `slow-light.png`
@@ -118,10 +117,13 @@ Keep in active source set:
 - `custom-interval-light.png`
 - `stats-overview-light.png`
 - `settings-theme-accent-light.png`
-- `weekly-goal-reminders-light.png`
+- `workout-details-metrics-light.png`
 - `complete-light.png`
-- `home-light.png` (useful fallback hero)
 - `splash.png` (branding/reference)
+
+Keep as retained source/reference captures:
+
+- `weekly-goal-reminders-light.png` (weekly goal and reminder setup; not in the active 8-promo set)
 
 Safe removal candidates:
 

@@ -23,6 +23,14 @@ class WorkoutMetricsManager(context: Context) {
         return healthConnectMetricsSource.requiredPermissions
     }
 
+    suspend fun missingHealthConnectStepPermissions(): Set<String> {
+        return healthConnectMetricsSource.missingStepPermissions()
+    }
+
+    suspend fun missingHealthConnectHeartRatePermissions(): Set<String> {
+        return healthConnectMetricsSource.missingHeartRatePermissions()
+    }
+
     fun snapshot(): WorkoutMetricsSessionSnapshot? {
         val startedAt = sessionStartedAtMillis ?: return null
         return WorkoutMetricsSessionSnapshot(

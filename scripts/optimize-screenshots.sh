@@ -83,5 +83,9 @@ echo ""
 echo "✓ Optimization complete!"
 echo ""
 echo "File sizes:"
-ls -lh "${SCREENSHOTS[@]}" | awk '{print $9, $5}'
+EXISTING_SCREENSHOTS=()
+for img in "${SCREENSHOTS[@]}"; do
+    [[ -f "$img" ]] && EXISTING_SCREENSHOTS+=("$img")
+done
+ls -lh "${EXISTING_SCREENSHOTS[@]}" | awk '{print $9, $5}'
 

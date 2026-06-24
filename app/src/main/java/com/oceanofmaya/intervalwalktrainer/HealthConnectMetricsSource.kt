@@ -15,7 +15,9 @@ class HealthConnectMetricsSource(private val context: Context) {
     private val heartRatePermission = HealthPermission.getReadPermission(HeartRateRecord::class)
     private val stepsPermission = HealthPermission.getReadPermission(StepsRecord::class)
 
-    val requiredPermissions: Set<String> = setOf(heartRatePermission, stepsPermission)
+    val stepPermissions: Set<String> = setOf(stepsPermission)
+    val heartRatePermissions: Set<String> = setOf(heartRatePermission)
+    val requiredPermissions: Set<String> = stepPermissions + heartRatePermissions
 
     fun isAvailable(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
@@ -32,6 +34,18 @@ class HealthConnectMetricsSource(private val context: Context) {
         if (!isAvailable()) return emptySet()
         val granted = HealthConnectClient.getOrCreate(context).permissionController.getGrantedPermissions()
         return requiredPermissions - granted
+    }
+
+    suspend fun missingStepPermissions(): Set<String> {
+        if (!isAvailable()) return emptySet()
+        val granted = HealthConnectClient.getOrCreate(context).permissionController.getGrantedPermissions()
+        return stepPermissions - granted
+    }
+
+    suspend fun missingHeartRatePermissions(): Set<String> {
+        if (!isAvailable()) return emptySet()
+        val granted = HealthConnectClient.getOrCreate(context).permissionController.getGrantedPermissions()
+        return heartRatePermissions - granted
     }
 
     suspend fun readSummary(
