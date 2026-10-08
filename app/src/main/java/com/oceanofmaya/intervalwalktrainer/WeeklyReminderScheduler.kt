@@ -14,6 +14,9 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class WeeklyReminderScheduler(private val context: Context) {
     private val appContext = context.applicationContext
@@ -63,14 +66,23 @@ class WeeklyReminderScheduler(private val context: Context) {
             canPostNotifications()
         if (canShowReminder) {
             createReminderChannel()
-            postReminderNotification()
+            postReminderNotification(hasCompletedWalkToday(nowMillis))
         }
     }
 
     private suspend fun isGoalMet(settings: WeeklyGoalSettings, nowMillis: Long): Boolean {
+        return workoutRepository().getWeeklyGoalProgress(settings, nowMillis).isGoalMet
+    }
+
+    private suspend fun hasCompletedWalkToday(nowMillis: Long): Boolean {
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date(nowMillis))
+        val completedWorkouts = workoutRepository().getRecordByDate(today)?.completedWorkouts ?: 0
+        return completedWorkouts > 0
+    }
+
+    private fun workoutRepository(): WorkoutRepository {
         val database = AppDatabase.getDatabase(appContext)
-        val repository = WorkoutRepository(database.workoutDao(), database.workoutSessionDao(), database)
-        return repository.getWeeklyGoalProgress(settings, nowMillis).isGoalMet
+        return WorkoutRepository(database.workoutDao(), database.workoutSessionDao(), database)
     }
 
     private fun canPostNotifications(): Boolean {
@@ -108,15 +120,15 @@ class WeeklyReminderScheduler(private val context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    private fun postReminderNotification() {
+    private fun postReminderNotification(hasCompletedWalkToday: Boolean) {
         val notificationManager = NotificationManagerCompat.from(appContext)
         notificationManager.cancel(REMINDER_NOTIFICATION_ID)
         notificationManager.notify(
             REMINDER_NOTIFICATION_ID,
             NotificationCompat.Builder(appContext, REMINDER_CHANNEL_ID)
                 .setSmallIcon(R.drawable.baseline_notifications_24)
-                .setContentTitle(appContext.getString(R.string.notif_weekly_reminder_title))
-                .setContentText(appContext.getString(R.string.notif_weekly_reminder_body))
+                .setContentTitle(appContext.getString(WeeklyReminderCopy.titleResId(hasCompletedWalkToday)))
+                .setContentText(appContext.getString(WeeklyReminderCopy.bodyResId(hasCompletedWalkToday)))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setDefaults(Notification.DEFAULT_SOUND or Notification.DEFAULT_VIBRATE)
                 .setVibrate(REMINDER_VIBRATION_PATTERN)

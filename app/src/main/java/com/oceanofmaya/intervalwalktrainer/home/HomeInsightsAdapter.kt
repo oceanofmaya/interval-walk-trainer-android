@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.oceanofmaya.intervalwalktrainer.ThemeNightModeSync
 
 class HomeInsightsAdapter(
     private var cards: List<HomeInsightCard> = emptyList()
@@ -17,7 +18,8 @@ class HomeInsightsAdapter(
     override fun getItemViewType(position: Int): Int = cards[position].layoutResId
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InsightViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
+        val view = LayoutInflater.from(ThemeNightModeSync.themedContext(parent.context))
+            .inflate(viewType, parent, false)
         view.layoutParams = RecyclerView.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT

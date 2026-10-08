@@ -2,6 +2,22 @@
 
 ## Version 1
 
+### 1.7.1 - 2026-10-07
+
+#### Bug Fixes
+
+- **Insights theme:** Home insight cards stay on the selected light theme after the app returns from the background, including after the phone is locked and unlocked. Accent colors are unchanged.
+
+#### Updates
+
+- **Workout reminders:** Reminder notifications now use different wording when a walk is already completed that day, instead of asking you to start your first walk.
+- **Reminder time:** The weekly reminder time now changes in 15-minute steps.
+
+#### Chore
+
+- Upgrade Gradle 9.3.1 → 9.8.0.
+- Register the unit-test source directory with AGP’s `directories` set instead of deprecated `srcDirs`.
+
 ### 1.7.0 - 2026-06-23
 
 #### Features
