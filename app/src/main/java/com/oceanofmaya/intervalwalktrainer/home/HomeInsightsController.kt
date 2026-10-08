@@ -18,6 +18,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.oceanofmaya.intervalwalktrainer.R
+import com.oceanofmaya.intervalwalktrainer.ThemeNightModeSync
 import com.oceanofmaya.intervalwalktrainer.databinding.HomeSectionInsightsBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -133,7 +134,7 @@ class HomeInsightsController(
         binding.homeInsightsSection.visibility = View.VISIBLE
         binding.homeInsightsSectionTitle.visibility = View.VISIBLE
         binding.homeInsightsSectionTitle.setTextColor(
-            ContextCompat.getColor(activity, R.color.text_primary)
+            ContextCompat.getColor(ThemeNightModeSync.themedContext(activity), R.color.text_primary)
         )
         binding.homeInsightsEmptyCard.visibility =
             if (selectionState.showEmptyNote) View.VISIBLE else View.GONE
@@ -154,7 +155,7 @@ class HomeInsightsController(
         host.visibility = View.VISIBLE
         host.removeAllViews()
 
-        val cardView = LayoutInflater.from(activity)
+        val cardView = LayoutInflater.from(ThemeNightModeSync.themedContext(activity))
             .inflate(card.layoutResId, host, false)
             .also { view ->
                 view.layoutParams = FrameLayout.LayoutParams(
@@ -295,7 +296,10 @@ class HomeInsightsController(
     private fun stylePageIndicator(tabLayout: TabLayout) {
         val dotSize = activity.resources.getDimensionPixelSize(R.dimen.home_insight_page_indicator_dot_size)
         val dotGap = activity.resources.getDimensionPixelSize(R.dimen.home_insight_page_indicator_gap)
-        val mutedColor = ContextCompat.getColor(activity, R.color.text_secondary)
+        val mutedColor = ContextCompat.getColor(
+            ThemeNightModeSync.themedContext(activity),
+            R.color.text_secondary
+        )
         tabLayout.tabMode = TabLayout.MODE_SCROLLABLE
 
         for (index in 0 until tabLayout.tabCount) {

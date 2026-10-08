@@ -66,7 +66,7 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, Workout Metrics, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
 - **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and choose insight cards on the home screen — **Weekly Goal**, **Current Streak**, **Today**, and **Last Workout** — for quick motivation between walks
 - **Insight cards**: Choose which cards appear in the home screen **Insights** section (edit icon beside Insights, or Settings → Insight cards; up to five when more than five are available), and use the up/down arrows beside a selected card to set the order they appear in. Cards include **Weekly Goal**, **Current Streak**, **Today**, and **Last Workout**. Last Workout can include saved Health Connect steps and average heart rate when available.
-- **Workout reminders**: Schedule exact recurring reminder notifications for selected days and time when a weekly goal is active, with an option to pause reminders once the weekly goal is met
+- **Workout reminders**: Schedule exact recurring reminder notifications for selected days and time when a weekly goal is active, with an option to pause reminders once the weekly goal is met. Reminder time changes in 15-minute steps. If a walk is already completed that day, the notification acknowledges it instead of asking you to start your first walk
 - **TTS languages:** Voice announcements (e.g. “Slow walk”, “Fast walk”, “Workout complete”) are spoken in the selected notification language when supported. Supported locales:
   - Arabic, Danish, Dutch, Filipino, French, German, Hindi, Indonesian, Italian, Japanese, Kannada, Korean, Malayalam, Polish, Portuguese (Brazil and Portugal), Russian, Simplified Chinese (China), Spanish, Swedish, Tagalog, Tamil, Telugu, Thai, Traditional Chinese (Hong Kong), Turkish, Urdu, Vietnamese
   - English is the default. Translations were AI-generated and may contain mistakes. Availability depends on installed voices and your device's TTS engine support.
@@ -144,7 +144,7 @@ The home screen is organized into grouped sections: a workout setup card for for
 
 When the Weekly Goal insight card is enabled and a goal is active, it shows an icon status badge and radial progress rings for the enabled targets. When no goal is set, the card can still appear as a grayed-out preview with 0/0 workouts and minutes. Tap the card to edit the goal. The full Weekly Goal card in Workout History keeps the detailed status pill, progress bars, remaining-target text, and reminder summary.
 
-Optional reminders repeat on the selected days at the selected time once a weekly goal is enabled with at least one target. Reminder options stay disabled in the editor until the goal is active. Reminder notifications open the home screen, respect Android notification permission, and can pause automatically once the weekly goal is met. On Android 12+, the app may ask for **Alarms & reminders** access so reminders can fire at the exact time you choose.
+Optional reminders repeat on the selected days at the selected time once a weekly goal is enabled with at least one target. Reminder time changes in 15-minute steps. Reminder options stay disabled in the editor until the goal is active. Reminder notifications open the home screen, respect Android notification permission, and can pause automatically once the weekly goal is met. If you already completed a walk that day, the notification acknowledges it instead of asking you to start your first walk. On Android 12+, the app may ask for **Alarms & reminders** access so reminders can fire at the exact time you choose.
 
 ### Creating Custom Formulas
 
@@ -196,7 +196,7 @@ Workout history records the workout name shown when the session completes. Exist
 - Android Gradle Plugin 9.0.1
 - Kotlin 2.3.10
 - Android SDK (API 36)
-- Gradle 9.3.1
+- Gradle 9.8.0
 
 To build:
 

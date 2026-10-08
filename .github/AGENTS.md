@@ -7,7 +7,7 @@ When working on this repository, please adhere to the following coding standards
 **CRITICAL**: All code suggestions and implementations must be compatible with the following build configuration:
 
 - **Android Gradle Plugin (AGP)**: 9.0.1
-- **Gradle**: 9.3.1
+- **Gradle**: 9.8.0
 - **Java**: 21 (JavaVersion.VERSION_21)
 - **Kotlin**: 2.3.10
 - **compileSdk**: 36

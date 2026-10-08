@@ -471,7 +471,7 @@ class WeeklyGoalEditor(
         private const val MINUTES_STEP = 5
         private const val HOURS_PER_DAY = 24
         private const val MINUTES_PER_HOUR = 60
-        private const val REMINDER_TIME_STEP_MINUTES = 30
+        private const val REMINDER_TIME_STEP_MINUTES = 15
         private const val SWITCH_TRACK_ALPHA = 0.5f
         private const val MIN_PEEK_HEIGHT_FRACTION = 0.40f
         private const val MAX_PEEK_HEIGHT_FRACTION = 0.80f
