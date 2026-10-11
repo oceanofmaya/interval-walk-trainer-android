@@ -6,137 +6,208 @@
     android:layout_height="match_parent"
     android:background="@color/wear_background">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
         android:paddingHorizontal="2dp"
         app:layout_boxedEdges="left|right">
 
-        <Button
-            android:id="@+id/formulaButton"
-            android:layout_width="140dp"
-            android:layout_height="30dp"
-            android:background="@drawable/wear_action_ghost"
-            android:contentDescription="@string/choose_workout"
-            android:drawableEnd="@drawable/baseline_expand_more_24"
-            android:drawablePadding="4dp"
-            android:ellipsize="end"
-            android:fontFamily="sans-serif-medium"
-            android:includeFontPadding="false"
-            android:maxLines="1"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="6dp"
-            android:stateListAnimator="@null"
-            android:text="@string/choose_workout"
-            android:textAllCaps="false"
-            android:textColor="@color/wear_text_primary"
-            android:textSize="13sp"
-            tools:text="5-4-5 Circuit" />
-
-        <TextView
-            android:id="@+id/phaseLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="18dp"
-            android:layout_marginTop="2dp"
-            android:fontFamily="sans-serif-medium"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:text="@string/phase_slow"
-            android:textAllCaps="true"
-            android:textColor="@color/wear_slow"
-            android:textSize="13sp"
-            android:letterSpacing="0.08" />
-
-        <TextView
-            android:id="@+id/timeDisplay"
-            android:layout_width="wrap_content"
-            android:layout_height="43dp"
-            android:fontFamily="sans-serif-light"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:textColor="@color/wear_text_primary"
-            android:textSize="42sp"
-            tools:text="05:00" />
-
-        <TextView
-            android:id="@+id/intervalLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="16dp"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:text="@string/interval_zero"
-            android:textColor="@color/wear_text_secondary"
-            android:textSize="12sp" />
-
-        <ProgressBar
-            android:id="@+id/progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="128dp"
-            android:layout_height="3dp"
-            android:layout_marginTop="3dp"
-            android:indeterminate="false"
-            android:max="100"
-            android:progressBackgroundTint="@color/wear_outline"
-            android:progressTint="@color/wear_accent" />
-
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_marginTop="8dp"
-            android:baselineAligned="false"
+            android:id="@+id/timerContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:gravity="center"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/wear_timer_bottom_padding">
 
             <Button
-                android:id="@+id/resetButton"
-                android:layout_width="56dp"
-                android:layout_height="match_parent"
+                android:id="@+id/formulaButton"
+                android:layout_width="@dimen/wear_formula_width"
+                android:layout_height="48dp"
                 android:background="@drawable/wear_action_ghost"
+                android:contentDescription="@string/choose_workout"
+                android:drawableEnd="@drawable/baseline_expand_more_24"
+                android:drawablePadding="4dp"
+                android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:includeFontPadding="false"
+                android:maxLines="1"
                 android:minHeight="0dp"
                 android:minWidth="0dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="6dp"
                 android:stateListAnimator="@null"
-                android:text="@string/reset"
+                android:text="@string/choose_workout"
                 android:textAllCaps="false"
-                android:textColor="@color/wear_text_secondary"
+                android:textColor="@color/wear_text_primary"
+                android:textSize="13sp"
+                tools:text="5-4-5 Circuit" />
+
+            <TextView
+                android:id="@+id/phaseLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/wear_phase_height"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:letterSpacing="0.08"
+                android:text="@string/phase_slow"
+                android:textAllCaps="true"
+                android:textColor="@color/wear_slow"
                 android:textSize="13sp" />
 
-            <Space
-                android:layout_width="8dp"
-                android:layout_height="match_parent" />
+            <TextView
+                android:id="@+id/timeDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/wear_time_height"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:textColor="@color/wear_text_primary"
+                android:textSize="@dimen/wear_time_text_size"
+                tools:text="05:00" />
+
+            <TextView
+                android:id="@+id/intervalLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/wear_interval_height"
+                android:layout_marginTop="@dimen/wear_interval_margin_top"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="@string/interval_zero"
+                android:textColor="@color/wear_text_secondary"
+                android:textSize="12sp" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="@dimen/wear_progress_width"
+                android:layout_height="3dp"
+                android:layout_marginTop="@dimen/wear_progress_margin_top"
+                android:indeterminate="false"
+                android:max="100"
+                android:progressBackgroundTint="@color/wear_outline"
+                android:progressTint="@color/wear_accent" />
+
+            <LinearLayout
+                android:layout_width="@dimen/wear_action_row_width"
+                android:layout_height="48dp"
+                android:layout_marginTop="@dimen/wear_action_margin_top"
+                android:baselineAligned="false"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/resetButton"
+                    android:layout_width="@dimen/wear_reset_width"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/wear_action_ghost"
+                    android:fontFamily="sans-serif-medium"
+                    android:includeFontPadding="false"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:stateListAnimator="@null"
+                    android:text="@string/reset"
+                    android:textAllCaps="false"
+                    android:textColor="@color/wear_text_secondary"
+                    android:textSize="13sp" />
+
+                <Space
+                    android:layout_width="@dimen/wear_action_gap"
+                    android:layout_height="match_parent" />
+
+                <Button
+                    android:id="@+id/startPauseButton"
+                    android:layout_width="@dimen/wear_primary_action_width"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/wear_action_primary"
+                    android:fontFamily="sans-serif-medium"
+                    android:includeFontPadding="false"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:stateListAnimator="@null"
+                    android:text="@string/start"
+                    android:textAllCaps="false"
+                    android:textColor="@color/wear_on_accent"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/completionContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/wear_action_primary"
+                android:importantForAccessibility="no"
+                android:padding="11dp"
+                android:src="@drawable/baseline_check_24"
+                android:tint="@color/wear_on_accent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="22dp"
+                android:layout_marginTop="4dp"
+                android:ellipsize="end"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@string/workout_complete"
+                android:textColor="@color/wear_text_primary"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/completionWorkoutSummary"
+                android:layout_width="148dp"
+                android:layout_height="18dp"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/wear_text_secondary"
+                android:textSize="13sp"
+                tools:text="3-3 Japanese • 30 min" />
+
+            <TextView
+                android:id="@+id/completionSyncStatus"
+                android:layout_width="136dp"
+                android:layout_height="16dp"
+                android:layout_marginTop="5dp"
+                android:accessibilityLiveRegion="polite"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="@string/sync_pending"
+                android:textColor="@color/wear_text_secondary"
+                android:textSize="11sp"
+                tools:text="@string/sync_sent" />
 
             <Button
-                android:id="@+id/startPauseButton"
-                android:layout_width="88dp"
-                android:layout_height="match_parent"
+                android:id="@+id/doneButton"
+                android:layout_width="96dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="5dp"
                 android:background="@drawable/wear_action_primary"
                 android:fontFamily="sans-serif-medium"
                 android:includeFontPadding="false"
                 android:minHeight="0dp"
                 android:minWidth="0dp"
                 android:stateListAnimator="@null"
-                android:text="@string/start"
+                android:text="@string/done"
                 android:textAllCaps="false"
                 android:textColor="@color/wear_on_accent"
-                android:textSize="13sp" />
+                android:textSize="14sp" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/syncStatus"
-            android:layout_width="match_parent"
-            android:layout_height="14dp"
-            android:layout_marginTop="6dp"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:maxLines="1"
-            android:text="@string/sync_ready"
-            android:textColor="@color/wear_text_secondary"
-            android:textSize="11sp" />
-    </LinearLayout>
+    </FrameLayout>
 </androidx.wear.widget.BoxInsetLayout>

@@ -15,7 +15,9 @@
     <string name="pause">Pause</string>
     <string name="resume">Resume</string>
     <string name="reset">Reset</string>
-    <string name="sync_ready">Syncs to phone</string>
+    <string name="done">Done</string>
+    <string name="workout_complete">Workout complete</string>
+    <string name="workout_complete_summary">%1$s • %2$d min</string>
     <string name="sync_pending">Waiting to sync</string>
-    <string name="sync_sent">Queued for phone</string>
+    <string name="sync_sent">Saved • Syncing to phone</string>
 </resources>

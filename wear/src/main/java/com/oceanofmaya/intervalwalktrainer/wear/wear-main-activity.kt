@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.wearable.DataClient
@@ -38,6 +39,7 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
     private var timer: IntervalTimer? = null
     private var timerJob: Job? = null
     private var completionId: String? = null
+    private var completionSyncStatusRes = R.string.sync_pending
     private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +51,7 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
         binding.formulaButton.setOnClickListener { showFormulaPicker() }
         binding.startPauseButton.setOnClickListener { toggleTimer() }
         binding.resetButton.setOnClickListener { resetTimer() }
+        binding.doneButton.setOnClickListener { resetTimer() }
         restoreState(savedInstanceState)
         if (timer == null) {
             createTimer()
@@ -88,6 +91,7 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
         outState.putBoolean(KEY_IS_RUNNING, state.isRunning)
         outState.putString(KEY_PHASE, phaseName(state.currentPhase))
         outState.putString(KEY_COMPLETION_ID, completionId)
+        outState.putInt(KEY_COMPLETION_SYNC_STATUS, completionSyncStatusRes)
     }
 
     private fun showFormulaPicker() {
@@ -147,9 +151,7 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
 
     private fun toggleTimer() {
         val state = timer?.state?.value ?: return
-        if (state.currentPhase is IntervalPhase.Completed) {
-            resetTimer()
-        }
+        if (state.currentPhase is IntervalPhase.Completed) return
         if (timer?.state?.value?.isRunning == true) {
             timer?.pause()
             releaseWakeLock()
@@ -165,6 +167,8 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
     private fun resetTimer() {
         releaseWakeLock()
         completionId = null
+        completionSyncStatusRes = R.string.sync_pending
+        binding.completionSyncStatus.setText(completionSyncStatusRes)
         val availableFormulas = availableFormulaChoices()
         if (currentFormula !in availableFormulas) {
             currentFormula = availableFormulas.firstOrNull { it.name == currentFormula.name }
@@ -175,10 +179,21 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
         } else {
             timer?.reset()
         }
-        binding.syncStatus.setText(R.string.sync_ready)
     }
 
     private fun renderState(state: TimerState) {
+        val isCompleted = state.currentPhase is IntervalPhase.Completed
+        binding.timerContent.visibility = if (isCompleted) View.GONE else View.VISIBLE
+        binding.completionContent.visibility = if (isCompleted) View.VISIBLE else View.GONE
+        if (isCompleted) {
+            binding.completionWorkoutSummary.text = getString(
+                R.string.workout_complete_summary,
+                compactFormulaName(currentFormula),
+                (currentFormula.totalDurationSeconds / 60).coerceAtLeast(1)
+            )
+            binding.completionSyncStatus.setText(completionSyncStatusRes)
+        }
+
         val phasePresentation = when (state.currentPhase) {
             is IntervalPhase.Slow -> R.string.phase_slow to R.color.wear_slow
             is IntervalPhase.Fast -> R.string.phase_fast to R.color.wear_fast
@@ -237,9 +252,21 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
             )
         }.asPutDataRequest().setUrgent()
 
-        binding.syncStatus.setText(R.string.sync_pending)
+        updateCompletionSyncStatus(R.string.sync_pending)
         dataClient.putDataItem(request)
-            .addOnSuccessListener { binding.syncStatus.setText(R.string.sync_sent) }
+            .addOnSuccessListener {
+                if (
+                    completionId == id &&
+                    timer?.state?.value?.currentPhase is IntervalPhase.Completed
+                ) {
+                    updateCompletionSyncStatus(R.string.sync_sent)
+                }
+            }
+    }
+
+    private fun updateCompletionSyncStatus(statusRes: Int) {
+        completionSyncStatusRes = statusRes
+        binding.completionSyncStatus.setText(statusRes)
     }
 
     private fun loadPhoneData() {
@@ -339,6 +366,10 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
         rebuildFormulaChoices()
         updateFormulaButton()
         completionId = state.getString(KEY_COMPLETION_ID)
+        completionSyncStatusRes = state.getInt(
+            KEY_COMPLETION_SYNC_STATUS,
+            R.string.sync_pending
+        )
         val restoredPhase = when (state.getString(KEY_PHASE)) {
             PHASE_FAST -> IntervalPhase.Fast
             PHASE_COMPLETED -> IntervalPhase.Completed
@@ -411,6 +442,7 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
         const val KEY_IS_RUNNING = "is-running"
         const val KEY_PHASE = "phase"
         const val KEY_COMPLETION_ID = "completion-id"
+        const val KEY_COMPLETION_SYNC_STATUS = "completion-sync-status"
         const val PHASE_SLOW = "slow"
         const val PHASE_FAST = "fast"
         const val PHASE_COMPLETED = "completed"

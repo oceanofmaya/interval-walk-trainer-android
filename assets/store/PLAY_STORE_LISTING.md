@@ -10,9 +10,10 @@ field constraints used when preparing a release.
 - **Long description:** Full app description. Maximum 4000 characters.
 - **Wear OS screenshots:** Google Play requires at least one current 1:1 screenshot
   (minimum 384 × 384) containing only the Wear app interface. The current
-  repository listing set contains two:
+  repository listing set contains three:
   `assets/store/screenshots/wear/01-workout-timer.png` and
-  `assets/store/screenshots/wear/02-workout-picker.png`; see
+  `assets/store/screenshots/wear/02-workout-picker.png`, plus
+  `assets/store/screenshots/wear/03-workout-complete.png`; see
   [`SCREENSHOTS.md`](SCREENSHOTS.md) for capture and formatting requirements.
 
 ## Current Listing
