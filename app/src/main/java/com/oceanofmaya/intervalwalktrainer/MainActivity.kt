@@ -24,6 +24,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.core.net.toUri
 import java.util.Locale
+import java.util.UUID
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
@@ -114,9 +115,11 @@ open class MainActivity : AppCompatActivity() {
     private lateinit var homeInsightRegistry: HomeInsightRegistry
     private lateinit var workoutMetricsManager: WorkoutMetricsManager
     private lateinit var workoutMetricsSnapshotBinder: WorkoutMetricsSnapshotBinder
+    private lateinit var wearSyncManager: WearSyncManager
     private var healthConnectPermissionRequest: HealthConnectPermissionRequest = HealthConnectPermissionRequest.NONE
     private var isUpdatingWorkoutMetricsSwitch = false
     private var workoutMetricsSnapshotRequestId = 0
+    private var activeWorkoutCompletionId: String? = null
 
     private val healthConnectPermissionLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
@@ -182,6 +185,7 @@ open class MainActivity : AppCompatActivity() {
         private const val KEY_SAVED_ELAPSED_SECONDS = "saved_elapsed_seconds"
         private const val KEY_SAVED_COMPLETION_AT_MILLIS = "saved_completion_at_millis"
         private const val KEY_SAVED_WORKOUT_RECORDED = "saved_workout_recorded"
+        private const val KEY_SAVED_WORKOUT_COMPLETION_ID = "saved_workout_completion_id"
         private const val KEY_SAVED_METRICS_SESSION_STARTED_AT = "saved_metrics_session_started_at"
         private const val KEY_SAVED_METRICS_INTERVALS = "saved_metrics_intervals"
         private const val KEY_SAVED_METRICS_ACTIVE_INTERVAL_STARTED_AT = "saved_metrics_active_interval_started_at"
@@ -269,6 +273,14 @@ open class MainActivity : AppCompatActivity() {
         workoutRepository = WorkoutRepository(database.workoutDao(), database.workoutSessionDao(), database)
         savedWorkoutRepository = SavedWorkoutRepository(database.savedWorkoutDao(), database)
         workoutMetricsManager = WorkoutMetricsManager(this)
+        wearSyncManager = WearSyncManager(this)
+        lifecycleScope.launch {
+            savedWorkoutRepository.observeAllOrdered().collect { savedWorkouts ->
+                wearSyncManager.publishPresetCatalog(
+                    savedWorkouts.map(SavedWorkout::toIntervalFormula)
+                )
+            }
+        }
         workoutMetricsSnapshotBinder = WorkoutMetricsSnapshotBinder(
             root = binding.homeSessionPanel.homeMetricsSnapshot.root
         )
@@ -403,6 +415,7 @@ open class MainActivity : AppCompatActivity() {
             })
             outState.putLong(KEY_SAVED_COMPLETION_AT_MILLIS, completionAtMillis ?: -1L)
             outState.putBoolean(KEY_SAVED_WORKOUT_RECORDED, hasRecordedWorkoutCompletion)
+            outState.putString(KEY_SAVED_WORKOUT_COMPLETION_ID, activeWorkoutCompletionId)
         }
         workoutMetricsManager.snapshot()?.let { snapshot ->
             outState.putLong(KEY_SAVED_METRICS_SESSION_STARTED_AT, snapshot.sessionStartedAtMillis)
@@ -430,6 +443,7 @@ open class MainActivity : AppCompatActivity() {
         val savedCompletionAt = savedInstanceState.getLong(KEY_SAVED_COMPLETION_AT_MILLIS, -1L)
         completionAtMillis = if (savedCompletionAt > 0) savedCompletionAt else null
         hasRecordedWorkoutCompletion = savedInstanceState.getBoolean(KEY_SAVED_WORKOUT_RECORDED, false)
+        activeWorkoutCompletionId = savedInstanceState.getString(KEY_SAVED_WORKOUT_COMPLETION_ID)
         
         // Only restore if we have valid saved state
         if (savedFormulaName != null && savedTimeRemaining >= 0) {
@@ -720,10 +734,10 @@ open class MainActivity : AppCompatActivity() {
                     lastNotifiedPhase = phase
                 }
 
-                // Completion is handled when the actual completed TimerState renders.
                 // Phase callbacks can fire early so voice prompts finish on time.
             },
-            onIntervalComplete = {}
+            onIntervalComplete = {},
+            onWorkoutComplete = ::handleActualWorkoutCompletion
         )
     }
     
@@ -2455,7 +2469,18 @@ open class MainActivity : AppCompatActivity() {
             adjustStartCountdownSeconds(startCountdownValue, 1)
         }
         
+        setupWearCompanionCard(view)
         bottomSheetDialog.show()
+    }
+
+    private fun setupWearCompanionCard(settingsView: View) {
+        WearCompanionSettingsController(
+            activity = this,
+            statusView = settingsView.findViewById(R.id.wearCompanionStatus),
+            actionButton = settingsView.findViewById(R.id.wearCompanionAction),
+            accentColor = getAccentColor(),
+            onAction = ::hapticSelection
+        ).refresh()
     }
 
     private fun showFaqDialog() {
@@ -2669,6 +2694,10 @@ open class MainActivity : AppCompatActivity() {
 
     private fun startTimerNow() {
         cancelCompletionAutoReset(clearCompletionTimestamp = true)
+        val state = intervalTimer?.state?.value
+        if (state?.elapsedSeconds == 0 && activeWorkoutCompletionId == null) {
+            activeWorkoutCompletionId = UUID.randomUUID().toString()
+        }
         // Acquire wake lock to keep device awake during timer
         acquireWakeLock()
         startWorkoutForegroundService()
@@ -2809,6 +2838,7 @@ open class MainActivity : AppCompatActivity() {
         hasShownCompletionConfetti = false
         hasRecordedWorkoutCompletion = false
         isRecordingWorkoutCompletion = false
+        activeWorkoutCompletionId = null
 
         intervalTimer = createIntervalTimer()
         observeTimerState()
@@ -2843,16 +2873,21 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun handleRenderedCompletion(state: TimerState) {
-        if (
-            state.currentPhase !is IntervalPhase.Completed ||
-            hasRecordedWorkoutCompletion ||
-            isRecordingWorkoutCompletion
-        ) {
-            return
+        if (state.currentPhase is IntervalPhase.Completed) {
+            handleActualWorkoutCompletion()
         }
+    }
+
+    /**
+     * Handles the timer's actual completion callback. The rendered-state path also calls this as
+     * a restoration fallback, while the stable completion ID keeps persistence idempotent.
+     */
+    private fun handleActualWorkoutCompletion() {
+        if (hasRecordedWorkoutCompletion || isRecordingWorkoutCompletion) return
         isRecordingWorkoutCompletion = true
+        completionAtMillis = completionAtMillis ?: System.currentTimeMillis()
+        activeWorkoutCompletionId = activeWorkoutCompletionId ?: UUID.randomUUID().toString()
         releaseWakeLock()
-        stopWorkoutForegroundService()
         recordWorkoutCompletion()
         scheduleCompletionAutoReset()
     }
@@ -2965,6 +3000,9 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun updateFormulaDetails() {
+        if (::wearSyncManager.isInitialized) {
+            wearSyncManager.publishActiveFormula(currentFormula)
+        }
         val totalMin = currentFormula.totalDurationSeconds / 60
         val slowText = formatDurationMinSec(currentFormula.slowDurationSeconds)
         val fastText = formatDurationMinSec(currentFormula.fastDurationSeconds)
@@ -3071,45 +3109,105 @@ open class MainActivity : AppCompatActivity() {
     /**
      * Records a completed workout in the database.
      */
+    @Suppress("LongMethod", "CyclomaticComplexMethod", "TooGenericExceptionCaught")
     private fun recordWorkoutCompletion() {
-        // Check if workout saving is enabled
         val saveWorkoutsEnabled = sharedPreferences.getBoolean(KEY_SAVE_WORKOUTS, true)
         if (!saveWorkoutsEnabled) {
             workoutMetricsManager.clearSession()
             hasRecordedWorkoutCompletion = true
             isRecordingWorkoutCompletion = false
+            stopWorkoutForegroundService()
             android.util.Log.d("MainActivity", "Workout saving is disabled, skipping record")
             return
         }
-        
-        // Use formula's total duration since state might not be updated yet when called early
-        val totalSeconds = currentFormula.totalDurationSeconds
+
+        val completedFormula = currentFormula
+        val totalSeconds = completedFormula.totalDurationSeconds
         if (totalSeconds > 0) {
-            val minutes = (totalSeconds / 60).coerceAtLeast(1) // At least 1 minute
-            val workoutType = currentFormula.name
+            val minutes = (totalSeconds / 60).coerceAtLeast(1)
+            val workoutType = completedFormula.name
             val metricsEnabled = isWorkoutMetricsEnabled()
             val snapshotRequestId = ++workoutMetricsSnapshotRequestId
+            val completedAt = completionAtMillis ?: System.currentTimeMillis()
+            val completionId = activeWorkoutCompletionId ?: UUID.randomUUID().toString().also {
+                activeWorkoutCompletionId = it
+            }
+            workoutMetricsManager.pauseSession(completedAt)
+            val metricsSessionSnapshot = workoutMetricsManager.snapshot()
+            workoutMetricsManager.clearSession()
+            val pendingStore = PendingWorkoutStore(applicationContext)
+            pendingStore.save(
+                PendingWorkoutStore.PendingWorkout(
+                    completionId = completionId,
+                    workoutType = workoutType,
+                    minutes = minutes,
+                    completedAtMillis = completedAt
+                )
+            )
             workoutMetricsSnapshotBinder.showLoading(metricsEnabled, saveWorkoutsEnabled = true)
-            lifecycleScope.launch {
+
+            val app = application as IntervalWalkTrainerApp
+            app.applicationScope.launch {
                 try {
-                    val metrics = workoutMetricsManager.completeSession(
-                        metricsEnabled = metricsEnabled,
-                        formula = currentFormula
+                    val savedSession = workoutRepository.recordWorkout(
+                        minutes = minutes,
+                        workoutType = workoutType,
+                        completionId = completionId,
+                        completedAtMillis = completedAt
                     )
-                    workoutRepository.recordWorkout(minutes, workoutType, metrics)
-                    hasRecordedWorkoutCompletion = true
-                    isRecordingWorkoutCompletion = false
-                    if (snapshotRequestId == workoutMetricsSnapshotRequestId) {
-                        workoutMetricsSnapshotBinder.bind(metricsEnabled, saveWorkoutsEnabled = true, metrics)
+                    pendingStore.clearIfMatches(completionId)
+                    applicationContext.stopService(
+                        Intent(applicationContext, WorkoutForegroundService::class.java)
+                    )
+
+                    val metrics = metricsSessionSnapshot?.let { snapshot ->
+                        WorkoutMetricsManager(applicationContext).apply {
+                            restore(snapshot)
+                        }.completeSession(
+                            metricsEnabled = metricsEnabled,
+                            formula = completedFormula,
+                            nowMillis = completedAt
+                        )
                     }
-                    homeInsightsController.load()
-                    WeeklyReminderScheduler(this@MainActivity).scheduleNextReminder()
+                    if (metrics != null) {
+                        workoutRepository.updateSessionMetrics(savedSession, metrics)
+                    }
+                    WeeklyReminderScheduler(applicationContext).scheduleNextReminder()
+
+                    withContext(Dispatchers.Main) {
+                        if (activeWorkoutCompletionId == completionId) {
+                            hasRecordedWorkoutCompletion = true
+                            isRecordingWorkoutCompletion = false
+                        }
+                        if (
+                            !isDestroyed &&
+                            snapshotRequestId == workoutMetricsSnapshotRequestId
+                        ) {
+                            workoutMetricsSnapshotBinder.bind(
+                                metricsEnabled,
+                                saveWorkoutsEnabled = true,
+                                metrics
+                            )
+                            homeInsightsController.load()
+                        }
+                    }
                     android.util.Log.d("MainActivity", "Workout recorded: $minutes minutes, type: $workoutType")
                 } catch (e: Exception) {
-                    if (snapshotRequestId == workoutMetricsSnapshotRequestId) {
-                        workoutMetricsSnapshotBinder.bind(metricsEnabled, saveWorkoutsEnabled = true, metrics = null)
+                    withContext(Dispatchers.Main) {
+                        if (activeWorkoutCompletionId == completionId) {
+                            isRecordingWorkoutCompletion = false
+                        }
+                        if (
+                            !isDestroyed &&
+                            snapshotRequestId == workoutMetricsSnapshotRequestId
+                        ) {
+                            workoutMetricsSnapshotBinder.bind(
+                                metricsEnabled,
+                                saveWorkoutsEnabled = true,
+                                metrics = null
+                            )
+                        }
                     }
-                    isRecordingWorkoutCompletion = false
                     android.util.Log.e("MainActivity", "Error recording workout", e)
                 }
             }

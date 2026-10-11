@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.IntervalWalkTrainer.Wear" parent="android:style/Theme.DeviceDefault">
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:colorAccent">#4DB6AC</item>
+        <item name="android:navigationBarColor">#000000</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style
+        name="Theme.IntervalWalkTrainer.Wear.FormulaPicker"
+        parent="@style/Theme.IntervalWalkTrainer.Wear">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowBackground">@color/wear_background</item>
+    </style>
+</resources>

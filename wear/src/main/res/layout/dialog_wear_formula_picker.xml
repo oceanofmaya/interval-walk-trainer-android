@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/wear_background">
+
+    <TextView
+        android:id="@+id/pickerTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="25dp"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:text="@string/choose_workout"
+        android:textColor="@color/wear_text_primary"
+        android:textSize="16sp" />
+
+    <androidx.wear.widget.WearableRecyclerView
+        android:id="@+id/formulaList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="54dp"
+        android:layout_marginBottom="13dp"
+        android:clipToPadding="false"
+        android:fadingEdgeLength="24dp"
+        android:focusable="true"
+        android:paddingTop="32dp"
+        android:paddingBottom="72dp"
+        android:requiresFadingEdge="vertical"
+        android:scrollbars="none" />
+
+</FrameLayout>

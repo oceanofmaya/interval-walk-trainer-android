@@ -17,6 +17,8 @@ interval-walk-trainer-android/
 │       │       └── mipmap-*/               # Launcher icons
 │       └── test/                           # Unit tests
 │           └── java/com/oceanofmaya/intervalwalktrainer/
+├── shared/                                 # Shared phone/Wear formula and timer logic
+├── wear/                                   # Wear OS companion app module
 ├── assets/                                 # Non-compiled assets
 │   └── store/                              # Play Store publishing assets
 │       └── screenshots/                     # Store listing screenshots
@@ -56,6 +58,7 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - **Themes**: System (follows device), Light, or Dark (selected in Settings)
 - **Accent styles**: Blue, Teal, Purple, Amber or Magenta accent swatches in Settings
 - Runs in background: continues working when phone is locked
+- **Wear OS companion**: Browse phone-synced saved presets, run a workout on Wear OS 3+, receive phase haptics, and sync completed sessions to phone history when connected
 - Minimalist design with large, readable timer
 - Progress tracking: current interval and total intervals
 - Visual progress bar showing overall workout completion
@@ -131,10 +134,18 @@ Three pre-configured presets cover the main training patterns. **My saved preset
 4. Tap **Start** to begin (a short countdown appears if enabled)
 5. Monitor progress using the progress bar and elapsed/remaining time displays
 6. Use **Pause** (button shows **Resume** when paused) or **Reset** as needed
-7. The timer continues running even when the phone is locked
+7. The timer continues running even when the phone is locked; completed workouts are saved from the timer event even while the home screen is backgrounded
 8. View workout history and statistics from **Workout History** in the overflow menu (⋮)
 9. Tap **Weekly Goal** in Workout History, Settings, or the **Weekly Goal** insight card on the home screen to set weekly targets and optional recurring reminders
 10. Tap a day in the calendar to see workout details, including optional saved metrics when available; delete individual workouts from the detail sheet or clear all history from the Stats screen
+
+### Wear OS Companion
+
+Install the Wear OS companion through the same Google Play listing on a paired Wear OS 3+ watch. The watch uses the same interval formulas and timer behavior as the phone. It shows the current slow/fast phase, remaining time, interval progress, and Start, Pause/Resume, and Reset controls, with haptic phase cues.
+
+The phone sends its ordered saved-preset catalog to the watch as a read-only library and sends the active formula separately, including one-off unsaved formulas. Create, edit, rename, reorder, and delete presets on the phone; Data Layer updates the watch catalog, which remains available from the local Data Layer cache while disconnected. The watch also includes the three built-in formulas. On completion, it queues a small completion record through the Wear OS Data Layer. The paired phone saves it to Workout History when delivery is available; stable completion IDs prevent retries from counting the same workout twice. The companion does not read watch sensors directly. Optional step and heart-rate summaries continue to come from Health Connect on the phone after the wearable provider syncs them.
+
+The phone's **Settings → Wear OS companion** card reports whether a connected watch has the companion installed. When it is missing, **Install** opens the app's Google Play listing directly on that watch.
 
 ### Weekly Goals
 

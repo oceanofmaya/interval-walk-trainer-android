@@ -230,6 +230,50 @@ class AppDatabaseMigrationTest {
         }
     }
 
+    @Test
+    fun migrate6To7AddsUniqueCompletionIdAndPreservesExistingData() {
+        createVersion6Database()
+
+        val database = Room.databaseBuilder(context, AppDatabase::class.java, TEST_DB)
+            .addMigrations(AppDatabase.MIGRATION_6_7)
+            .build()
+
+        try {
+            val db = database.openHelper.writableDatabase
+            db.query(
+                "SELECT workoutType, completionId FROM workout_sessions WHERE date = '2026-04-24'"
+            ).use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("3-3 Japanese - 5 Rounds", cursor.getString(0))
+                assertTrue(cursor.isNull(1))
+            }
+            db.execSQL(
+                "UPDATE workout_sessions SET completionId = 'watch-session-1' " +
+                    "WHERE date = '2026-04-24'"
+            )
+            db.query(
+                "SELECT completionId FROM workout_sessions WHERE date = '2026-04-24'"
+            ).use { cursor ->
+                assertTrue(cursor.moveToFirst())
+                assertEquals("watch-session-1", cursor.getString(0))
+            }
+        } finally {
+            database.close()
+        }
+    }
+
+    private fun createVersion6Database() {
+        createVersion5Database()
+        context.openOrCreateDatabase(TEST_DB, Context.MODE_PRIVATE, null).apply {
+            execSQL("ALTER TABLE workout_sessions ADD COLUMN formulaSnapshotJson TEXT")
+            execSQL("ALTER TABLE workout_sessions ADD COLUMN metricsPhaseWindowsJson TEXT")
+            execSQL("ALTER TABLE workout_sessions ADD COLUMN fastPhaseAverageHeartRateBpm INTEGER")
+            execSQL("ALTER TABLE workout_sessions ADD COLUMN slowPhaseAverageHeartRateBpm INTEGER")
+            version = 6
+            close()
+        }
+    }
+
     private fun createVersion5Database() {
         createVersion4Database()
         context.openOrCreateDatabase(TEST_DB, Context.MODE_PRIVATE, null).apply {

@@ -1,12 +1,14 @@
 package com.oceanofmaya.intervalwalktrainer
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
  * Represents an individual workout session with its type and duration.
  * 
  * @param id Auto-generated primary key
+ * @param completionId Stable phone/watch completion identifier used for idempotent recording
  * @param date The date of the workout in YYYY-MM-DD format
  * @param workoutType The name/type of the workout formula used
  * @param minutes The duration of this workout in minutes
@@ -24,10 +26,14 @@ import androidx.room.PrimaryKey
  * @param fastPhaseAverageHeartRateBpm Optional average heart rate across fast phases
  * @param slowPhaseAverageHeartRateBpm Optional average heart rate across slow phases
  */
-@Entity(tableName = "workout_sessions")
+@Entity(
+    tableName = "workout_sessions",
+    indices = [Index(value = ["completionId"], unique = true)]
+)
 data class WorkoutSession(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val completionId: String? = null,
     val date: String, // Format: YYYY-MM-DD
     val workoutType: String, // Formula name (e.g., "3-3 Japanese - 5 Rounds")
     val minutes: Int,

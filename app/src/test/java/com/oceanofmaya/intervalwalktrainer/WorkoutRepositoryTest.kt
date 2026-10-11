@@ -1,6 +1,7 @@
 package com.oceanofmaya.intervalwalktrainer
 
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.argThat
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import java.text.SimpleDateFormat
@@ -40,6 +42,11 @@ class WorkoutRepositoryTest {
     @BeforeEach
     fun setup() {
         repository = WorkoutRepository(workoutDao, workoutSessionDao)
+        runBlocking {
+            org.mockito.Mockito.lenient()
+                .`when`(workoutSessionDao.insert(org.mockito.kotlin.any()))
+                .thenReturn(1L)
+        }
     }
     
     @Test
@@ -130,6 +137,54 @@ class WorkoutRepositoryTest {
                 session.startedAt == 1777159800000 &&
                 session.metricsIntervalsJson == "1777159800000,1777160700000;1777161000000,1777161600000"
         })
+    }
+
+    @Test
+    fun `recordWorkout uses completion timestamp and stable id`() = runTest {
+        val completedAt = millisFor(2026, Calendar.OCTOBER, 8, 23, 59)
+        val completionId = "phone-session-123"
+        whenever(workoutSessionDao.insert(org.mockito.kotlin.any())).thenReturn(42L)
+        whenever(workoutDao.getRecordByDate("2026-10-08")).thenReturn(null)
+
+        val result = repository.recordWorkout(
+            minutes = 30,
+            workoutType = "3-3 Japanese - 5 Rounds",
+            completionId = completionId,
+            completedAtMillis = completedAt
+        )
+
+        assertEquals(42L, result.id)
+        assertEquals(completionId, result.completionId)
+        assertEquals("2026-10-08", result.date)
+        assertEquals(completedAt, result.timestamp)
+        verify(workoutDao).insertOrUpdate(argThat {
+            date == "2026-10-08" && lastWorkoutTimestamp == completedAt
+        })
+    }
+
+    @Test
+    fun `duplicate completion id does not increment daily aggregate`() = runTest {
+        val completionId = "wear-session-123"
+        val existing = WorkoutSession(
+            id = 7L,
+            completionId = completionId,
+            date = "2026-10-09",
+            workoutType = "3-3 Japanese - 5 Rounds",
+            minutes = 30
+        )
+        whenever(workoutSessionDao.insert(org.mockito.kotlin.any())).thenReturn(-1L)
+        whenever(workoutSessionDao.getByCompletionId(completionId)).thenReturn(existing)
+
+        val result = repository.recordWorkout(
+            minutes = 30,
+            workoutType = existing.workoutType,
+            completionId = completionId,
+            completedAtMillis = existing.timestamp
+        )
+
+        assertEquals(existing, result)
+        verify(workoutDao, never()).getRecordByDate(org.mockito.kotlin.any())
+        verify(workoutDao, never()).insertOrUpdate(org.mockito.kotlin.any())
     }
     
     @Test

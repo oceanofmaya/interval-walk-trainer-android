@@ -2,6 +2,36 @@
 
 ## Version 1
 
+### 1.8.0 - 2026-10-09
+
+#### Features
+
+- **Wear OS companion:** Run the shared interval timer from a paired Wear OS 3+ watch with phase, time, progress, pause, resume, reset, and haptic feedback.
+- **Phone and watch sync:** The phone's ordered saved-preset catalog is available read-only on the watch, one-off active formulas sync separately, and watch-completed workouts are queued through the Wear OS Data Layer until they can be saved to phone history.
+- **Companion discovery:** Settings detects connected Wear OS watches, reports whether the companion is installed, and can open its Play Store listing directly on a connected watch.
+- **Watch workout screen:** Fit formula selection, phase, timer, progress, controls, and sync status on one round-watch screen without scrolling, with clearer primary/secondary actions.
+- **Watch workout picker:** Use a Wear-native scaling list with snap-to-center scrolling, edge fading, selected-state emphasis, rotary support, and haptic feedback.
+
+#### Bug Fixes
+
+- **Reliable workout history:** Completed workouts are persisted from the timer's actual completion event even when the phone UI is backgrounded or being recreated.
+- **Exactly-once completion:** Stable completion IDs and transactional Room writes prevent rotation, retries, or delayed watch delivery from duplicating sessions or daily totals.
+- **Completion time:** Workout history uses the actual completion timestamp and date, including workouts completed near midnight.
+- **Workout Metrics:** The base workout is saved before optional Health Connect reads, so a slow metrics query cannot prevent history from being recorded.
+
+#### Performance
+
+- **R8 optimization:** Replace broad application and AndroidX keep rules with focused configuration so release code can be optimized, obfuscated, and shrunk.
+- **Resource shrinking:** Enable unused-resource removal for phone and Wear OS release builds.
+
+#### Documentation
+
+- Update README, FAQ, Privacy Policy, Play Store listing copy, and screenshot guidance for Wear OS syncing, the required Wear listing capture, and reliable background completion.
+
+#### Chore
+
+- Build and publish the phone and Wear OS bundles in release CI, and retain both modules' R8 mapping, usage, and resource reports.
+
 ### 1.7.1 - 2026-10-07
 
 #### Bug Fixes

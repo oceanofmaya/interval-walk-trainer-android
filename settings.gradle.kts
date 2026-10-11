@@ -18,4 +18,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Interval Walk Trainer"
 include(":app")
+include(":shared")
+include(":wear")
 

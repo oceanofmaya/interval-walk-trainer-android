@@ -9,6 +9,7 @@ This document defines how screenshots are organized for Play Store publishing. F
 assets/store/screenshots/
 ├── phone/   # Raw emulator captures (source of truth)
 ├── promo/   # Final manual promo compositions for Play Store (phone)
+├── wear/    # Publish-ready Wear OS screenshots
 └── promo-manifest.json   # Source -> promo -> message mapping
 ```
 
@@ -65,6 +66,10 @@ Avoid:
   - Keep only phone screenshots intended for Play Store upload.
   - These are manually designed images, composed using the `phone/` captures.
   - This folder is the canonical upload set for phone listings.
+- `wear/`
+  - Keep publish-ready screenshots captured directly from the Wear OS app.
+  - Do not add phone-style promo framing, captions, callouts, or backgrounds.
+  - This folder is the canonical upload set for the Wear OS listing.
 
 ## Naming Convention
 
@@ -75,6 +80,10 @@ Avoid:
   - `[position]-[screen]-light-promo.png` (example: `03-formula-light-promo.png`)
   - Use zero-padded position (`01`-`08`) to lock upload order
   - Keep `-promo` suffix consistently for publish-ready composites
+- Wear OS screenshots:
+  - `[position]-[screen].png` (example: `01-workout-timer.png`)
+  - Use zero-padded position (`01`-`08`) to preserve upload order
+  - Do not use the `-promo` suffix because Wear screenshots must show only the app interface
 
 ## Current Phone Play Store Set (Recommended Keep)
 
@@ -90,6 +99,27 @@ Google Play allows up to 8 phone screenshots. Keep these in `promo/` as the acti
 8. `08-complete-light-promo.png` (session completion outcome)
 
 This sequence tells a clear story: pace + metrics setup -> intensity + last workout metrics -> setup -> personalize workout -> track progress -> personalize look -> detailed workout metrics -> complete.
+
+## Current Wear OS Play Store Set
+
+Keep these two publish-ready captures in `wear/` as the active listing sequence:
+
+1. `assets/store/screenshots/wear/01-workout-timer.png`
+   - Capture the Wear app during an active interval.
+   - Show the phase, remaining time, interval progress, and timer controls.
+2. `assets/store/screenshots/wear/02-workout-picker.png`
+   - Show the Wear-native scrolling workout picker.
+   - Center the selected workout with neighboring choices visible to communicate that built-in and phone-synced saved presets are available.
+
+Google Play requires at least one Wear OS screenshot. Every Wear screenshot must:
+
+- Accurately show the current Wear OS app interface.
+- Use a 1:1 aspect ratio and be at least 384 × 384 pixels.
+- Be a JPEG or 24-bit PNG without transparency.
+- Show only the app UI—no watch/device frame, added text, graphics, backgrounds, masking, or promotional composition.
+
+Up to eight Wear OS screenshots may be uploaded. Wear captures are not listed in
+`promo-manifest.json`, which remains the source map for manually composed phone promos.
 
 ## Insights in Phone Captures
 
@@ -167,6 +197,8 @@ screenshot, run:
   - 8 screenshots is the maximum; adding a new promo requires replacing or removing an existing one
   - 16:9 or 9:16 ratio
   - 320px min, 3840px max
+  - Both current Wear OS listing screenshots are present
+  - Wear OS screenshots are 1:1, at least 384 × 384, and contain only the app interface
 
 ## Current Simplifications
 

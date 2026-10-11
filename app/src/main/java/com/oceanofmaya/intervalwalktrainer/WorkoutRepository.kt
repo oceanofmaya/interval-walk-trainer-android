@@ -27,60 +27,78 @@ class WorkoutRepository(
      * @param minutes The duration of the workout in minutes
      * @param workoutType The name/type of the workout formula used
      * @param metrics Optional per-session metrics captured during active workout intervals
+     * @param completionId Stable ID used to make phone retries and Wear deliveries idempotent
+     * @param completedAtMillis Actual completion timestamp used for the session date and history
      */
     suspend fun recordWorkout(
         minutes: Int,
         workoutType: String,
-        metrics: WorkoutMetricsSummary? = null
-    ) {
-        val today = dateFormat.format(Date())
-        android.util.Log.d("WorkoutRepository", "Recording workout: date=$today, minutes=$minutes, type=$workoutType")
-        
-        // Save individual workout session
-        val session = WorkoutSession(
-            date = today,
-            workoutType = workoutType,
-            minutes = minutes,
-            timestamp = System.currentTimeMillis(),
-            stepCount = metrics?.stepCount,
-            averageHeartRateBpm = metrics?.averageHeartRateBpm,
-            minHeartRateBpm = metrics?.minHeartRateBpm,
-            maxHeartRateBpm = metrics?.maxHeartRateBpm,
-            stepSource = metrics?.stepSource,
-            heartRateSource = metrics?.heartRateSource,
-            startedAt = metrics?.startedAt,
-            metricsIntervalsJson = metrics?.intervals?.let { WorkoutMetricsIntervalCodec.encode(it) },
-            formulaSnapshotJson = metrics?.formulaSnapshot?.let { WorkoutMetricsCodec.encodeFormulaSnapshot(it) },
-            metricsPhaseWindowsJson = metrics?.phaseWindows?.let { WorkoutMetricsCodec.encodePhaseWindows(it) },
-            fastPhaseAverageHeartRateBpm = metrics?.fastPhaseAverageHeartRateBpm,
-            slowPhaseAverageHeartRateBpm = metrics?.slowPhaseAverageHeartRateBpm
+        metrics: WorkoutMetricsSummary? = null,
+        completionId: String? = null,
+        completedAtMillis: Long = System.currentTimeMillis()
+    ): WorkoutSession {
+        val completedDate = synchronized(dateFormat) {
+            dateFormat.format(Date(completedAtMillis))
+        }
+        android.util.Log.d(
+            "WorkoutRepository",
+            "Recording workout: date=$completedDate, minutes=$minutes, type=$workoutType"
         )
-        workoutSessionDao.insert(session)
-        android.util.Log.d("WorkoutRepository", "Saved workout session: $session")
-        
-        // Update or create daily aggregate record
-        val existingRecord = workoutDao.getRecordByDate(today)
-        android.util.Log.d("WorkoutRepository", "Existing record for today: $existingRecord")
-        
-        if (existingRecord != null) {
-            // Update existing record
-            val updatedRecord = existingRecord.copy(
-                completedWorkouts = existingRecord.completedWorkouts + 1,
-                totalMinutes = existingRecord.totalMinutes + minutes,
-                lastWorkoutTimestamp = System.currentTimeMillis()
+
+        suspend fun persist(): WorkoutSession {
+            val session = WorkoutSession(
+                completionId = completionId,
+                date = completedDate,
+                workoutType = workoutType,
+                minutes = minutes,
+                timestamp = completedAtMillis,
+                stepCount = metrics?.stepCount,
+                averageHeartRateBpm = metrics?.averageHeartRateBpm,
+                minHeartRateBpm = metrics?.minHeartRateBpm,
+                maxHeartRateBpm = metrics?.maxHeartRateBpm,
+                stepSource = metrics?.stepSource,
+                heartRateSource = metrics?.heartRateSource,
+                startedAt = metrics?.startedAt,
+                metricsIntervalsJson = metrics?.intervals?.let { WorkoutMetricsIntervalCodec.encode(it) },
+                formulaSnapshotJson = metrics?.formulaSnapshot?.let {
+                    WorkoutMetricsCodec.encodeFormulaSnapshot(it)
+                },
+                metricsPhaseWindowsJson = metrics?.phaseWindows?.let {
+                    WorkoutMetricsCodec.encodePhaseWindows(it)
+                },
+                fastPhaseAverageHeartRateBpm = metrics?.fastPhaseAverageHeartRateBpm,
+                slowPhaseAverageHeartRateBpm = metrics?.slowPhaseAverageHeartRateBpm
             )
-            workoutDao.insertOrUpdate(updatedRecord)
-            android.util.Log.d("WorkoutRepository", "Updated record: $updatedRecord")
+            val insertedId = workoutSessionDao.insert(session)
+            if (insertedId == -1L && completionId != null) {
+                return workoutSessionDao.getByCompletionId(completionId) ?: session
+            }
+            val persistedSession = session.copy(id = insertedId.coerceAtLeast(0L))
+            android.util.Log.d("WorkoutRepository", "Saved workout session: $persistedSession")
+
+            val existingRecord = workoutDao.getRecordByDate(completedDate)
+            val record = if (existingRecord != null) {
+                existingRecord.copy(
+                    completedWorkouts = existingRecord.completedWorkouts + 1,
+                    totalMinutes = existingRecord.totalMinutes + minutes,
+                    lastWorkoutTimestamp = completedAtMillis
+                )
+            } else {
+                WorkoutRecord(
+                    date = completedDate,
+                    completedWorkouts = 1,
+                    totalMinutes = minutes,
+                    lastWorkoutTimestamp = completedAtMillis
+                )
+            }
+            workoutDao.insertOrUpdate(record)
+            return persistedSession
+        }
+
+        return if (database != null) {
+            database.withTransaction { persist() }
         } else {
-            // Create new record
-            val newRecord = WorkoutRecord(
-                date = today,
-                completedWorkouts = 1,
-                totalMinutes = minutes,
-                lastWorkoutTimestamp = System.currentTimeMillis()
-            )
-            workoutDao.insertOrUpdate(newRecord)
-            android.util.Log.d("WorkoutRepository", "Created new record: $newRecord")
+            persist()
         }
     }
     

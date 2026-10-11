@@ -29,6 +29,7 @@ object FaqContent {
         addSection(
             R.string.faq_section_history_insights,
             FaqEntry(R.string.faq_question_workout_history, R.string.faq_answer_workout_history),
+            FaqEntry(R.string.faq_question_wear_os, R.string.faq_answer_wear_os),
             FaqEntry(R.string.faq_question_weekly_goals, R.string.faq_answer_weekly_goals),
             FaqEntry(R.string.faq_question_insight_cards, R.string.faq_answer_insight_cards)
         )

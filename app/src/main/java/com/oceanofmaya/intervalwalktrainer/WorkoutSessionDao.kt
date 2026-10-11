@@ -2,6 +2,7 @@ package com.oceanofmaya.intervalwalktrainer
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
@@ -35,6 +36,9 @@ interface WorkoutSessionDao {
      */
     @Query("SELECT * FROM workout_sessions ORDER BY timestamp DESC LIMIT 1")
     suspend fun getLatestSession(): WorkoutSession?
+
+    @Query("SELECT * FROM workout_sessions WHERE completionId = :completionId LIMIT 1")
+    suspend fun getByCompletionId(completionId: String): WorkoutSession?
     
     /**
      * Get workout sessions for a date range, ordered by date descending, then by timestamp descending.
@@ -45,8 +49,8 @@ interface WorkoutSessionDao {
     /**
      * Insert a new workout session.
      */
-    @Insert
-    suspend fun insert(session: WorkoutSession)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(session: WorkoutSession): Long
 
     @Update
     suspend fun update(session: WorkoutSession)
