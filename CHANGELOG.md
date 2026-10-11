@@ -2,6 +2,17 @@
 
 ## Version 1
 
+### 1.8.1 - 2026-10-11
+
+#### UI/UX Improvements
+
+- **Wear OS completion:** Replace the finished timer with a dedicated workout summary showing the workout, duration, reassuring phone-sync status, and a single Done action that remains available until dismissed.
+- **Wear OS controls:** Use recommended 48 dp touch targets and adapt timer spacing, controls, and the workout picker across small and large round displays without clipping or scrolling.
+
+#### Documentation
+
+- Refresh the Wear OS README and FAQ guidance plus Play Store screenshots for the improved timer controls and completion experience.
+
 ### 1.8.0 - 2026-10-09
 
 #### Features

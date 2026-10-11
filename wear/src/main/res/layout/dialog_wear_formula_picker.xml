@@ -7,27 +7,27 @@
     <TextView
         android:id="@+id/pickerTitle"
         android:layout_width="wrap_content"
-        android:layout_height="24dp"
+        android:layout_height="@dimen/wear_picker_title_height"
         android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="@dimen/wear_picker_title_margin_top"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
         android:includeFontPadding="false"
         android:text="@string/choose_workout"
         android:textColor="@color/wear_text_primary"
-        android:textSize="16sp" />
+        android:textSize="@dimen/wear_picker_title_text_size" />
 
     <androidx.wear.widget.WearableRecyclerView
         android:id="@+id/formulaList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="54dp"
-        android:layout_marginBottom="13dp"
+        android:layout_marginTop="@dimen/wear_picker_list_margin_top"
+        android:layout_marginBottom="@dimen/wear_picker_list_margin_bottom"
         android:clipToPadding="false"
-        android:fadingEdgeLength="24dp"
+        android:fadingEdgeLength="@dimen/wear_picker_fading_edge"
         android:focusable="true"
-        android:paddingTop="32dp"
-        android:paddingBottom="72dp"
+        android:paddingTop="@dimen/wear_picker_list_padding_top"
+        android:paddingBottom="@dimen/wear_picker_list_padding_bottom"
         android:requiresFadingEdge="vertical"
         android:scrollbars="none" />
 

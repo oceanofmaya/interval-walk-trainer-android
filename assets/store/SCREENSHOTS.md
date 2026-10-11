@@ -102,7 +102,7 @@ This sequence tells a clear story: pace + metrics setup -> intensity + last work
 
 ## Current Wear OS Play Store Set
 
-Keep these two publish-ready captures in `wear/` as the active listing sequence:
+Keep these three publish-ready captures in `wear/` as the active listing sequence:
 
 1. `assets/store/screenshots/wear/01-workout-timer.png`
    - Capture the Wear app during an active interval.
@@ -110,6 +110,9 @@ Keep these two publish-ready captures in `wear/` as the active listing sequence:
 2. `assets/store/screenshots/wear/02-workout-picker.png`
    - Show the Wear-native scrolling workout picker.
    - Center the selected workout with neighboring choices visible to communicate that built-in and phone-synced saved presets are available.
+3. `assets/store/screenshots/wear/03-workout-complete.png`
+   - Show the persistent workout-completion summary.
+   - Include the workout name, duration, phone-sync status, and Done action.
 
 Google Play requires at least one Wear OS screenshot. Every Wear screenshot must:
 

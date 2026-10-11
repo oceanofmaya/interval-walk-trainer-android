@@ -25,6 +25,8 @@ internal class WearFormulaPickerDialog(
     private lateinit var binding: DialogWearFormulaPickerBinding
     private val snapHelper = LinearSnapHelper()
     private var centeredPosition = formulas.indexOf(selectedFormula)
+    private val isCompactScreen =
+        context.resources.configuration.screenHeightDp < LARGE_SCREEN_MIN_HEIGHT_DP
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,13 +39,22 @@ internal class WearFormulaPickerDialog(
             adapter = FormulaAdapter()
             itemAnimator = null
             setCircularScrollingGestureEnabled(true)
+            isVerticalFadingEdgeEnabled = !isCompactScreen
             addOnScrollListener(formulaScrollListener)
         }
         snapHelper.attachToRecyclerView(binding.formulaList)
         binding.formulaList.post {
+            val visibleHeight = binding.formulaList.height -
+                binding.formulaList.paddingTop -
+                binding.formulaList.paddingBottom
+            val itemHeight = context.resources.getDimensionPixelSize(
+                R.dimen.wear_picker_item_height
+            )
+            val centerOffset = (visibleHeight - itemHeight) / 2 +
+                if (isCompactScreen) binding.formulaList.paddingTop else 0
             layoutManager.scrollToPositionWithOffset(
                 centeredPosition.coerceAtLeast(0),
-                0
+                centerOffset
             )
             updateItemTransforms()
             binding.formulaList.requestFocus()
@@ -76,10 +87,16 @@ internal class WearFormulaPickerDialog(
             val child = binding.formulaList.getChildAt(index)
             val childCenter = (child.top + child.bottom) / 2f
             val distanceFraction = (abs(listCenter - childCenter) / listCenter).coerceAtMost(1f)
-            val scale = 1f - distanceFraction * EDGE_SCALE_REDUCTION
+            val scaleReduction = if (isCompactScreen) 0f else EDGE_SCALE_REDUCTION
+            val alphaReduction = if (isCompactScreen) {
+                COMPACT_EDGE_ALPHA_REDUCTION
+            } else {
+                EDGE_ALPHA_REDUCTION
+            }
+            val scale = 1f - distanceFraction * scaleReduction
             child.scaleX = scale
             child.scaleY = scale
-            child.alpha = 1f - distanceFraction * EDGE_ALPHA_REDUCTION
+            child.alpha = 1f - distanceFraction * alphaReduction
         }
     }
 
@@ -137,7 +154,9 @@ internal class WearFormulaPickerDialog(
 
     private companion object {
         const val SECONDS_PER_MINUTE = 60
+        const val LARGE_SCREEN_MIN_HEIGHT_DP = 220
         const val EDGE_SCALE_REDUCTION = 0.16f
         const val EDGE_ALPHA_REDUCTION = 0.52f
+        const val COMPACT_EDGE_ALPHA_REDUCTION = 0.36f
     }
 }

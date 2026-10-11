@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="wear_timer_bottom_padding">20dp</dimen>
+    <dimen name="wear_formula_width">120dp</dimen>
+    <dimen name="wear_phase_height">14dp</dimen>
+    <dimen name="wear_time_height">28dp</dimen>
+    <dimen name="wear_time_text_size">30sp</dimen>
+    <dimen name="wear_interval_height">12dp</dimen>
+    <dimen name="wear_interval_margin_top">6dp</dimen>
+    <dimen name="wear_progress_width">116dp</dimen>
+    <dimen name="wear_progress_margin_top">1dp</dimen>
+    <dimen name="wear_action_row_width">116dp</dimen>
+    <dimen name="wear_action_margin_top">7dp</dimen>
+    <dimen name="wear_reset_width">48dp</dimen>
+    <dimen name="wear_action_gap">4dp</dimen>
+    <dimen name="wear_primary_action_width">64dp</dimen>
+    <dimen name="wear_picker_title_margin_top">18dp</dimen>
+    <dimen name="wear_picker_title_height">22dp</dimen>
+    <dimen name="wear_picker_title_text_size">15sp</dimen>
+    <dimen name="wear_picker_list_margin_top">46dp</dimen>
+    <dimen name="wear_picker_list_margin_bottom">8dp</dimen>
+    <dimen name="wear_picker_list_padding_top">20dp</dimen>
+    <dimen name="wear_picker_list_padding_bottom">52dp</dimen>
+    <dimen name="wear_picker_fading_edge">18dp</dimen>
+    <dimen name="wear_picker_item_height">52dp</dimen>
+    <dimen name="wear_picker_card_width">132dp</dimen>
+    <dimen name="wear_picker_card_height">46dp</dimen>
+    <dimen name="wear_picker_card_padding_start">12dp</dimen>
+    <dimen name="wear_picker_card_padding_end">10dp</dimen>
+    <dimen name="wear_picker_name_height">18dp</dimen>
+    <dimen name="wear_picker_name_text_size">13sp</dimen>
+    <dimen name="wear_picker_duration_height">14dp</dimen>
+    <dimen name="wear_picker_duration_text_size">10sp</dimen>
+    <dimen name="wear_picker_check_size">18dp</dimen>
+</resources>
