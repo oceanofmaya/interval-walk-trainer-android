@@ -30,7 +30,7 @@
 
 #### Chore
 
-- Build and publish the phone and Wear OS bundles in release CI, and retain both modules' R8 mapping, usage, and resource reports.
+- Build and publish versioned phone and Wear OS bundles in release CI, and retain both modules' R8 mapping, usage, and resource reports.
 
 ### 1.7.1 - 2026-10-07
 

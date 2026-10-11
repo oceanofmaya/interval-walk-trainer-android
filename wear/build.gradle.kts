@@ -57,6 +57,10 @@ android {
     }
 }
 
+base {
+    archivesName.set("intervalwalktrainer-wear-${android.defaultConfig.versionName}")
+}
+
 dependencies {
     implementation(project(":shared"))
     implementation("androidx.activity:activity-ktx:1.12.2")
