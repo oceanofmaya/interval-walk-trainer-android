@@ -64,6 +64,17 @@
             android:name=".WorkoutForegroundService"
             android:exported="false"
             android:foregroundServiceType="health" />
+        <service
+            android:name=".WearWorkoutListenerService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
+                <data
+                    android:host="*"
+                    android:pathPrefix="/completed-workout/"
+                    android:scheme="wear" />
+            </intent-filter>
+        </service>
         <receiver
             android:name=".WeeklyGoalReminderReceiver"
             android:exported="false" />

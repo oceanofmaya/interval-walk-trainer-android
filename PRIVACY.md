@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last Updated:** June 2026
+**Last Updated:** October 2026
 
 ## Introduction
 
@@ -10,7 +10,7 @@ Interval Walk Trainer ("we," "our," or "the app") is committed to protecting you
 
 ### No Personal Data Collection
 
-Interval Walk Trainer does **not** collect, transmit, or share any personal information. The app operates entirely offline and does not connect to any external servers or services.
+Interval Walk Trainer does **not** collect personal information or send workout data to developer-operated servers. The phone app can use Android system services, Health Connect, and—when you install the optional companion—Google's Wear OS Data Layer to communicate with your paired watch.
 
 ### Local Data Storage
 
@@ -25,9 +25,9 @@ The app stores the following preferences locally on your device using Android's 
 Additionally, the app stores workout history and optional saved workout templates locally on your device using a local database:
 
 - **Workout History**: Dates on which you completed workouts, the number of workouts completed per day, total minutes walked per day, and per-session Health Connect metrics when optional Workout Metrics are enabled and available. This includes statistics such as workout streaks, total workouts, total minutes walked, step counts, heart-rate summaries, and fast-vs-slow phase heart-rate summaries.
-- **Saved Presets**: Names and interval/circuit settings for up to 30 custom presets you choose to keep in the formula picker. They are not uploaded or synced.
+- **Saved Presets**: Names and interval/circuit settings for up to 30 custom presets you choose to keep in the formula picker. When you use the optional Wear OS companion, this library and the active formula can be sent to your paired watch as a read-only catalog.
 
-This data is stored only on your device and is never transmitted or shared with us or any third parties. All workout history data remains completely private and local to your device.
+This data is not transmitted to or shared with the developer. If you use the Wear OS companion, saved-preset names and timing settings, the active formula, and a small workout-completion record move between your paired devices through the Wear OS Data Layer. Workout history is stored in the phone app.
 
 ### Runtime Data
 
@@ -42,7 +42,7 @@ The app stores workout completion data locally on your device, including:
 - Total minutes walked per day
 - Optional step counts and heart-rate summaries for completed workouts when Workout Metrics are enabled and Health Connect data is available
 
-This health and fitness data is stored locally using Android's Room database and is never transmitted, synced to the cloud, or shared with any third parties. You have full control over this data, and it can be completely removed by uninstalling the app.
+This health and fitness data is stored locally using Android's Room database and is not uploaded to developer-operated servers. A watch-completed workout sends its completion ID, formula name, duration, and completion time to the paired phone through the Wear OS Data Layer. You have full control over phone history, and it can be removed in the app or by uninstalling the app.
 
 When you complete a workout, the app records the completion date, number of workouts for that day, total minutes walked, and optional Health Connect workout metrics if enabled and available. This data is stored locally in a database on your device and is used only to display your workout history, post-workout summaries, phase-aware heart-rate comparisons, and statistics within the app.
 
@@ -65,7 +65,7 @@ The app requests the following permissions:
 
 ## Third-Party Services
 
-Interval Walk Trainer does not use any third-party analytics, advertising, or tracking services. The app does not integrate with social media platforms or other external services.
+Interval Walk Trainer does not use any third-party analytics, advertising, or tracking services. The app does not integrate with social media platforms.
 
 ### System Services
 
@@ -74,14 +74,15 @@ The app uses the following Android system services, which are provided by your d
 - **Text-to-Speech (TTS)**: Used for optional voice notifications. TTS is a system service that runs locally on your device. We do not have access to any data processed by TTS.
 - **Vibration Service**: Used for vibration notifications. This service operates locally on your device.
 - **Alarm Manager**: Used for optional weekly goal reminders. Reminder settings remain local on your device.
+- **Wear OS Data Layer**: When the optional watch companion is installed, Google Play services transfers the saved-preset catalog and active formula to the paired watch and returns completed-workout details to the phone. Delivery can be queued while devices are disconnected. The developer does not receive this data.
 
 ## Data Sharing
 
-We do not share, sell, or transmit any data to third parties because we do not collect any data.
+We do not sell workout data or send it to developer-operated servers. The optional Wear OS functionality transmits the limited pairing data described above through Google Play services solely to synchronize your paired devices.
 
 ## Data Security
 
-Since the app does not collect or transmit personal data, there is no risk of data breaches or unauthorized access to personal information. All local preferences are stored securely on your device using Android's standard secure storage mechanisms.
+Local preferences and workout history use Android's standard application storage mechanisms. Wear OS synchronization is limited to paired devices recognized by Google Play services, and stable random completion IDs prevent duplicate history entries.
 
 ## Children's Privacy
 
@@ -89,7 +90,7 @@ Interval Walk Trainer is intended for adults and is listed on Google Play for us
 
 ## Your Rights
 
-Since we do not collect personal data, there is no data to access, modify, or delete from our servers. All app preferences and workout history stored locally on your device can be cleared by uninstalling the app. The app provides functionality to view your workout history and statistics, but this data never leaves your device.
+Since we do not collect personal data, there is no data to access, modify, or delete from our servers. App preferences and workout history stored on your phone can be cleared by uninstalling the app. Workout history can also be deleted from within the app.
 
 ### Deleting Your Workout Data
 
@@ -122,4 +123,4 @@ This Privacy Policy complies with:
 
 ---
 
-**Note**: This privacy policy reflects the current functionality of Interval Walk Trainer. Since the app does not collect, transmit, or share any data, this policy is straightforward and transparent about our privacy practices.
+**Note**: This privacy policy reflects the phone app, optional Wear OS companion, Health Connect integration, and paired-device synchronization currently provided by Interval Walk Trainer.

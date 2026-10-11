@@ -16,8 +16,8 @@ android {
         applicationId = "com.oceanofmaya.intervalwalktrainer"
         minSdk = 24
         targetSdk = 36
-        versionCode = 75
-        versionName = "1.7.1"
+        versionCode = 76
+        versionName = "1.8.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -40,6 +40,7 @@ android {
         release {
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -50,22 +51,6 @@ android {
     bundle {
         language {
             enableSplit = false
-        }
-    }
-
-    // Rename AAB files after bundle task completes
-    tasks.whenTaskAdded {
-        if (name.startsWith("bundle") && name.endsWith("Release")) {
-            doLast {
-                val bundleDir = file("${layout.buildDirectory.get()}/outputs/bundle/release")
-                bundleDir.listFiles()?.filter { it.extension == "aab" }?.forEach { aab ->
-                    val versionName = android.defaultConfig.versionName
-                    val newName = "intervalwalktrainer-$versionName.aab"
-                    if (aab.name != newName) {
-                        aab.renameTo(File(bundleDir, newName))
-                    }
-                }
-            }
         }
     }
 
@@ -151,6 +136,7 @@ base {
 }
 
 dependencies {
+    implementation(project(":shared"))
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("com.google.android.material:material:1.13.0")
@@ -162,6 +148,8 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.2.0")
     implementation("androidx.health.connect:connect-client:1.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    implementation("com.google.android.gms:play-services-wearable:19.0.0")
+    implementation("androidx.wear:wear-remote-interactions:1.1.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 
     // Room database

@@ -25,6 +25,7 @@ class IntervalTimerTest {
 
     private lateinit var phaseChanges: MutableList<IntervalPhase>
     private lateinit var intervalCompletions: MutableList<Unit>
+    private var workoutCompletions = 0
     
     private val testFormula = IntervalFormula(
         name = "Test Formula",
@@ -38,14 +39,29 @@ class IntervalTimerTest {
     fun setUp() {
         phaseChanges = mutableListOf()
         intervalCompletions = mutableListOf()
+        workoutCompletions = 0
     }
 
     private fun createTimer(formula: IntervalFormula = testFormula): IntervalTimer {
         return IntervalTimer(
             formula = formula,
             onPhaseChange = { phase -> phaseChanges.add(phase) },
-            onIntervalComplete = { intervalCompletions.add(Unit) }
+            onIntervalComplete = { intervalCompletions.add(Unit) },
+            onWorkoutComplete = { workoutCompletions++ }
         )
+    }
+
+    @Test
+    fun `actual completion callback fires after completed state is set`() {
+        val timer = createTimer()
+        val method = timer.javaClass.getDeclaredMethod("completeWorkout").apply {
+            isAccessible = true
+        }
+
+        method.invoke(timer)
+
+        assertTrue(timer.state.value.currentPhase is IntervalPhase.Completed)
+        assertEquals(1, workoutCompletions)
     }
 
     @Test

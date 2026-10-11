@@ -8,6 +8,12 @@ field constraints used when preparing a release.
 - **App name:** How the app appears on Google Play. Maximum 30 characters.
 - **Short description:** Short app summary shown before users expand the full listing. Maximum 80 characters.
 - **Long description:** Full app description. Maximum 4000 characters.
+- **Wear OS screenshots:** Google Play requires at least one current 1:1 screenshot
+  (minimum 384 × 384) containing only the Wear app interface. The current
+  repository listing set contains two:
+  `assets/store/screenshots/wear/01-workout-timer.png` and
+  `assets/store/screenshots/wear/02-workout-picker.png`; see
+  [`SCREENSHOTS.md`](SCREENSHOTS.md) for capture and formatting requirements.
 
 ## Current Listing
 
@@ -27,6 +33,8 @@ Use ready-to-go routines, including Japanese 3-3 Interval Walking Training (IWT)
 
 Stay motivated between walks with home screen insights for your streak, weekly goal, and last workout. Set targets, track progress, and get optional reminders to keep your week on track.
 
+Have a Wear OS 3+ watch? Browse your phone-synced saved presets, run the shared timer from your wrist with phase haptics, and sync completed workouts back to phone history when connected.
+
 FEATURES:
 • Ready-to-use routines - Start with three guided interval walking formulas
 • Japanese 3-3 IWT - Follow the classic 3-minute slow / 3-minute fast pattern
@@ -38,6 +46,8 @@ FEATURES:
 • Progress history - View workouts, streaks, totals, and monthly progress
 • Workout metrics - Use Health Connect steps and heart rate for post-workout summaries and trends
 • Phase-aware heart rate - Compare fast and slow interval heart-rate response
+• Wear OS companion - Browse synced presets, control the timer, and receive phase haptics from your wrist
+• Reliable history - Save completed workouts even when the phone screen is locked or the app is backgrounded
 • Voice and vibration cues - Get gentle prompts when it is time to switch pace
 • Voice language picker - Choose the language for workout voice notifications
 • Themes and accents - Personalize the app with light, dark, and accent colors

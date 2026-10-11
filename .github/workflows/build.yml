@@ -47,7 +47,7 @@ jobs:
         run: ./gradlew detekt
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew :app:assembleDebug :wear:assembleDebug
 
   create-tag:
     runs-on: ubuntu-latest
@@ -183,16 +183,17 @@ jobs:
           fi
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew :app:assembleRelease
 
-      - name: Build Release AAB
-        run: ./gradlew bundleRelease
+      - name: Build phone and Wear OS release bundles
+        run: ./gradlew :app:bundleRelease :wear:bundleRelease
 
       - name: Verify artifacts exist
         id: artifacts
         run: |
           APK_FILE=$(ls app/build/outputs/apk/release/*.apk 2>/dev/null | head -1)
           AAB_FILE=$(ls app/build/outputs/bundle/release/*.aab 2>/dev/null | head -1)
+          WEAR_AAB_FILE=$(ls wear/build/outputs/bundle/release/*.aab 2>/dev/null | head -1)
           if [ -z "$APK_FILE" ]; then
             echo "Error: Release APK not found"
             exit 1
@@ -201,9 +202,27 @@ jobs:
             echo "Error: Release AAB not found"
             exit 1
           fi
+          if [ -z "$WEAR_AAB_FILE" ]; then
+            echo "Error: Wear OS release AAB not found"
+            exit 1
+          fi
           echo "APK_FILE=$APK_FILE" >> $GITHUB_OUTPUT
           echo "AAB_FILE=$AAB_FILE" >> $GITHUB_OUTPUT
-          echo "Artifacts verified: $APK_FILE, $AAB_FILE"
+          echo "WEAR_AAB_FILE=$WEAR_AAB_FILE" >> $GITHUB_OUTPUT
+          echo "Artifacts verified: $APK_FILE, $AAB_FILE, $WEAR_AAB_FILE"
+
+      - name: Upload R8 mappings
+        uses: actions/upload-artifact@v7
+        with:
+          name: r8-mappings-${{ steps.version_info.outputs.VERSION }}
+          path: |
+            app/build/outputs/mapping/release/mapping.txt
+            app/build/outputs/mapping/release/usage.txt
+            app/build/outputs/mapping/release/resources.txt
+            wear/build/outputs/mapping/release/mapping.txt
+            wear/build/outputs/mapping/release/usage.txt
+            wear/build/outputs/mapping/release/resources.txt
+          if-no-files-found: error
 
       - name: Create Release
         uses: softprops/action-gh-release@v3
@@ -212,6 +231,7 @@ jobs:
           files: |
             ${{ steps.artifacts.outputs.APK_FILE }}
             ${{ steps.artifacts.outputs.AAB_FILE }}
+            ${{ steps.artifacts.outputs.WEAR_AAB_FILE }}
           name: Release ${{ steps.version_info.outputs.VERSION }}
           body: |
             ## Version ${{ steps.version_info.outputs.VERSION }}
@@ -222,6 +242,7 @@ jobs:
 
             ### Downloads
             - **APK**: For direct installation
-            - **AAB**: For Google Play Store upload
+            - **Phone AAB**: For Google Play Store upload
+            - **Wear OS AAB**: For the Wear OS release track
           draft: ${{ steps.version_info.outputs.IS_DRAFT == 'true' }}
           prerelease: ${{ steps.version_info.outputs.IS_PRERELEASE == 'true' }}
