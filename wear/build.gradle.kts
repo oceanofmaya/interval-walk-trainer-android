@@ -14,8 +14,8 @@ android {
         minSdk = 30
         targetSdk = 36
         // Keep Wear artifacts in a distinct Play version-code range.
-        versionCode = 78_001
-        versionName = "1.8.2"
+        versionCode = 79_001
+        versionName = "1.8.3"
     }
 
     signingConfigs {

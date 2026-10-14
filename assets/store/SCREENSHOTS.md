@@ -112,7 +112,7 @@ Keep these three publish-ready captures in `wear/` as the active listing sequenc
    - Center the selected workout with neighboring choices visible to communicate that built-in and phone-synced saved presets are available.
 3. `assets/store/screenshots/wear/03-workout-complete.png`
    - Show the persistent workout-completion summary.
-   - Include the workout name, duration, phone-sync status, and Done action.
+   - Include the accent-colored COMPLETE phase label, workout name, duration, phone-sync status, and checkmark action.
 
 Google Play requires at least one Wear OS screenshot. Every Wear screenshot must:
 
