@@ -2,6 +2,22 @@
 
 ## Version 1
 
+### 1.8.2 - 2026-10-14
+
+#### Bug Fixes
+
+- **Wear OS ongoing activity:** Show an active-workout indicator on the watch face and a live workout chip in recent apps, with one-tap return to the timer.
+- **Wear OS scrolling:** Show a Wear-native position indicator while scrolling the workout picker.
+
+#### UI/UX Improvements
+
+- **Phone timer:** Show the slow, fast, complete, and paused phase labels in uppercase, replace the Start, Resume, and Pause labels with a filled play or pause icon on the accent-colored button, and show PAUSED in place of the phase label while a workout is paused.
+- **Wear OS timer:** Replace the Start, Resume, and Pause labels with a filled play or pause icon, and show PAUSED in place of the phase label while a workout is paused.
+
+#### Documentation
+
+- Refresh the phone timer screenshots (`slow-light`, `fast-light`, `complete-light`) and the Wear OS workout timer screenshot for the uppercase phase labels and play/pause controls, plus the Wear OS workout-picker screenshot with its active scrollbar.
+
 ### 1.8.1 - 2026-10-11
 
 #### UI/UX Improvements

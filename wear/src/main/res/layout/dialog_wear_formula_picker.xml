@@ -29,6 +29,6 @@
         android:paddingTop="@dimen/wear_picker_list_padding_top"
         android:paddingBottom="@dimen/wear_picker_list_padding_bottom"
         android:requiresFadingEdge="vertical"
-        android:scrollbars="none" />
+        android:scrollbars="vertical" />
 
 </FrameLayout>

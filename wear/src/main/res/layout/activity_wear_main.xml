@@ -121,15 +121,14 @@
                     android:layout_width="@dimen/wear_primary_action_width"
                     android:layout_height="match_parent"
                     android:background="@drawable/wear_action_primary"
-                    android:fontFamily="sans-serif-medium"
-                    android:includeFontPadding="false"
+                    android:contentDescription="@string/start"
+                    android:foreground="@drawable/baseline_play_arrow_24"
+                    android:foregroundGravity="center"
+                    android:foregroundTint="@color/wear_on_accent"
                     android:minHeight="0dp"
                     android:minWidth="0dp"
                     android:stateListAnimator="@null"
-                    android:text="@string/start"
-                    android:textAllCaps="false"
-                    android:textColor="@color/wear_on_accent"
-                    android:textSize="13sp" />
+                    android:text="" />
             </LinearLayout>
 
         </LinearLayout>

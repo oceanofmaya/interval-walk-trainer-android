@@ -64,7 +64,7 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - Visual progress bar showing overall workout completion
 - Elapsed and remaining time displays for clear progress feedback
 - **Workout Metrics**: Optional Health Connect-powered step count, heart-rate range, and fast-vs-slow phase heart-rate summaries for completed interval walks
-- Start/Pause/Reset controls and an overflow menu (⋮) for Workout History, Settings, Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional language-based picker for notification TTS
+- Play, pause, and Reset controls and an overflow menu (⋮) for Workout History, Settings, Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional language-based picker for notification TTS
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
 - **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, Workout Metrics, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
 - **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and choose insight cards on the home screen — **Weekly Goal**, **Current Streak**, **Today**, and **Last Workout** — for quick motivation between walks
@@ -131,9 +131,9 @@ Three pre-configured presets cover the main training patterns. **My saved preset
    - Accent selection (Blue, Teal, Purple, Amber, Magenta) for interactive UI highlights
    - Links to Privacy Policy, and Terms of Service
 3. The overflow menu (⋮) also provides **Workout History**, **Help**, **Rate App**, and **Report Issue**
-4. Tap **Start** to begin (a short countdown appears if enabled)
+4. Tap play to begin (a short countdown appears if enabled)
 5. Monitor progress using the progress bar and elapsed/remaining time displays
-6. Use **Pause** (button shows **Resume** when paused) or **Reset** as needed
+6. Use pause (the button shows play when paused, and the phase label reads **PAUSED**) or **Reset** as needed
 7. The timer continues running even when the phone is locked; completed workouts are saved from the timer event even while the home screen is backgrounded
 8. View workout history and statistics from **Workout History** in the overflow menu (⋮)
 9. Tap **Weekly Goal** in Workout History, Settings, or the **Weekly Goal** insight card on the home screen to set weekly targets and optional recurring reminders
@@ -141,7 +141,7 @@ Three pre-configured presets cover the main training patterns. **My saved preset
 
 ### Wear OS Companion
 
-Install the Wear OS companion through the same Google Play listing on a paired Wear OS 3+ watch. The watch uses the same interval formulas and timer behavior as the phone. It shows the current slow/fast phase, remaining time, interval progress, and Start, Pause/Resume, and Reset controls with 48 dp touch targets and haptic phase cues.
+Install the Wear OS companion through the same Google Play listing on a paired Wear OS 3+ watch. The watch uses the same interval formulas and timer behavior as the phone. It shows the current slow/fast phase (or **PAUSED** while paused), remaining time, interval progress, and play, pause, and Reset controls with 48 dp touch targets and haptic phase cues. While a workout is active, an ongoing-activity indicator on the watch face and a live chip in recent apps show its phase and remaining time and return to the timer with one tap. The workout picker shows a position indicator while scrolling.
 
 The phone sends its ordered saved-preset catalog to the watch as a read-only library and sends the active formula separately, including one-off unsaved formulas. Create, edit, rename, reorder, and delete presets on the phone; Data Layer updates the watch catalog, which remains available from the local Data Layer cache while disconnected. The watch also includes the three built-in formulas. On completion, a dedicated summary shows the workout and duration and remains visible until you tap **Done**. The watch saves the completion for Data Layer delivery and reports **Saved • Syncing to phone** while the paired phone is waiting to add it to Workout History; stable completion IDs prevent retries from counting the same workout twice. The companion does not read watch sensors directly. Optional step and heart-rate summaries continue to come from Health Connect on the phone after the wearable provider syncs them.
 
@@ -151,7 +151,7 @@ The phone's **Settings → Wear OS companion** card reports whether a connected 
 
 Weekly Goals are local planning targets. You can track workouts per week, minutes per week, or both. Only completed workouts that are saved to Workout History count toward the current week.
 
-The home screen is organized into grouped sections: a workout setup card for formula selection, a bordered session panel that combines the timer with Start, Pause, Reset, and the overflow menu, a Workout Metrics setup card when Health Connect metrics are not enabled, and an **Insights** section at the bottom. Tap the edit icon beside **Insights** (or use **Settings → Insight cards**) to choose which cards appear there — up to five — and use the up/down arrows beside a selected card to reorder how they appear in the carousel. The Weekly Goal card is available by default. The Last Workout insight shows your most recent saved workout formula, duration, relative date, and saved Health Connect steps or average heart rate when available.
+The home screen is organized into grouped sections: a workout setup card for formula selection, a bordered session panel that combines the timer with play, pause, Reset, and the overflow menu, a Workout Metrics setup card when Health Connect metrics are not enabled, and an **Insights** section at the bottom. Tap the edit icon beside **Insights** (or use **Settings → Insight cards**) to choose which cards appear there — up to five — and use the up/down arrows beside a selected card to reorder how they appear in the carousel. The Weekly Goal card is available by default. The Last Workout insight shows your most recent saved workout formula, duration, relative date, and saved Health Connect steps or average heart rate when available.
 
 When the Weekly Goal insight card is enabled and a goal is active, it shows an icon status badge and radial progress rings for the enabled targets. When no goal is set, the card can still appear as a grayed-out preview with 0/0 workouts and minutes. Tap the card to edit the goal. The full Weekly Goal card in Workout History keeps the detailed status pill, progress bars, remaining-target text, and reminder summary.
 
@@ -168,7 +168,7 @@ When you select "Design Your Own":
 5. **For Interval Mode**: Select whether to start with slow or fast phase
 6. **For Circuit Mode**: Select pattern (Fast → Slow → Fast or Slow → Fast → Slow)
 7. Tap **Create**, then choose **Save & use** (adds to **My saved presets** and applies), **Use without saving** (applies only), or **Save only** (adds the preset to the picker without changing the current formula)
-8. Tap **Start** when ready to begin
+8. Tap play when ready to begin
 
 The active custom workout (when you use or save one) is kept in preferences so it can restore after an app restart.
 
