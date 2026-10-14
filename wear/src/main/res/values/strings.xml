@@ -8,6 +8,7 @@
     <string name="formula_duration">%1$d min</string>
     <string name="phase_slow">Slow</string>
     <string name="phase_fast">Fast</string>
+    <string name="phase_paused">Paused</string>
     <string name="phase_completed">Complete</string>
     <string name="interval_zero">Interval 0 of %1$d</string>
     <string name="interval_progress">Interval %1$d of %2$d</string>
@@ -20,4 +21,8 @@
     <string name="workout_complete_summary">%1$s • %2$d min</string>
     <string name="sync_pending">Waiting to sync</string>
     <string name="sync_sent">Saved • Syncing to phone</string>
+    <string name="ongoing_workout_channel">Active workout</string>
+    <string name="ongoing_workout_channel_description">Shows the workout timer on the watch face and in recent apps</string>
+    <string name="ongoing_workout_status">%1$s • %2$s</string>
+    <string name="ongoing_workout_status_template">#phase# • #timer#</string>
 </resources>

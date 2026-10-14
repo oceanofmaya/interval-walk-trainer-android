@@ -14,8 +14,8 @@ android {
         minSdk = 30
         targetSdk = 36
         // Keep Wear artifacts in a distinct Play version-code range.
-        versionCode = 77_001
-        versionName = "1.8.1"
+        versionCode = 78_001
+        versionName = "1.8.2"
     }
 
     signingConfigs {
@@ -67,6 +67,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.17.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
     implementation("androidx.wear:wear:1.3.0")
+    implementation("androidx.wear:wear-ongoing:1.1.0")
     implementation("com.google.android.gms:play-services-wearable:19.0.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")

@@ -97,6 +97,7 @@ open class MainActivity : AppCompatActivity() {
     private lateinit var savedWorkoutRepository: SavedWorkoutRepository
     private var lastDisplayedTime = -1
     private var lastDisplayedPhase: IntervalPhase? = null
+    private var lastPhasePaused = false
     private var hasShownCompletionConfetti = false
     private var hasRecordedWorkoutCompletion = false
     private var isRecordingWorkoutCompletion = false
@@ -2592,7 +2593,7 @@ open class MainActivity : AppCompatActivity() {
 
     private fun applyAccentStyling() {
         val accentColor = getAccentColor()
-        homeActions.startPauseButton.backgroundTintList = android.content.res.ColorStateList.valueOf(accentColor)
+        updateButtonStates()
         homeSession.workoutProgress.progressTintList = android.content.res.ColorStateList.valueOf(accentColor)
         if (::homeInsightsController.isInitialized) {
             homeInsightsController.applyAccentColor()
@@ -2903,25 +2904,33 @@ open class MainActivity : AppCompatActivity() {
     }
 
     private fun updatePhaseDisplay(phase: IntervalPhase) {
-        if (phase != lastDisplayedPhase) {
+        val state = intervalTimer?.state?.value
+        val isPaused = state != null &&
+            !state.isRunning &&
+            state.elapsedSeconds > 0 &&
+            phase !is IntervalPhase.Completed
+        if (phase != lastDisplayedPhase || isPaused != lastPhasePaused) {
             animatePhaseTransition()
             lastDisplayedPhase = phase
+            lastPhasePaused = isPaused
         }
 
         when (phase) {
             is IntervalPhase.Slow -> {
-                phaseLabel.text = getString(
-                    R.string.format_phase_slow,
-                    getString(R.string.label_phase_slow)
-                )
+                phaseLabel.text = if (isPaused) {
+                    getString(R.string.label_phase_paused)
+                } else {
+                    getString(R.string.format_phase_slow, getString(R.string.label_phase_slow))
+                }
                 phaseLabel.setTextColor(getSlowColor())
                 phaseLabel.setTypeface(null, Typeface.BOLD)
             }
             is IntervalPhase.Fast -> {
-                phaseLabel.text = getString(
-                    R.string.format_phase_fast,
-                    getString(R.string.label_phase_fast)
-                )
+                phaseLabel.text = if (isPaused) {
+                    getString(R.string.label_phase_paused)
+                } else {
+                    getString(R.string.format_phase_fast, getString(R.string.label_phase_fast))
+                }
                 phaseLabel.setTextColor(getFastColor())
                 phaseLabel.setTypeface(null, Typeface.BOLD)
             }
@@ -3088,12 +3097,24 @@ open class MainActivity : AppCompatActivity() {
     private fun updateButtonStates() {
         val state = intervalTimer?.state?.value
         val isRunning = state?.isRunning == true
-        homeActions.startPauseButton.text = when {
-            isRunning -> getString(R.string.action_pause)
-            state != null && state.elapsedSeconds > 0 && state.currentPhase !is IntervalPhase.Completed ->
-                getString(R.string.action_resume)
-            else -> getString(R.string.action_start)
+        val isResume = !isRunning &&
+            state != null &&
+            state.elapsedSeconds > 0 &&
+            state.currentPhase !is IntervalPhase.Completed
+        val (iconRes, descriptionRes) = when {
+            isRunning -> R.drawable.baseline_pause_24 to R.string.action_pause
+            isResume -> R.drawable.baseline_play_arrow_24 to R.string.action_resume
+            else -> R.drawable.baseline_play_arrow_24 to R.string.action_start
         }
+        val button = homeActions.startPauseButton
+        button.setIconResource(iconRes)
+        button.contentDescription = getString(descriptionRes)
+        button.strokeWidth = 0
+        button.backgroundTintList = android.content.res.ColorStateList.valueOf(getAccentColor())
+        button.iconTint = android.content.res.ColorStateList.valueOf(
+            ContextCompat.getColor(this, R.color.white)
+        )
+        intervalTimer?.state?.value?.currentPhase?.let { updatePhaseDisplay(it) }
     }
 
     private fun animateControlPress(target: View) {

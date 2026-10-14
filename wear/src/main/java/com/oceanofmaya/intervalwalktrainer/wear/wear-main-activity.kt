@@ -1,13 +1,26 @@
 package com.oceanofmaya.intervalwalktrainer.wear
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.wear.ongoing.OngoingActivity
+import androidx.wear.ongoing.Status
 import com.google.android.gms.wearable.DataClient
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
@@ -41,11 +54,14 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
     private var completionId: String? = null
     private var completionSyncStatusRes = R.string.sync_pending
     private var wakeLock: PowerManager.WakeLock? = null
+    private var startTimerAfterNotificationPermission = false
+    private var ongoingNotificationStateKey: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityWearMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        createOngoingWorkoutNotificationChannel()
         dataClient = Wearable.getDataClient(this)
 
         binding.formulaButton.setOnClickListener { showFormulaPicker() }
@@ -73,6 +89,7 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
         timerJob?.cancel()
         timer?.dispose()
         releaseWakeLock()
+        cancelOngoingActivity()
         super.onDestroy()
     }
 
@@ -92,6 +109,21 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
         outState.putString(KEY_PHASE, phaseName(state.currentPhase))
         outState.putString(KEY_COMPLETION_ID, completionId)
         outState.putInt(KEY_COMPLETION_SYNC_STATUS, completionSyncStatusRes)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (
+            requestCode == POST_NOTIFICATIONS_REQUEST_CODE &&
+            startTimerAfterNotificationPermission
+        ) {
+            startTimerAfterNotificationPermission = false
+            startTimer()
+        }
     }
 
     private fun showFormulaPicker() {
@@ -156,16 +188,33 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
             timer?.pause()
             releaseWakeLock()
         } else {
-            if (timer?.state?.value?.elapsedSeconds == 0) {
-                completionId = UUID.randomUUID().toString()
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                startTimerAfterNotificationPermission = true
+                requestPermissions(
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    POST_NOTIFICATIONS_REQUEST_CODE
+                )
+                return
             }
-            acquireWakeLock()
-            timer?.start()
+            startTimer()
         }
+    }
+
+    private fun startTimer() {
+        if (timer?.state?.value?.elapsedSeconds == 0) {
+            completionId = UUID.randomUUID().toString()
+        }
+        acquireWakeLock()
+        timer?.start()
     }
 
     private fun resetTimer() {
         releaseWakeLock()
+        cancelOngoingActivity()
         completionId = null
         completionSyncStatusRes = R.string.sync_pending
         binding.completionSyncStatus.setText(completionSyncStatusRes)
@@ -194,12 +243,16 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
             binding.completionSyncStatus.setText(completionSyncStatusRes)
         }
 
+        val isResume = !state.isRunning &&
+            state.elapsedSeconds > 0 &&
+            state.currentPhase !is IntervalPhase.Completed
         val phasePresentation = when (state.currentPhase) {
             is IntervalPhase.Slow -> R.string.phase_slow to R.color.wear_slow
             is IntervalPhase.Fast -> R.string.phase_fast to R.color.wear_fast
             is IntervalPhase.Completed -> R.string.phase_completed to R.color.wear_accent
         }
-        binding.phaseLabel.setText(phasePresentation.first)
+        val phaseLabelRes = if (isResume) R.string.phase_paused else phasePresentation.first
+        binding.phaseLabel.setText(phaseLabelRes)
         val phaseColor = getColor(phasePresentation.second)
         binding.phaseLabel.setTextColor(phaseColor)
         binding.progress.progressTintList = ColorStateList.valueOf(phaseColor)
@@ -219,24 +272,31 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
         } else {
             state.elapsedSeconds * 100 / currentFormula.totalDurationSeconds
         }
-        binding.startPauseButton.setText(
-            when {
-                state.isRunning -> R.string.pause
-                state.elapsedSeconds > 0 && state.currentPhase !is IntervalPhase.Completed ->
-                    R.string.resume
-                else -> R.string.start
-            }
-        )
+        val (iconRes, descriptionRes) = when {
+            state.isRunning -> R.drawable.baseline_pause_24 to R.string.pause
+            isResume -> R.drawable.baseline_play_arrow_24 to R.string.resume
+            else -> R.drawable.baseline_play_arrow_24 to R.string.start
+        }
+        binding.startPauseButton.foreground = ContextCompat.getDrawable(this, iconRes)
+        binding.startPauseButton.foregroundTintList =
+            ColorStateList.valueOf(getColor(R.color.wear_on_accent))
+        binding.startPauseButton.contentDescription = getString(descriptionRes)
         val canChooseFormula = state.elapsedSeconds == 0 && !state.isRunning
         binding.formulaButton.isEnabled = canChooseFormula
         binding.formulaButton.alpha = if (canChooseFormula) 1f else DISABLED_FORMULA_ALPHA
         val canReset = state.elapsedSeconds > 0 || state.isRunning
         binding.resetButton.isEnabled = canReset
         binding.resetButton.alpha = if (canReset) 1f else DISABLED_ALPHA
+        if (state.elapsedSeconds > 0 && !isCompleted) {
+            publishOngoingActivity(state, phaseLabelRes)
+        } else {
+            cancelOngoingActivity()
+        }
     }
 
     private fun onWorkoutCompleted() {
         releaseWakeLock()
+        cancelOngoingActivity()
         vibrateCompletion()
         val id = completionId ?: UUID.randomUUID().toString().also { completionId = it }
         val completedAt = System.currentTimeMillis()
@@ -416,6 +476,96 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
         wakeLock = null
     }
 
+    private fun createOngoingWorkoutNotificationChannel() {
+        val channel = NotificationChannel(
+            ONGOING_WORKOUT_CHANNEL_ID,
+            getString(R.string.ongoing_workout_channel),
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = getString(R.string.ongoing_workout_channel_description)
+        }
+        getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun publishOngoingActivity(state: TimerState, phaseLabelRes: Int) {
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+        val stateKey = buildString {
+            append(phaseName(state.currentPhase))
+            append(':')
+            append(state.isRunning)
+            if (!state.isRunning) {
+                append(':')
+                append(state.timeRemainingSeconds)
+            }
+        }
+        if (ongoingNotificationStateKey == stateKey) return
+
+        val touchIntent = PendingIntent.getActivity(
+            this,
+            ONGOING_WORKOUT_REQUEST_CODE,
+            Intent(this, WearMainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val phaseLabel = getString(phaseLabelRes)
+        val timeText = formatTimer(state.timeRemainingSeconds)
+        val notificationBuilder = NotificationCompat.Builder(this, ONGOING_WORKOUT_CHANNEL_ID)
+            .setSmallIcon(R.drawable.baseline_directions_walk_24)
+            .setContentTitle(compactFormulaName(currentFormula))
+            .setContentText(getString(R.string.ongoing_workout_status, phaseLabel, timeText))
+            .setCategory(NotificationCompat.CATEGORY_WORKOUT)
+            .setContentIntent(touchIntent)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setOnlyAlertOnce(true)
+            .setOngoing(true)
+
+        val now = System.currentTimeMillis()
+        val status = Status.Builder()
+            .addTemplate(getString(R.string.ongoing_workout_status_template))
+            .addPart("phase", Status.TextPart(phaseLabel))
+            .addPart(
+                "timer",
+                Status.TimerPart(
+                    now + state.timeRemainingSeconds * MILLIS_PER_SECOND,
+                    if (state.isRunning) RUNNING_TIMER_TIMESTAMP else now,
+                    currentFormula.totalDurationSeconds * MILLIS_PER_SECOND
+                )
+            )
+            .build()
+        OngoingActivity.Builder(this, ONGOING_WORKOUT_NOTIFICATION_ID, notificationBuilder)
+            .setStaticIcon(R.drawable.baseline_directions_walk_24)
+            .setTouchIntent(touchIntent)
+            .setStatus(status)
+            .build()
+            .apply(this)
+
+        NotificationManagerCompat.from(this).notify(
+            ONGOING_WORKOUT_NOTIFICATION_ID,
+            notificationBuilder.build()
+        )
+        ongoingNotificationStateKey = stateKey
+    }
+
+    private fun cancelOngoingActivity() {
+        NotificationManagerCompat.from(this).cancel(ONGOING_WORKOUT_NOTIFICATION_ID)
+        ongoingNotificationStateKey = null
+    }
+
+    private fun formatTimer(seconds: Int): String = String.format(
+        Locale.getDefault(),
+        "%02d:%02d",
+        seconds / SECONDS_PER_MINUTE,
+        seconds % SECONDS_PER_MINUTE
+    )
+
     private fun phaseName(phase: IntervalPhase): String = when (phase) {
         is IntervalPhase.Slow -> PHASE_SLOW
         is IntervalPhase.Fast -> PHASE_FAST
@@ -424,6 +574,13 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
 
     private companion object {
         const val MAX_WAKE_LOCK_MILLIS = 10L * 60L * 60L * 1000L
+        const val MILLIS_PER_SECOND = 1000L
+        const val SECONDS_PER_MINUTE = 60
+        const val RUNNING_TIMER_TIMESTAMP = -1L
+        const val ONGOING_WORKOUT_NOTIFICATION_ID = 1802
+        const val ONGOING_WORKOUT_REQUEST_CODE = 1802
+        const val POST_NOTIFICATIONS_REQUEST_CODE = 1803
+        const val ONGOING_WORKOUT_CHANNEL_ID = "ongoing-workout"
         const val DISABLED_ALPHA = 0.45f
         const val DISABLED_FORMULA_ALPHA = 0.62f
         val roundSuffixRegex = Regex(

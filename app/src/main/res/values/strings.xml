@@ -46,8 +46,9 @@
     <string name="action_resume">Resume</string>
     <string name="action_reset">Reset</string>
     <string name="action_select_formula">Select Formula</string>
-    <string name="label_phase_slow">Slow</string>
-    <string name="label_phase_fast">Fast</string>
+    <string name="label_phase_slow">SLOW</string>
+    <string name="label_phase_fast">FAST</string>
+    <string name="label_phase_paused">PAUSED</string>
     <string name="format_version">Version %1$s</string>
     <string name="label_vibration">Vibration</string>
     <string name="action_custom_formula">Design Your Own</string>
@@ -78,7 +79,7 @@
     <string name="prompt_delete_workout">Delete this workout?</string>
     <string name="message_delete_workout">This workout will be removed from your history. This cannot be undone.</string>
     <string name="action_delete">Delete</string>
-    <string name="label_completed">Complete</string>
+    <string name="label_completed">COMPLETE</string>
     <string name="label_starts_fast">Starts Fast</string>
     <string name="label_starts_slow">Starts Slow</string>
     <string name="snackbar_voice_notifications_disabled">Voice notifications disabled</string>

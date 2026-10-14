@@ -9,11 +9,11 @@
     <dimen name="wear_interval_margin_top">6dp</dimen>
     <dimen name="wear_progress_width">128dp</dimen>
     <dimen name="wear_progress_margin_top">2dp</dimen>
-    <dimen name="wear_action_row_width">154dp</dimen>
+    <dimen name="wear_action_row_width">114dp</dimen>
     <dimen name="wear_action_margin_top">8dp</dimen>
     <dimen name="wear_reset_width">60dp</dimen>
     <dimen name="wear_action_gap">6dp</dimen>
-    <dimen name="wear_primary_action_width">88dp</dimen>
+    <dimen name="wear_primary_action_width">48dp</dimen>
     <dimen name="wear_picker_title_margin_top">25dp</dimen>
     <dimen name="wear_picker_title_height">24dp</dimen>
     <dimen name="wear_picker_title_text_size">16sp</dimen>
