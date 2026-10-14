@@ -142,26 +142,18 @@
             android:visibility="gone"
             tools:visibility="visible">
 
-            <ImageView
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                android:background="@drawable/wear_action_primary"
-                android:importantForAccessibility="no"
-                android:padding="11dp"
-                android:src="@drawable/baseline_check_24"
-                android:tint="@color/wear_on_accent" />
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="22dp"
-                android:layout_marginTop="4dp"
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:gravity="center"
                 android:includeFontPadding="false"
+                android:letterSpacing="0.08"
                 android:maxLines="1"
-                android:text="@string/workout_complete"
-                android:textColor="@color/wear_text_primary"
+                android:text="@string/phase_completed"
+                android:textAllCaps="true"
+                android:textColor="@color/wear_accent"
                 android:textSize="16sp" />
 
             <TextView
@@ -194,19 +186,18 @@
 
             <Button
                 android:id="@+id/doneButton"
-                android:layout_width="96dp"
+                android:layout_width="@dimen/wear_primary_action_width"
                 android:layout_height="48dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/wear_action_primary"
-                android:fontFamily="sans-serif-medium"
-                android:includeFontPadding="false"
+                android:contentDescription="@string/done"
+                android:foreground="@drawable/baseline_check_24"
+                android:foregroundGravity="center"
+                android:foregroundTint="@color/wear_on_accent"
                 android:minHeight="0dp"
                 android:minWidth="0dp"
                 android:stateListAnimator="@null"
-                android:text="@string/done"
-                android:textAllCaps="false"
-                android:textColor="@color/wear_on_accent"
-                android:textSize="14sp" />
+                android:text="" />
         </LinearLayout>
     </FrameLayout>
 </androidx.wear.widget.BoxInsetLayout>

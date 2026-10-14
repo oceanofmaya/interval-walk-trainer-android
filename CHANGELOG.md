@@ -2,6 +2,12 @@
 
 ## Version 1
 
+### 1.8.3 - 2026-10-14
+
+#### UI/UX Improvements
+
+- **Wear OS controls:** Replace the completion badge and “Workout complete” heading with the accent-colored COMPLETE phase label, use a heavier checkmark action with improved spacing, and make the completion and play/pause icon buttons circular.
+
 ### 1.8.2 - 2026-10-14
 
 #### Bug Fixes
