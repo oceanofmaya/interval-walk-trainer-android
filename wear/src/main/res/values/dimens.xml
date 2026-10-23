@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="wear_timer_bottom_padding">20dp</dimen>
+    <dimen name="wear_layout_top_padding">2.5dp</dimen>
+    <dimen name="wear_layout_bottom_padding">22.5dp</dimen>
     <dimen name="wear_formula_width">120dp</dimen>
+    <dimen name="wear_formula_height">48dp</dimen>
     <dimen name="wear_phase_height">14dp</dimen>
     <dimen name="wear_time_height">28dp</dimen>
     <dimen name="wear_time_text_size">30sp</dimen>
@@ -10,7 +12,6 @@
     <dimen name="wear_progress_width">116dp</dimen>
     <dimen name="wear_progress_margin_top">1dp</dimen>
     <dimen name="wear_action_row_width">100dp</dimen>
-    <dimen name="wear_action_margin_top">7dp</dimen>
     <dimen name="wear_reset_width">48dp</dimen>
     <dimen name="wear_action_gap">4dp</dimen>
     <dimen name="wear_primary_action_width">48dp</dimen>

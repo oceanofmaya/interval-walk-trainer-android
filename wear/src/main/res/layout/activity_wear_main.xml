@@ -16,14 +16,15 @@
             android:id="@+id/timerContent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:paddingBottom="@dimen/wear_timer_bottom_padding">
+            android:paddingTop="@dimen/wear_layout_top_padding"
+            android:paddingBottom="@dimen/wear_layout_bottom_padding">
 
             <Button
                 android:id="@+id/formulaButton"
                 android:layout_width="@dimen/wear_formula_width"
-                android:layout_height="48dp"
+                android:layout_height="@dimen/wear_formula_height"
                 android:background="@drawable/wear_action_ghost"
                 android:contentDescription="@string/choose_workout"
                 android:drawableEnd="@drawable/baseline_expand_more_24"
@@ -56,43 +57,56 @@
                 android:textColor="@color/wear_slow"
                 android:textSize="13sp" />
 
-            <TextView
-                android:id="@+id/timeDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/wear_time_height"
-                android:fontFamily="sans-serif-light"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:textColor="@color/wear_text_primary"
-                android:textSize="@dimen/wear_time_text_size"
-                tools:text="05:00" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/intervalLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/wear_interval_height"
-                android:layout_marginTop="@dimen/wear_interval_margin_top"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:text="@string/interval_zero"
-                android:textColor="@color/wear_text_secondary"
-                android:textSize="12sp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
 
-            <ProgressBar
-                android:id="@+id/progress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="@dimen/wear_progress_width"
-                android:layout_height="3dp"
-                android:layout_marginTop="@dimen/wear_progress_margin_top"
-                android:indeterminate="false"
-                android:max="100"
-                android:progressBackgroundTint="@color/wear_outline"
-                android:progressTint="@color/wear_accent" />
+                    <TextView
+                        android:id="@+id/timeDisplay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/wear_time_height"
+                        android:fontFamily="sans-serif-light"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:textColor="@color/wear_text_primary"
+                        android:textSize="@dimen/wear_time_text_size"
+                        tools:text="05:00" />
+
+                    <TextView
+                        android:id="@+id/intervalLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/wear_interval_height"
+                        android:layout_marginTop="@dimen/wear_interval_margin_top"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:text="@string/interval_zero"
+                        android:textColor="@color/wear_text_secondary"
+                        android:textSize="12sp" />
+
+                    <ProgressBar
+                        android:id="@+id/progress"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="@dimen/wear_progress_width"
+                        android:layout_height="3dp"
+                        android:layout_marginTop="@dimen/wear_progress_margin_top"
+                        android:indeterminate="false"
+                        android:max="100"
+                        android:progressBackgroundTint="@color/wear_outline"
+                        android:progressTint="@color/wear_accent" />
+                </LinearLayout>
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="@dimen/wear_action_row_width"
                 android:layout_height="48dp"
-                android:layout_marginTop="@dimen/wear_action_margin_top"
                 android:baselineAligned="false"
                 android:gravity="center"
                 android:orientation="horizontal">
@@ -137,14 +151,20 @@
             android:id="@+id/completionContent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
+            android:paddingTop="@dimen/wear_layout_top_padding"
+            android:paddingBottom="@dimen/wear_layout_bottom_padding"
             android:visibility="gone"
             tools:visibility="visible">
 
+            <Space
+                android:layout_width="1dp"
+                android:layout_height="@dimen/wear_formula_height" />
+
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="22dp"
+                android:layout_height="@dimen/wear_phase_height"
                 android:ellipsize="end"
                 android:fontFamily="sans-serif-medium"
                 android:gravity="center"
@@ -154,41 +174,53 @@
                 android:text="@string/phase_completed"
                 android:textAllCaps="true"
                 android:textColor="@color/wear_accent"
-                android:textSize="16sp" />
+                android:textSize="13sp" />
 
-            <TextView
-                android:id="@+id/completionWorkoutSummary"
-                android:layout_width="148dp"
-                android:layout_height="18dp"
-                android:layout_marginTop="2dp"
-                android:ellipsize="end"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:maxLines="1"
-                android:textColor="@color/wear_text_secondary"
-                android:textSize="13sp"
-                tools:text="3-3 Japanese • 30 min" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
 
-            <TextView
-                android:id="@+id/completionSyncStatus"
-                android:layout_width="136dp"
-                android:layout_height="16dp"
-                android:layout_marginTop="5dp"
-                android:accessibilityLiveRegion="polite"
-                android:ellipsize="end"
-                android:gravity="center"
-                android:includeFontPadding="false"
-                android:maxLines="1"
-                android:text="@string/sync_pending"
-                android:textColor="@color/wear_text_secondary"
-                android:textSize="11sp"
-                tools:text="@string/sync_sent" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/completionWorkoutSummary"
+                        android:layout_width="148dp"
+                        android:layout_height="18dp"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:textColor="@color/wear_text_secondary"
+                        android:textSize="13sp"
+                        tools:text="3-3 Japanese • 30 min" />
+
+                    <TextView
+                        android:id="@+id/completionSyncStatus"
+                        android:layout_width="136dp"
+                        android:layout_height="16dp"
+                        android:layout_marginTop="5dp"
+                        android:accessibilityLiveRegion="polite"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:maxLines="1"
+                        android:text="@string/sync_pending"
+                        android:textColor="@color/wear_text_secondary"
+                        android:textSize="11sp"
+                        tools:text="@string/sync_sent" />
+                </LinearLayout>
+            </FrameLayout>
 
             <Button
                 android:id="@+id/doneButton"
                 android:layout_width="@dimen/wear_primary_action_width"
                 android:layout_height="48dp"
-                android:layout_marginTop="8dp"
                 android:background="@drawable/wear_action_primary"
                 android:contentDescription="@string/done"
                 android:foreground="@drawable/baseline_check_24"

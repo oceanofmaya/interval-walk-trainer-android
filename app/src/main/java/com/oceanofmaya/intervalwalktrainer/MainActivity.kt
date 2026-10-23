@@ -4,6 +4,9 @@ import android.annotation.SuppressLint
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -92,6 +95,8 @@ open class MainActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private var wakeLock: PowerManager.WakeLock? = null
     private var timerJob: Job? = null
+    private var notificationTimerJob: Job? = null
+    private var lastWorkoutNotificationState: WorkoutNotificationState? = null
     private var isRestoringTimerState = false
     private lateinit var workoutRepository: WorkoutRepository
     private lateinit var savedWorkoutRepository: SavedWorkoutRepository
@@ -121,6 +126,28 @@ open class MainActivity : AppCompatActivity() {
     private var isUpdatingWorkoutMetricsSwitch = false
     private var workoutMetricsSnapshotRequestId = 0
     private var activeWorkoutCompletionId: String? = null
+    private var workoutCommandReceiverRegistered = false
+
+    private val workoutCommandReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action != WorkoutForegroundService.ACTION_WORKOUT_COMMAND) return
+            val state = intervalTimer?.state?.value ?: return
+            when (intent.getStringExtra(WorkoutForegroundService.EXTRA_COMMAND)) {
+                WorkoutForegroundService.COMMAND_PAUSE -> {
+                    if (state.isRunning) pauseTimer()
+                }
+                WorkoutForegroundService.COMMAND_RESUME -> {
+                    if (
+                        !state.isRunning &&
+                        state.elapsedSeconds > 0 &&
+                        state.currentPhase !is IntervalPhase.Completed
+                    ) {
+                        startTimerNow()
+                    }
+                }
+            }
+        }
+    }
 
     private val healthConnectPermissionLauncher = registerForActivityResult(
         PermissionController.createRequestPermissionResultContract()
@@ -260,6 +287,13 @@ open class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        ContextCompat.registerReceiver(
+            this,
+            workoutCommandReceiver,
+            IntentFilter(WorkoutForegroundService.ACTION_WORKOUT_COMMAND),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
+        workoutCommandReceiverRegistered = true
         
         // Configure edge-to-edge and apply safe area insets
         setupEdgeToEdge()
@@ -498,19 +532,36 @@ open class MainActivity : AppCompatActivity() {
                 completionAtMillis = System.currentTimeMillis()
             }
 
-            // Acquire wake lock if timer was running
-            if (savedIsRunning) {
-                acquireWakeLock()
-                startWorkoutForegroundService()
-                requestMetricsPermissionsIfNeeded()
-                restoreMetricsSession(savedInstanceState, savedElapsedSeconds)
-                workoutMetricsManager.startOrResumeSession(isWorkoutMetricsEnabled())
-            }
+            restoreForegroundSession(
+                savedInstanceState = savedInstanceState,
+                savedIsRunning = savedIsRunning,
+                savedElapsedSeconds = savedElapsedSeconds,
+                restoredPhase = restoredPhase
+            )
 
             updateUI()
             updateButtonStates()
         } else {
             updateUI()
+        }
+    }
+
+    private fun restoreForegroundSession(
+        savedInstanceState: Bundle,
+        savedIsRunning: Boolean,
+        savedElapsedSeconds: Int,
+        restoredPhase: IntervalPhase
+    ) {
+        val restoredActiveSession = savedElapsedSeconds > 0 &&
+            restoredPhase !is IntervalPhase.Completed
+        if (savedIsRunning || restoredActiveSession) {
+            startWorkoutForegroundService()
+        }
+        if (savedIsRunning) {
+            acquireWakeLock()
+            requestMetricsPermissionsIfNeeded()
+            restoreMetricsSession(savedInstanceState, savedElapsedSeconds)
+            workoutMetricsManager.startOrResumeSession(isWorkoutMetricsEnabled())
         }
     }
     
@@ -750,12 +801,42 @@ open class MainActivity : AppCompatActivity() {
     
     private fun observeTimerState() {
         timerJob?.cancel()
+        notificationTimerJob?.cancel()
         timerJob = lifecycleScope.launch {
             intervalTimer?.state
                 ?.flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
                 ?.collect { state ->
                     updateTimerDisplay(state)
                 }
+        }
+        notificationTimerJob = lifecycleScope.launch {
+            intervalTimer?.state?.collect(::updateWorkoutNotification)
+        }
+    }
+
+    private fun updateWorkoutNotification(timerState: TimerState) {
+        val notificationState = WorkoutNotificationState.fromTimer(
+            state = timerState,
+            isCircuit = currentFormula.isCircuit
+        )
+        when {
+            notificationState == null && timerState.currentPhase is IntervalPhase.Completed -> {
+                lastWorkoutNotificationState = null
+                stopWorkoutForegroundService()
+            }
+            notificationState == null -> Unit
+            !timerState.isRunning && timerState.elapsedSeconds <= 0 -> Unit
+            notificationState.shouldReplace(lastWorkoutNotificationState) -> {
+                lastWorkoutNotificationState = notificationState
+                try {
+                    ContextCompat.startForegroundService(
+                        this,
+                        WorkoutForegroundService.updateIntent(this, notificationState)
+                    )
+                } catch (_: SecurityException) {
+                    // The existing permission flow reports health foreground-service denials.
+                }
+            }
         }
     }
 
@@ -2715,7 +2796,6 @@ open class MainActivity : AppCompatActivity() {
         workoutMetricsManager.pauseSession()
         // Release wake lock when paused
         releaseWakeLock()
-        stopWorkoutForegroundService()
         updateButtonStates()
     }
 
@@ -2835,6 +2915,7 @@ open class MainActivity : AppCompatActivity() {
         }
         // Release wake lock when reset
         releaseWakeLock()
+        lastWorkoutNotificationState = null
         stopWorkoutForegroundService()
         hasShownCompletionConfetti = false
         hasRecordedWorkoutCompletion = false
@@ -2889,6 +2970,8 @@ open class MainActivity : AppCompatActivity() {
         completionAtMillis = completionAtMillis ?: System.currentTimeMillis()
         activeWorkoutCompletionId = activeWorkoutCompletionId ?: UUID.randomUUID().toString()
         releaseWakeLock()
+        lastWorkoutNotificationState = null
+        stopWorkoutForegroundService()
         recordWorkoutCompletion()
         scheduleCompletionAutoReset()
     }
@@ -3773,7 +3856,10 @@ open class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        if (workoutCommandReceiverRegistered) {
+            unregisterReceiver(workoutCommandReceiver)
+            workoutCommandReceiverRegistered = false
+        }
         cancelCompletionAutoReset(clearCompletionTimestamp = false)
         preStartCountdownTimer?.cancel()
         intervalTimer?.dispose()
@@ -3782,6 +3868,7 @@ open class MainActivity : AppCompatActivity() {
         notificationHelper = null
         releaseWakeLock()
         stopWorkoutForegroundService()
+        super.onDestroy()
     }
 
     private enum class HealthConnectPermissionRequest {
