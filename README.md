@@ -57,14 +57,14 @@ These scripts are utilities to optimize Play Store assets and are not required f
 - Voice notifications: optional text-to-speech announcements with early timing for phase changes
 - **Themes**: System (follows device), Light, or Dark (selected in Settings)
 - **Accent styles**: Blue, Teal, Purple, Amber or Magenta accent swatches in Settings
-- Runs in background: continues working when phone is locked
+- Runs in background: continues working when the phone is locked, with an ongoing lock-screen notification showing phase, training type, countdown, round, and pause/resume controls
 - **Wear OS companion**: Browse phone-synced saved presets, run a workout on Wear OS 3+, receive phase haptics, and sync completed sessions to phone history when connected
 - Minimalist design with large, readable timer
 - Progress tracking: current interval and total intervals
 - Visual progress bar showing overall workout completion
 - Elapsed and remaining time displays for clear progress feedback
 - **Workout Metrics**: Optional Health Connect-powered step count, heart-rate range, and fast-vs-slow phase heart-rate summaries for completed interval walks
-- Play, pause, and Reset controls and an overflow menu (⋮) for Workout History, Settings, Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional language-based picker for notification TTS
+- Play, pause, and Reset controls in the app, plus pause/resume from the ongoing lock-screen notification; an overflow menu (⋮) for Workout History, Settings, Help, Rate App, and Report Issue; vibration and voice toggles in Settings; optional language-based picker for notification TTS
 - **Pre-start countdown**: Configurable countdown (1-10 seconds) with voice and haptic cues before workout begins
 - **Settings screen**: Access app version, theme and accent swatches, and toggles for vibration, voice, notifications, keep-screen-awake, Workout Metrics, countdown, and workout saving; pick the TTS notification language; links to FAQ (Help), Privacy Policy, and Terms of Service
 - **Weekly Goals**: Set weekly workout and/or minute targets, see progress in Workout History, and choose insight cards on the home screen — **Weekly Goal**, **Current Streak**, **Today**, and **Last Workout** — for quick motivation between walks
@@ -133,7 +133,7 @@ Three pre-configured presets cover the main training patterns. **My saved preset
 3. The overflow menu (⋮) also provides **Workout History**, **Help**, **Rate App**, and **Report Issue**
 4. Tap play to begin (a short countdown appears if enabled)
 5. Monitor progress using the progress bar and elapsed/remaining time displays
-6. Use pause (the button shows play when paused, and the phase label reads **PAUSED**) or **Reset** as needed
+6. Use pause (the button shows play when paused, and the phase label reads **PAUSED**) or **Reset** as needed. The lock-screen notification also shows the live phase, training type, countdown, and round, with pause/resume controls; it remains available while paused.
 7. The timer continues running even when the phone is locked; completed workouts are saved from the timer event even while the home screen is backgrounded
 8. View workout history and statistics from **Workout History** in the overflow menu (⋮)
 9. Tap **Weekly Goal** in Workout History, Settings, or the **Weekly Goal** insight card on the home screen to set weekly targets and optional recurring reminders

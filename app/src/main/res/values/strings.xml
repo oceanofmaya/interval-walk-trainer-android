@@ -297,13 +297,13 @@
     <string name="faq_question_why_interval_walking">Why choose interval walking over steady walking or running?</string>
     <string name="faq_answer_why_interval_walking">Mixing easier and harder efforts can help improve fitness without feeling like you have to push the whole time. It’s also gentler on the joints than running for many people. Research suggests that when you burn similar energy, walking and running can offer comparable heart and metabolic benefits, so you’re not missing out by walking.</string>
     <string name="faq_question_notifications">How do notifications work in this app?</string>
-    <string name="faq_answer_notifications">You’ll get a gentle vibration (and optional voice) when it’s time to switch phases. While a workout is running, we also show a small notification so Android keeps the session going in the background. That way you can switch apps or lock the phone and jump back in whenever you’re ready.</string>
+    <string name="faq_answer_notifications">You’ll get a gentle vibration (and optional voice) when it’s time to switch phases. During a workout, an ongoing notification shows the current phase, training type, countdown, and round. You can pause or resume directly from the lock screen, and the notification stays available while paused.</string>
     <string name="faq_question_voice">Can I change the voice or language used for announcements?</string>
     <string name="faq_answer_voice">Yes. In Settings under Workout, turn on Voice Notifications if needed, then tap \"Language\" to pick a language from supported options. Choose \"Default\" to use the system default voice. Availability depends on your device’s TTS engine and installed voices for each language.</string>
     <string name="faq_question_voice_languages">Which languages are supported for voice announcements?</string>
     <string name="faq_answer_voice_languages">We support localized announcements for Arabic, Danish, Dutch, Filipino, French, German, Hindi, Indonesian, Italian, Japanese, Kannada, Korean, Malayalam, Polish, Portuguese (Brazil and Portugal), Russian, Simplified Chinese (China), Spanish, Swedish, Tagalog, Tamil, Telugu, Thai, Traditional Chinese (Hong Kong), Turkish, Urdu, and Vietnamese, with English as the default. These translations were AI-generated and may contain mistakes. Actual availability depends on your device’s TTS engine and installed voices.</string>
     <string name="faq_question_background">Can workouts run in the background?</string>
-    <string name="faq_answer_background">Yes. On supported Android versions, your workout keeps going when you switch away or lock the phone. We use a small notification so the system doesn’t stop us, and save a completed workout directly from the timer even when the home screen is in the background. If you have an older device or strict battery saver on, excluding this app from battery optimization in system settings often helps everything run smoothly.</string>
+    <string name="faq_answer_background">Yes. On supported Android versions, your workout keeps going when you switch away or lock the phone. An ongoing notification shows live workout status and lock-screen pause or resume controls, and we save a completed workout directly from the timer even when the home screen is in the background. If you have an older device or strict battery saver on, excluding this app from battery optimization in system settings often helps everything run smoothly.</string>
     <string name="faq_question_choose_formula">How do I choose a formula?</string>
     <string name="faq_answer_choose_formula">The 3-3 Japanese option is the classic default (about 30 minutes). If you want something shorter and punchier, try 5-2 High Intensity; for a longer session with a three-phase pattern, 5-4-5 Circuit is great. Design Your Own lets you set your own slow/fast times, number of rounds, and whether you’d like to start slow or fast.</string>
     <string name="faq_question_interval_vs_circuit">What is Interval Mode vs Circuit Mode?</string>
@@ -342,6 +342,7 @@
     <string name="notif_channel_description">Keeps interval workouts running in the background</string>
     <string name="notif_workout_in_progress_title">Interval Walk Trainer</string>
     <string name="notif_workout_in_progress_body">Workout running in background</string>
+    <string name="notif_workout_progress">%1$s • Round %2$d of %3$d</string>
     <string name="notif_weekly_reminder_channel_name">Workout reminders</string>
     <string name="notif_weekly_reminder_channel_description">Optional reminders for weekly workout goals</string>
     <string name="notif_weekly_reminder_title">Time for a walk?</string>

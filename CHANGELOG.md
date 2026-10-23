@@ -2,6 +2,20 @@
 
 ## Version 1
 
+### 1.8.4 - 2026-10-22
+
+#### Features
+
+- **Lock-screen workout controls:** Show the current phase, training type, live countdown, and round in the phone’s ongoing workout notification, with pause and resume actions that remain available while the workout is paused.
+
+#### UI/UX Improvements
+
+- **Wear OS layout alignment:** Use matching phase, vertically centered content, and action regions on the timer and completion screens across supported round-watch sizes.
+
+#### Documentation
+
+- Refresh the Wear OS timer and workout-completion screenshots for the aligned layouts.
+
 ### 1.8.3 - 2026-10-14
 
 #### UI/UX Improvements
