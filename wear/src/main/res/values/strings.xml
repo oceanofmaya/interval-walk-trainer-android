@@ -22,6 +22,7 @@
     <string name="sync_sent">Saved • Syncing to phone</string>
     <string name="ongoing_workout_channel">Active workout</string>
     <string name="ongoing_workout_channel_description">Shows the workout timer on the watch face and in recent apps</string>
-    <string name="ongoing_workout_status">%1$s • %2$s</string>
     <string name="ongoing_workout_status_template">#phase# • #timer#</string>
+    <string name="ongoing_workout_active">Workout in progress</string>
+    <string name="ongoing_workout_remaining">%1$s remaining</string>
 </resources>

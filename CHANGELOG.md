@@ -2,6 +2,20 @@
 
 ## Version 1
 
+### 1.8.5 - 2026-10-23
+
+#### Bug Fixes
+
+- **Wear OS countdown:** Use the monotonic clock required by Wear OS ongoing activities so the live countdown shows the correct remaining time.
+
+#### UI/UX Improvements
+
+- **Wear OS ongoing workout:** Show a compact phase/countdown status tailored to the collapsed notification and recent-apps chip, with a clear paused state and one-tap return to the timer.
+
+#### Documentation
+
+- Add Wear OS ongoing-activity reference screenshots and distinguish them from the three screenshots recommended for the Play Store listing.
+
 ### 1.8.4 - 2026-10-22
 
 #### Features
