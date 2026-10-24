@@ -9,7 +9,7 @@ This document defines how screenshots are organized for Play Store publishing. F
 assets/store/screenshots/
 ├── phone/   # Raw emulator captures (source of truth)
 ├── promo/   # Final manual promo compositions for Play Store (phone)
-├── wear/    # Publish-ready Wear OS screenshots
+├── wear/    # Numbered Play Store captures plus reference-* documentation captures
 └── promo-manifest.json   # Source -> promo -> message mapping
 ```
 
@@ -67,9 +67,10 @@ Avoid:
   - These are manually designed images, composed using the `phone/` captures.
   - This folder is the canonical upload set for phone listings.
 - `wear/`
-  - Keep publish-ready screenshots captured directly from the Wear OS app.
+  - Keep numbered, publish-ready screenshots captured directly from the Wear OS app.
+  - Keep documentation-only system-surface captures prefixed with `reference-`.
   - Do not add phone-style promo framing, captions, callouts, or backgrounds.
-  - This folder is the canonical upload set for the Wear OS listing.
+  - Only the numbered sequence is the canonical upload set for the Wear OS listing.
 
 ## Naming Convention
 
@@ -84,6 +85,9 @@ Avoid:
   - `[position]-[screen].png` (example: `01-workout-timer.png`)
   - Use zero-padded position (`01`-`08`) to preserve upload order
   - Do not use the `-promo` suffix because Wear screenshots must show only the app interface
+- Wear OS documentation references:
+  - `reference-[surface].png` (example: `reference-ongoing-recents.png`)
+  - Never upload these files to the Play Store listing
 
 ## Current Phone Play Store Set (Recommended Keep)
 
@@ -123,6 +127,25 @@ Google Play requires at least one Wear OS screenshot. Every Wear screenshot must
 
 Up to eight Wear OS screenshots may be uploaded. Wear captures are not listed in
 `promo-manifest.json`, which remains the source map for manually composed phone promos.
+
+## Wear OS Ongoing-Activity References
+
+These captures document how the ongoing workout integrates with Wear OS system
+surfaces. They are useful for release notes, implementation reviews, and visual
+regression checks:
+
+1. `assets/store/screenshots/wear/reference-ongoing-watch-face.png`
+   - Shows the small walking indicator on the active watch face.
+2. `assets/store/screenshots/wear/reference-ongoing-recents.png`
+   - Shows the compact `PHASE • countdown` chip in recent apps.
+3. `assets/store/screenshots/wear/reference-ongoing-notification.png`
+   - Shows the matching collapsed notification card.
+
+Do not include these three captures in the Play Store upload set. They primarily
+show Wear OS system UI, the app name is truncated in the chips, and the
+watch-face indicator is too subtle to communicate meaningful store-listing value.
+The numbered timer, picker, and completion screenshots remain the recommended
+Wear OS listing sequence.
 
 ## Insights in Phone Captures
 
@@ -200,7 +223,7 @@ screenshot, run:
   - 8 screenshots is the maximum; adding a new promo requires replacing or removing an existing one
   - 16:9 or 9:16 ratio
   - 320px min, 3840px max
-  - Both current Wear OS listing screenshots are present
+  - All three numbered Wear OS listing screenshots are present
   - Wear OS screenshots are 1:1, at least 384 × 384, and contain only the app interface
 
 ## Current Simplifications

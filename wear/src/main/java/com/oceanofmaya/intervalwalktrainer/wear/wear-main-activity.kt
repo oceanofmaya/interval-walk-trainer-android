@@ -11,6 +11,7 @@ import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.View
@@ -515,31 +516,48 @@ class WearMainActivity : ComponentActivity(), DataClient.OnDataChangedListener {
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val phaseLabel = getString(phaseLabelRes)
+        val phaseLabel = getString(phaseLabelRes).uppercase(Locale.getDefault())
         val timeText = formatTimer(state.timeRemainingSeconds)
+        val notificationText = if (state.isRunning) {
+            getString(R.string.ongoing_workout_active)
+        } else {
+            getString(R.string.ongoing_workout_remaining, timeText)
+        }
         val notificationBuilder = NotificationCompat.Builder(this, ONGOING_WORKOUT_CHANNEL_ID)
             .setSmallIcon(R.drawable.baseline_directions_walk_24)
-            .setContentTitle(compactFormulaName(currentFormula))
-            .setContentText(getString(R.string.ongoing_workout_status, phaseLabel, timeText))
+            .setContentTitle(phaseLabel)
+            .setContentText(notificationText)
             .setCategory(NotificationCompat.CATEGORY_WORKOUT)
             .setContentIntent(touchIntent)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOnlyAlertOnce(true)
             .setOngoing(true)
+            .setShowWhen(state.isRunning)
+            .setUsesChronometer(state.isRunning)
+            .setChronometerCountDown(state.isRunning)
+        if (state.isRunning) {
+            notificationBuilder.setWhen(
+                System.currentTimeMillis() + state.timeRemainingSeconds * MILLIS_PER_SECOND
+            )
+        }
 
-        val now = System.currentTimeMillis()
-        val status = Status.Builder()
+        val statusBuilder = Status.Builder()
             .addTemplate(getString(R.string.ongoing_workout_status_template))
             .addPart("phase", Status.TextPart(phaseLabel))
-            .addPart(
+        if (state.isRunning) {
+            val now = SystemClock.elapsedRealtime()
+            statusBuilder.addPart(
                 "timer",
                 Status.TimerPart(
                     now + state.timeRemainingSeconds * MILLIS_PER_SECOND,
-                    if (state.isRunning) RUNNING_TIMER_TIMESTAMP else now,
+                    RUNNING_TIMER_TIMESTAMP,
                     currentFormula.totalDurationSeconds * MILLIS_PER_SECOND
                 )
             )
-            .build()
+        } else {
+            statusBuilder.addPart("timer", Status.TextPart(timeText))
+        }
+        val status = statusBuilder.build()
         OngoingActivity.Builder(this, ONGOING_WORKOUT_NOTIFICATION_ID, notificationBuilder)
             .setStaticIcon(R.drawable.baseline_directions_walk_24)
             .setTouchIntent(touchIntent)
